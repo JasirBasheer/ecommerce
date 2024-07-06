@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Molla - Bring The Good Cart To Life.</title>
+    <meta name="keywords" content="HTML5 Template" />
+    <meta name="description" content=" - Bootstrap" />
+    <meta name="author" content="p-themes" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="assets/images/icons/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="assets/images/icons/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="assets/images/icons/favicon-16x16.png"
+    />
+    <link rel="manifest" href="assets/images/icons/site.html" />
+    <link
+      rel="mask-icon"
+      href="assets/images/icons/safari-pinned-tab.svg"
+      color="#666666"
+    />
+    <link rel="shortcut icon" href="assets/images/icons/favicon.ico" />
+    <meta name="apple-mobile-web-app-title" content="spy" />
+    <meta name="application-name" content="spy" />
+    <meta name="msapplication-TileColor" content="#cc9966" />
+    <meta
+      name="msapplication-config"
+      content="assets/images/icons/browserconfig.xml"
+    />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link
+      rel="stylesheet"
+      href="assets/css/plugins/owl-carousel/owl.carousel.css"
+    />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css">
+    <link href="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.css" rel="stylesheet"/>
+    <style>      
+      .dataTables_wrapper .sorting:after,
+      .dataTables_wrapper .sorting_asc:after,
+      .dataTables_wrapper .sorting_desc:after {
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        font-size: 12px;
+        display: inline-block;
+        margin-left: 5px;
+        content: "\f0dc";
+      }
+    .dataTables_wrapper .sorting_asc:after {
+      content: "\f0de";
+    }
+    .dataTables_wrapper .sorting_desc:after {
+      content: "\f0dd";
+    }
+  </style>
+  </head>
+
+  <body>
+    <div class="page-wrapper">
+      <header class="header">
+        <div class="header-top">
+          <div class="container">
+            <div class="header-left">
+              
+            </div>
+
+            <div class="header-right">
+              <div class="header-dropdown">
+                <a href="#"><i class="icon-user"></i>My Account</a>
+                <div class="header-menu">
+                  <ul>
+                    <li><a href="#">Settings</a></li>
+                    <li><a href="/admin/logout">Logout</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-middle sticky-header">
+          <div class="container">
+            <div class="header-left">
+              <button class="mobile-menu-toggler">
+                <span class="sr-only">Toggle mobile menu</span>
+                <i class="icon-bars"></i>
+              </button>
+
+              <a href="/admin" class="logo" style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;font-size: 30px;color: black;text-decoration: none;">Molla
+
+              </a>
+
+              <nav class="main-nav">
+                <ul class="menu sf-arrows">
+                  <li class="megamenu-container">
+                    <a href="/admin/dashboard">Home</a>
+                  </li>
+                  <li>
+                    <a href="/admin/categorylist" class="sf-with-ul">Categories</a>
+                    <ul>
+                      <li><a href="/admin/categorylist">Category Lists</a></li>
+                      <li><a href="/admin/addcategory">Add New Category</a></li>
+                    </ul>
+                  </li>
+                  <li>
+                    <a href="/admin/productslist" class="sf-with-ul">Products</a>
+                    <ul>
+                      <li>
+                        <a href="/admin/productslist">Product Lists</a>
+                      </li>
+                      <li>
+                        <a href="/admin/addproduct">Add New Product</a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    <a href="/admin/couponslist" class="sf-with-ul">Coupons</a>
+                    <ul>
+                      <li>
+                        <a href="/admin/couponslist">Coupon Lists</a>
+                      </li>
+                      <li>
+                        <a href="/admin/addcoupon">Add New Coupon</a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li class="megamenu-container active"><a href="/admin/userslist">Users</a></li>
+                  <li><a href="/admin/orderslist">Orders</a></li>
+                </ul>
+              </nav>
+            </div>
+
+            <!-- <div class="header-right">
+              <div class="header-search">
+                <a href="#" class="search-toggle" role="button" title="Search"
+                  ><i class="icon-search"></i
+                ></a>
+                <form action="#" method="get">
+                  <div class="header-search-wrapper">
+                    <label for="q" class="sr-only">Search</label>
+                    <input
+                      type="search"
+                      class="form-control"
+                      name="q"
+                      id="q"
+                      placeholder="Search in..."
+                      required
+                    />
+                  </div>
+                  
+                </form>
+              </div>
+              
+            </div> -->
+          </div>
+        </div>
+      </header>
+
+      <main class="main">
+        <div class="container">
+          <div class="table-responsive" id="no-more-tables">
+            <table class="table table-striped bg-white" id="myTable">
+              <thead class="bg-dark text-light">
+                <tr>
+                  <th style="font-size: 20px;" scope="col" class="sorting" >Name</th>
+                  <th style="font-size: 20px;" scope="col" class="sorting" >Email</th>
+                  <th style="font-size: 20px;" scope="col" class="sorting" >Mobile</th>
+                  <th style="font-size: 20px;" scope="col" >Action</th>
+                  <!--<th style="font-size: 20px;" scope="col">Actions</th>-->
+                </tr>
+              </thead>
+              <tbody>
+                <% for( let i = users.length-1; i >=0; i-- ) { %>
+                  <tr style="font-size: medium;">
+                    <td data-title="Name"><%= users[i].name %></td>
+                    <td data-title="Email"><%= users[i].email %></td>                  
+                    <td data-title="Mobile"><%= users[i].phone %></td>     
+             
+                    <td data-title="Actions">
+                      <% if (users[i].is_blocked ==1) { %>
+                        <button type="button" class="btn "  style="background-color: rgb(31, 144, 21);" onclick="handleUnblock('<%= users[i]._id %>')" >Unblock</button>
+                        <button type="button" class="btn " style="background-color: rgba(255, 0, 0, 0.279);">Block</button>
+        
+                      <% } else { %>
+                        <button type="button" class="btn " style="background-color: rgba(31, 144, 21, 0.236);"   >Unblock</button>
+                        <button type="button" class="btn" style="background-color: rgb(255, 0, 0);" onclick="handleblock('<%= users[i]._id %>')">Block</button>
+
+                        <% } %>
+
+                       
+                      
+                 
+                        
+                  
+                       
+                     
+                    <button type="button" class="btn">
+
+                    </button>
+
+
+                    </td>
+                  </tr>
+                <% } %>
+              
+                       
+                     
+                        <tr>
+                          <td colspan="5">Users Not Found</td>
+                        </tr>
+                     
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+
+      <footer class="footer">
+        <!-- <div class="footer-middle">
+          <div class="container">
+            <div class="row">
+              <div class="col-sm-6 col-lg-3">
+                <div class="widget widget-about">
+                  
+                  <p>
+                    Praesent dapibus, neque id cursus ucibus, tortor neque
+                    egestas augue, eu vulputate magna eros eu erat.
+                  </p>
+
+                  <div class="social-icons">
+                    <a
+                      href="#"
+                      class="social-icon"
+                      target="_blank"
+                      title="Facebook"
+                      ><i class="icon-facebook-f"></i
+                    ></a>
+                    <a
+                      href="#"
+                      class="social-icon"
+                      target="_blank"
+                      title="Twitter"
+                      ><i class="icon-twitter"></i
+                    ></a>
+                    <a
+                      href="#"
+                      class="social-icon"
+                      target="_blank"
+                      title="Instagram"
+                      ><i class="icon-instagram"></i
+                    ></a>
+                    <a
+                      href="#"
+                      class="social-icon"
+                      target="_blank"
+                      title="Youtube"
+                      ><i class="icon-youtube"></i
+                    ></a>
+                    <a
+                      href="#"
+                      class="social-icon"
+                      target="_blank"
+                      title="Pinterest"
+                      ><i class="icon-pinterest"></i
+                    ></a>
+                  </div>
+                  
+                </div>
+                
+              </div>
+              
+
+              <div class="col-sm-6 col-lg-3">
+                <div class="widget">
+                  <h4 class="widget-title">Useful Links</h4>
+                  
+
+                  <ul class="widget-list">
+                    <li><a href="about.html">About </a></li>
+                    <li><a href="#">How to shop on </a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="contact.html">Contact us</a></li>
+                    <li><a href="login.html">Log in</a></li>
+                  </ul>
+                  
+                </div>
+                
+              </div>
+              
+
+              <div class="col-sm-6 col-lg-3">
+                <div class="widget">
+                  <h4 class="widget-title">Customer Service</h4>
+                  
+
+                  <ul class="widget-list">
+                    <li><a href="#">Payment Methods</a></li>
+                    <li><a href="#">Money-back guarantee!</a></li>
+                    <li><a href="#">Returns</a></li>
+                    <li><a href="#">Shipping</a></li>
+                    <li><a href="#">Terms and conditions</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                  </ul>
+                  
+                </div>
+                
+              </div>
+              
+
+              <div class="col-sm-6 col-lg-3">
+                <div class="widget">
+                  <h4 class="widget-title">My Account</h4>
+                  
+
+                  <ul class="widget-list">
+                    <li><a href="#">Sign In</a></li>
+                    <li><a href="cart.html">View Cart</a></li>
+                    <li><a href="#">My Wishlist</a></li>
+                    <li><a href="#">Track My Order</a></li>
+                    <li><a href="#">Help</a></li>
+                  </ul>
+                  
+                </div>
+                
+              </div>
+              
+            </div>
+            
+          </div>
+          
+        </div> -->
+        
+
+        <div class="footer-bottom">
+          <div class="container">
+            <p class="footer-copyright">
+              Copyright © <script>document.write(new Date().getFullYear());</script> Molla Store. All Rights Reserved.
+            </p>
+            
+            <!-- <figure class="footer-payments">
+              <img
+                src="assets/images/payments.png"
+                alt="Payment methods"
+                width="272"
+                height="20"
+              />
+            </figure> -->
+            
+          </div>
+          
+        </div>
+        
+      </footer>
+    </div>
+    <button id="scroll-top" style="border-radius: 50%;background-color: rgba(255, 255, 255, 0.294);" title="Back to Top">
+      <i class="icon-arrow-up"></i>
+    </button>
+
+    <div class="mobile-menu-overlay"></div>
+
+    <div class="mobile-menu-container">
+      <div class="mobile-menu-wrapper">
+        <span class="mobile-menu-close"><i class="icon-close"></i></span>
+
+        <form action="#" method="get" class="mobile-search">
+          <label for="mobile-search" class="sr-only">Search</label>
+          <input
+            type="search"
+            class="form-control"
+            name="mobile-search"
+            id="mobile-search"
+            placeholder="Search in..."
+            required
+          />
+          <button class="btn btn-primary" type="submit">
+            <i class="icon-search"></i>
+          </button>
+        </form>
+
+        <nav class="mobile-nav">
+          <ul class="mobile-menu">
+            <li class="active">
+              <a href="/admin/dashboard">Home</a>
+            </li>
+            <li>
+              <a href="">Categories</a>
+              <ul>
+                <li><a href="/admin/categorylist">Category Lists</a></li>
+                <li><a href="/admin/addcategory">Add New Category</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="" class="sf-with-ul">Products</a>
+              <ul>
+                <li><a href="/admin/productslist">Product Lists</a></li>
+                <li><a href="/admin/addproduct">Add New Product</a></li>
+              </ul>
+            </li>
+          
+            <li>
+              <a href="/admin/userslist">Users</a>
+            </li>
+            <li>
+              <a href="/admin/orderslist">Orders</a>
+            </li>
+          </ul>
+        </nav>
+
+        <div class="social-icons">
+          <a href="#" class="social-icon" target="_blank" title="Facebook"
+            ><i class="icon-facebook-f"></i
+          ></a>
+          <a href="#" class="social-icon" target="_blank" title="Twitter"
+            ><i class="icon-twitter"></i
+          ></a>
+          <a href="#" class="social-icon" target="_blank" title="Instagram"
+            ><i class="icon-instagram"></i
+          ></a>
+          <a href="#" class="social-icon" target="_blank" title="Youtube"
+            ><i class="icon-youtube"></i
+          ></a>
+        </div>
+      </div>
+    </div>
+
+
+ 
+
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/jquery.hoverIntent.min.js"></script>
+    <script src="assets/js/jquery.waypoints.min.js"></script>
+    <script src="assets/js/superfish.min.js"></script>
+    <script src="assets/js/owl.carousel.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+
+</html>
+
+<script>
+  async function handleUnblock(userId){
+    console.log(userId)
+     fetch('/admin/unblockuser',{
+      method:"POST",
+      headers:{
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId })
+
+    })
+    window.location.href='/admin/userslist'
+
+
+}
+
+async function handleblock(userId){
+    console.log(userId)
+    fetch('/admin/blockuser',{
+      method:"POST",
+      headers:{
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId })
+
+    })
+    window.location.href='/admin/userslist'
+
+}
+</script>
+
+
+
+<script src="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.js"></script>
