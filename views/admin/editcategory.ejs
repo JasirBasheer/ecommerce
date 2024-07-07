@@ -96,7 +96,7 @@
               <nav class="main-nav">
                 <ul class="menu sf-arrows">
                   <li class="megamenu-container">
-                    <a href="/admin/dashboard">Home</a>
+                    <a href="/admin/">Home</a>
                   </li>
                   <li>
                     <a href="/admin/categorylist" class="sf-with-ul"
@@ -182,59 +182,32 @@
                     role="tabpanel"
                     aria-labelledby="signin-tab-2"
                   >
-                    <form action="" method="post" enctype="multipart/form-data">
-                      <% if(typeof message !== 'undefined'){ %>
-                      <p style="color: red; text-align: center">
-                        <%= message %>
-                      </p>
-                      <% } %>
-                      <div class="form-group">
-                        <label for="singin-email-2">Category Name *</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="categoryName"
-                          name="categoryName"
-                          value=""
-                        />
-                      </div>
-                      <span id="categoryName-error" style="color: red"></span>
-
-                      <div class="form-group">
-                        <label for="singin-password-2">Photo *</label>
-                        <img
-                          src="/productImages/"
-                          alt=""
-                          style="width: 100px; height: 100px"
-                          id="imgView"
-                        />
-                        <input
-                          type="file"
-                          class="form-control"
-                          id="categoryPhoto"
-                          name="categoryPhoto"
-                          accept="image/*"
-                          value=""
-                          onchange=""
-                        />
-                      </div>
-                      <span id="categoryPhoto-error" style="color: red"></span>
-                      <input
-                        type="hidden"
-                        name="id"
-                          value=""
-                      />
-                      <div class="form-footer">
-                        <button
-                          type="submit"
-                          class="btn btn-outline-primary-2"
-                          id="updateButton"
-                        >
-                          <span>Update</span>
-                          <i class="icon-long-arrow-right"></i>
+                  <form action="/admin/editcategory" method="post" enctype="multipart/form-data">
+                    <% if (typeof message !== 'undefined') { %>
+                    <p style="color: red; text-align: center"><%= message %></p>
+                    <% } %>
+                    <div class="form-group">
+                        <label for="categoryName">Category Name *</label>
+                        <input type="text" class="form-control" id="categoryName" name="categoryName" value="<%= category.categoryName %>" required>
+                    </div>
+                    <span id="categoryName-error" style="color: red"></span>
+                
+                    <div class="form-group">
+                        <label for="categoryPhoto">Photo *</label>
+                        <img src="<%= category.image %>" alt="" style="width: 100px; height: 100px" id="imgView" />
+                        <input type="file" class="form-control" id="categoryPhoto" name="categoryPhoto" accept="image/*" onchange="viewImage(event)"/>
+                        <input type="hidden" name="id" value="<%= category._id %>">
+                    </div>
+                    <span id="categoryPhoto-error" style="color: red"></span>
+                
+                    <div class="form-footer">
+                        <button type="submit" class="btn btn-outline-primary-2" id="updateButton">
+                            <span>Update</span>
+                            <i class="icon-long-arrow-right"></i>
                         </button>
-                      </div>
-                    </form>
+                    </div>
+                </form>
+                
                   </div>
                 </div>
               </div>
@@ -418,7 +391,7 @@
         <nav class="mobile-nav">
           <ul class="mobile-menu">
             <li class="active">
-              <a href="/admin/dashboard">Home</a>
+              <a href="/admin/">Home</a>
             </li>
             <li>
               <a href="">Categories</a>
@@ -471,5 +444,10 @@
     <script src="assets/js/owl.carousel.min.js"></script>
     <!-- Main JS File -->
     <script src="assets/js/main.js"></script>
+    <script>
+      function viewImage(event){
+        document.getElementById('imgView').src = URL.createObjectURL(event.target.files[0]);
+      }
+    </script>
   </body>
 </html>

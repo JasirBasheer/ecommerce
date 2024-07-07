@@ -89,7 +89,7 @@
               <nav class="main-nav">
                 <ul class="menu sf-arrows">
                   <li class="megamenu-container">
-                    <a href="/admin/dashboard">Home</a>
+                    <a href="/admin/">Home</a>
                   </li>
                   <li>
                     <a href="/admin/categorylist" class="sf-with-ul">Categories</a>
@@ -171,87 +171,46 @@
                     role="tabpanel"
                     aria-labelledby="signin-tab-2"
                   >
-                    <form action="" method="post" enctype="multipart/form-data">                       
-                      <div class="form-group">
-                        <label for="singin-email-2"
-                          >Name of the Product *</label
-                        >
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="productName"
-                          name="productName"
-                          value="<%= product.name %>"
-                        />
-                      </div><span id="productName-error" style="color: red"></span>
-                      <div class="form-group">
-                        <label for="singin-email-2"
-                          >Category *</label
-                        >
+                  <form action="/admin/editproduct" method="post" enctype="multipart/form-data">                       
+                    <div class="form-group">
+                        <label for="productName">Name of the Product *</label>
+                        <input type="text" class="form-control" id="productName" name="productName" value="<%= product.productName %>">
+                        <input type="hidden" name="id" value="<%= product._id %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">Category *</label>
                         <select name="productCategory" id="productCategory" class="form-control">
-
-                          <option value=""></option>                                                   
-                            <option value=""></option>
-                            
-                          
-                          
-                              <option value="" selected></option>
-                              <option value=""></option>
-                  
+                            <option value="<%= product.productCategory %>"><%= product.productCategory %></option>
+                            <% categories.forEach(category => { %>
+                                <option value="<%= category.categoryName %>"><%= category.categoryName %></option>
+                            <% }); %>
                         </select>
-                      </div>
-
-                      <div class="form-group">
-                        <label for="singin-password-2">Photo *</label>
-                        <img src="/productImages/" alt="" style="width: 100px;height: 100px;" id="imgView">
-                        <input
-                          type="file"
-                          class="form-control"
-                          id="productPhoto"
-                          name="productPhoto"
-                          accept="image/*"                          
-                          multiple
-                          onchange=""
-                        />
-                      </div><span id="productPhoto-error" style="color: red"></span>
-                      <div class="form-group">
-                        <label for="singin-password-2">Price *</label>
-                        <input
-                          type="number"
-                          class="form-control"
-                          id="productPrice"
-                          name="productPrice"
-                    
-                        />
-                      </div><span id="productPrice-error" style="color: red"></span>
-                      <div class="form-group">
-                        <label for="singin-password-2">No. of Stocks *</label>
-                        <input
-                          type="number"
-                          class="form-control"
-                          id="productStocks"
-                          name="productStocks"
-                         
-                        />
-                      </div><span id="productStocks-error" style="color: red"></span>
-                      <div class="form-group">
-                        <label for="singin-password-2">Description *</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="productDescription"
-                          name="productDescription"
-                     
-                        />
-                      </div><span id="productDescription-error" style="color: red"></span>
-                      <input type="hidden" name="id" value="">
-                      <div class="form-footer">
+                    </div>
+                    <div class="form-group">
+                        <label for="productPhoto">Photo *</label>
+                        <img src="<%= product.images[0] %>" alt="Product Image" style="width: 100px;height: 100px;" id="imgView">
+                        <input type="file" class="form-control" id="productPhoto" name="productImages" accept="image/*" multiple onchange="viewImage(event)">
+                    </div>
+                    <div class="form-group">
+                        <label for="productPrice">Price *</label>
+                        <input type="number" class="form-control" id="productPrice" name="productPrice" value="<%= product.productPrice %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="productStocks">No. of Stocks *</label>
+                        <input type="number" class="form-control" id="productStocks" name="productStocks" value="<%= product.num_of_stocks %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="productDescription">Description *</label>
+                        <input type="text" class="form-control" id="productDescription" name="productDescription" value="<%= product.productDescription %>">
+                    </div>
+                    <div class="form-footer">
                         <button type="submit" class="btn btn-outline-primary-2" id="updateButton">
-                          <span>Update</span>
-                          <i class="icon-long-arrow-right"></i>
+                            <span>Update</span>
+                            <i class="icon-long-arrow-right"></i>
                         </button>
-                      </div>
-                    </form>
+                    </div>
+                </form>
+                
                   </div>
                 </div>
               </div>
@@ -425,7 +384,7 @@
         <nav class="mobile-nav">
           <ul class="mobile-menu">
             <li class="active">
-              <a href="/admin/dashboard">Home</a>
+              <a href="/admin/">Home</a>
             </li>
             <li>
               <a href="">Categories</a>
@@ -481,5 +440,10 @@
 
     
   </body>
+  <script>
+    function viewImage(event){
+      document.getElementById('imgView').src = URL.createObjectURL(event.target.files[0]);
+    }
+  </script>
 
 </html>

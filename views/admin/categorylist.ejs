@@ -116,7 +116,7 @@
               <nav class="main-nav">
                 <ul class="menu sf-arrows">
                   <li class="megamenu-container">
-                    <a href="/admin/dashboard">Home</a>
+                    <a href="/admin/">Home</a>
                   </li>
                   <li>
                     <a href="/admin/categorylist" class="sf-with-ul">Categories</a>
@@ -181,31 +181,50 @@
                 </tr>
               </thead>
               <tbody>
-              
-                      <tr style="font-size: medium;">
-                        <td data-title="Name"></td>   
-                        <td data-title="Image">                            
-                          <img 
-                            src="/productImages/" 
-                            alt=""
-                            width="100px" height="40px">                            
-                        </td>                      
-                        <td data-title="Actions">
-                          <a href="/admin/editcategory?id" style="margin-right: 15px;text-decoration: none;">
-                            <span><i class="fa-sharp fa-solid fa-file-pen"></i></span>
-                          </a>  
-                         <a href="/admin/deletecategory?id=" id="deleteButton" style="color: red;">
-                            <span><i class="fa-solid fa-trash-can"></i></span>
-                          </a> 
-                              <button type="button" class="btn btn-success" >Unblock</button>
-                              <button type="button" class="btn btn-danger" >Block</button>
-       
-                        </td>
-                      </tr>
+                  <% if (categories.length!=0) { %>
+                    <% for (let i = 0; i < categories.length; i++) { %>
+
+                    <tr style="font-size: medium;">
+                      <td data-title="Name"><%= categories[i].categoryName %></td>   
+                      <td data-title="Image">                            
+                        <img 
+                          src="<%= categories[i].image[0] %>" 
+                          alt=""
+                          width="100px" height="40px">                            
+                      </td>                      
+                      <td data-title="Actions">
+                        <a href="/admin/editcategory?id=<%= categories[i]._id %>" style="margin-right: 15px;text-decoration: none;">
+                          <span><i class="fa-sharp fa-solid fa-file-pen"></i></span>
+                        </a>  
+                       <a href="/admin/deletecategory?id=<%= categories[i]._id %>" id="deleteButton" style="color: red;">
+                          <span><i class="fa-solid fa-trash-can"></i></span>
+                        </a> 
+                           
+                            <% if (categories[i].is_blocked==false) { %>
+                              <button type="button" class="btn"  style="border-radius: 5px; background-color: rgba(47, 255, 0, 0.537);border: none;" disabled>Unblock</button>
+                              <button type="button" class="btn"  style="border-radius: 5px; background-color: rgb(255, 0, 0);" onclick="blockCategory('<%= categories[i]._id %>')">Block</button>
+                             
+                            <% } else { %>
+                              <button type="button" class="btn"  style="border-radius: 5px; background-color: rgb(47, 255, 0);"  onclick="unblockCategory('<%= categories[i]._id %>')">Unblock</button>
+                              <button type="button" class="btn"  style="border-radius: 5px; background-color: rgba(255, 0, 0, 0.367);border: none;" disabled>Block</button>
+                              <% } %>
+     
+                      </td>
+                    </tr>
+                    <% } %>
+
                    
-                        <tr>
-                          <td colspan="5">Categories Not Found</td>
-                        </tr>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="5">Categories Not Found</td>
+                    </tr>
+                
+                <% } %>
+
+              
+                      
+                   
+                    
              
               </tbody>
             </table>
@@ -378,7 +397,7 @@
         <nav class="mobile-nav">
           <ul class="mobile-menu">
             <li class="active">
-              <a href="/admin/dashboard">Home</a>
+              <a href="/admin/">Home</a>
             </li>
             <li>
               <a href="">Categories</a>
@@ -436,6 +455,33 @@
 
     <script src="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.js"></script>
   
+<script>
+function blockCategory(categoryId){
+
+        fetch('/admin/blockcategory',{
+          method:'POST',
+          headers:{
+            'Content-type':'application/json'
+          },
+          body: JSON.stringify({categoryId})
+
+        })
+        window.location.href = '/admin/categorylist'
+      }
+
+      function unblockCategory(categoryId){
+        console.log(categoryId);
+        fetch('/admin/unblockcategory',{
+          method:'POST',
+        headers:{
+          'Content-type':'application/json'
+        },
+        body: JSON.stringify({categoryId})
+        })
+        window.location.href = '/admin/categorylist'
+      }
+
+    </script>
   </body>
 
 </html>

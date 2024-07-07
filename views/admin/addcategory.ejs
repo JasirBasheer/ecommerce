@@ -96,7 +96,7 @@
               <nav class="main-nav">
                 <ul class="menu sf-arrows">
                   <li class="megamenu-container">
-                    <a href="/admin/dashboard">Home</a>
+                    <a href="/admin/">Home</a>
                   </li>
                   <li>
                     <a href="/admin/categorylist" class="sf-with-ul"
@@ -182,7 +182,7 @@
                     role="tabpanel"
                     aria-labelledby="signin-tab-2"
                   >
-                    <form action="/admin/addcategory" method="post" >
+                    <form action="/admin/addcategory" method="post" enctype="multipart/form-data" >
                      
                       <p khmnjg-b  gjmnbcstyle="color: red; text-align: center">
                     
@@ -205,7 +205,7 @@
                           type="file"
                           class="form-control"
                           id="categoryPhoto"
-                          name="categoryPhoto"
+                          name="categoryPhotos"
                           accept="image/*"
                         />
                       </div>
@@ -400,7 +400,7 @@
         <nav class="mobile-nav">
           <ul class="mobile-menu">
             <li class="active">
-              <a href="/admin/dashboard">Home</a>
+              <a href="/admin/">Home</a>
             </li>
             <li>
               <a href="">Categories</a>

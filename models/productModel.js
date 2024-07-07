@@ -21,6 +21,15 @@ const productSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-})
+        images: { 
+        type: [String],
+        required: true
+         },
+         is_blocked:{
+        type:Boolean
+      }
+            
+    
+    })
 
 module.exports = mongoose.model('Product',productSchema)

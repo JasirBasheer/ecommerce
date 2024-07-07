@@ -126,7 +126,7 @@
               <nav class="main-nav">
                 <ul class="menu sf-arrows">
                   <li class="megamenu-container">
-                    <a href="/admin/dashboard">Home</a>
+                    <a href="/admin/">Home</a>
                   </li>
                   <li>
                     <a href="/admin/categorylist" class="sf-with-ul">Categories</a>
@@ -196,61 +196,46 @@
                 </tr>
               </thead>
               <tbody>
-                <% if (products.length!=0) { %>
-                 
-              
-                <% for( let i = products.length-1; i >=0; i-- ) { %>
-                  
-                
-               
-                        <tr style="font-size: medium; text-align: center;">
-                          <td data-title="Name"><%= products[i].productName %></td>
-                          <td data-title="category"><%= products[i].productCategory %></td>                          
-                         </td>                    
+                <% if (products.length !== 0) { %>
+                  <% for (let i = products.length - 1; i >= 0; i--) { %>
+                    <tr style="font-size: medium; text-align: center;">
+                      <td data-title="Name"><%= products[i].productName %></td>
+                      <td data-title="Category"><%= products[i].productCategory %></td>
+                      <td data-title="Description"><%= products[i].productDescription %></td>
+                      <td data-title="Price"><%= products[i].productPrice %></td>
+                      <td data-title="No Of Stocks"><%= products[i].num_of_stocks %></td>
+                      <td data-title="Image">
+                        <% products[i].images.forEach(image => { %>
+                          <img src="<%= image %>" alt="<%= products[i].productName %>" width="40px" height="40px" style="margin-bottom: 10px;">
+                        <% }) %>
+                      </td>
+                      <td data-title="Actions">
+                        <div style="display: flex; align-items: center;">
+                          <a href="/admin/editproduct?id=<%= products[i]._id %>" style="margin-right: 15px; margin-left: 15px; text-decoration: none;">
+                            <span><i class="fa-sharp fa-solid fa-file-pen"></i></span>
+                          </a>
 
-                          <td data-title="Description"><%= products[i].productDescription %></td>                  
-                          <td data-title="Price"><%= products[i].productPrice %></td>   
-                          <td data-title="No Of Stocks"><%= products[i].num_of_stocks %></td> 
-                          <td data-title="Image">                            
-                            
-                              <div style="display: flex; align-items: center; "> 
-                                <img 
-                                  src="/productImages" 
-                                  alt=""
-                                  width="40px" height="40px" style="margin-bottom: 10px;">
-
-                                  <form action="/admin/deleteProductImage" method="POST">
-                                    <input type="hidden" name="productId" value="" />
-                                    <input type="hidden" name="image" value="" />
-                                    <button type="submit" class="btn-danger ps-2 mx-md-5" 
-                                      >
-                                      <i class="fa-sharp fa-solid fa-trash"></i>
-                                    </button>                                
-                                  </form>                             
-                              </div>                                                             
-                          </td> 
-                          <td data-title="Actions"> 
-                            <div style="display: flex; align-items: center;">                               
-                              <a href="/admin/editproduct?id" style="margin-right: 15px;margin-left: 15px; text-decoration: none;">
-                                <span><i class="fa-sharp fa-solid fa-file-pen"></i></span>
-                              </a>                               
-                            
-                                <button type="button" class="btn-success"  style="border-radius: 5px;">Unblock</button>
-                                  <button type="button" class="btn-danger" style="border-radius: 5px;">Block</button>
-                                
-                            </div>                                                 
-                          </td>
-                        </tr>
-                        <% } %>
+                          <% if (products[i].is_blocked==false) { %>
+                            <button type="button" class="btn"  style="border-radius: 5px; background-color: rgba(47, 255, 0, 0.537);border: none;" disabled>Unblock</button>
+                            <button type="button" class="btn"  style="border-radius: 5px; background-color: rgb(255, 0, 0);" onclick="blockproduct('<%= products[i]._id %>')">Block</button>
+                           
+                          <% } else { %>
+                            <button type="button" class="btn"  style="border-radius: 5px; background-color: rgb(47, 255, 0);"  onclick="unBlockproduct('<%= products[i]._id %>')">Unblock</button>
+                            <button type="button" class="btn"  style="border-radius: 5px; background-color: rgba(255, 0, 0, 0.367);border: none;" disabled>Block</button>
+                            <% } %>
+                           
                         
-                        <% } else { %>
-                          <tr>
-                            <td colspan="5">Products Not Found</td>
-                          </tr>
-                          <% } %>
-                        
-                    
+                        </div>
+                      </td>
+                    </tr>
+                  <% } %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="6">Products Not Found</td>
+                  </tr>
+                <% } %>
               </tbody>
+              
             </table>
           </div>
         </div>
@@ -421,7 +406,7 @@
         <nav class="mobile-nav">
           <ul class="mobile-menu">
             <li class="active">
-              <a href="/admin/dashboard">Home</a>
+              <a href="/admin/">Home</a>
             </li>
             <li>
               <a href="">Categories</a>
@@ -480,6 +465,30 @@
 
     <script src="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.js"></script>
    
+    <script>
+      function blockproduct(productId){
+        fetch('/admin/blockproduct',{
+          method:'POST',
+          headers:{
+            'Content-type':'application/json'
+          },
+          body: JSON.stringify({productId})
+
+        })
+        window.location.href = '/admin/productslist'
+      }
+
+      function unBlockproduct(productId){
+        fetch('/admin/unblockproduct',{
+          method:'POST',
+        headers:{
+          'Content-type':'application/json'
+        },
+        body: JSON.stringify({productId})
+        })
+        window.location.href = '/admin/productslist'
+      }
+    </script>
     
   </body>
 

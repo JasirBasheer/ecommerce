@@ -89,7 +89,7 @@
               <nav class="main-nav">
                 <ul class="menu sf-arrows">
                   <li class="megamenu-container">
-                    <a href="/admin/dashboard">Home</a>
+                    <a href="/admin/">Home</a>
                   </li>
                   <li>
                     <a href="/admin/categorylist" class="sf-with-ul">Categories</a>
@@ -171,7 +171,7 @@
                     role="tabpanel"
                     aria-labelledby="signin-tab-2"
                   >
-                    <form action="/admin/addproduct" method="post">
+                    <form action="/admin/addproduct" method="post" enctype="multipart/form-data">
                       <% if(typeof message !== 'undefined'){ %>
                         <p style="color: red; text-align: center">
                           <%= message %>
@@ -209,8 +209,7 @@
                           type="file"
                           class="form-control"
                           id="productPhoto"
-                          name="productPhoto" 
-                          accept="image/*"
+                          name="productImages" 
                           multiple                         
                         />
                       </div><span id="productPhoto-error" style="color: red"></span>
@@ -422,7 +421,7 @@
         <nav class="mobile-nav">
           <ul class="mobile-menu">
             <li class="active">
-              <a href="/admin/dashboard">Home</a>
+              <a href="/admin/">Home</a>
             </li>
             <li>
               <a href="">Categories</a>

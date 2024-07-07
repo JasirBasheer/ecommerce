@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer')
 const User = require('../models/userModel');
+const Product = require('../models/productModel')
 const bcrypt = require('bcrypt')
 const jwt= require('jsonwebtoken')
 let generatedOtp 
@@ -214,7 +215,9 @@ const userLogin = async(req,res)=>{
 
 const loadSinglePage = async(req,res)=>{
     try {
-        res.render('singlepage')
+        const id = req.query.id
+        const product = await Product.findOne({_id:id})
+        res.render('singlepage',{product})
     } catch (error) {
         console.log(error.message);
     }
@@ -275,7 +278,10 @@ const loadUser = async(req,res)=>{
 
 const loadShop = async(req,res)=>{
     try {
-        res.render('shop')
+
+        const products = await Product.find({})
+        console.log(products);
+        res.render('shop',{products})
     } catch (error) {
         console.log(error.message);
     }
