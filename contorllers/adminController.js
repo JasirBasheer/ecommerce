@@ -1,11 +1,8 @@
 require('dotenv').config(); 
-const sharp = require('sharp');
-const path = require('path');
-const fs = require('fs');
 const User = require('../models/userModel')
 const Category = require('../models/categoryModel');
 const Product = require('../models/productModel');
-
+const {addProductImages,addCategoryImage, editCategoryImage, editproductImages} = require('../helpers/sharp')
 
 
 const loadAdminLoginPage = async(req,res)=>{
@@ -112,10 +109,8 @@ const loadAddProduct = async(req,res)=>{
 const loadEditProduct = async(req,res)=>{
     try {
         const id = req.query.id
-        console.log(id);
         const product = await Product.findOne({_id:id})
         const categories = await Category.find({})
-        console.log(product);
         res.render('editproduct',{product,categories})
         
     } catch (error) {
@@ -126,40 +121,29 @@ const loadEditProduct = async(req,res)=>{
 
 const editProduct = async (req, res) => {
     try {
+       
         const productId = req.body.id; 
-
+        const product = await Product.findOne({_id:productId})
+        const categories = await Category.find({})
+       
         const existingProduct = await Product.findById(productId);
-        if (!existingProduct) {
-            return res.status(404).send('Product not found');
+        if (req.body.productName.trim() === "") {
+            return res.render('editproduct', { product, categories, message: 'Enter a valid name' });
+        }
+        if (req.body.productDescription.trim() === "") {
+            return res.render('editproduct', { product, categories, message: 'Enter a valid Description' });
+        }
+        
+        if (req.files.length>0&& req.files.length<3) {
+            return res.render('editproduct',{product,categories,message:'required 3 images minimum '});
         }
 
         let newImages = [];
         if (req.files && req.files.length > 0) {
-            const imagesDir = path.join(__dirname, '../public/productImages');
-            if (!fs.existsSync(imagesDir)) {
-                fs.mkdirSync(imagesDir, { recursive: true });
-            }
 
-            const imagePromises = req.files.map(async (file) => {
-                const localFilePath = path.join(imagesDir, `${Date.now()}-${file.originalname}`);
-                await sharp(file.buffer)
-                    .resize(500, 500, { fit: sharp.fit.cover, position: sharp.strategy.entropy })
-                    .toFile(localFilePath);
+           newImages = await editproductImages(req.files)
 
-                const databasePath = `/productImages/${path.basename(localFilePath)}`;
-                newImages.push(databasePath);
-            });
 
-            await Promise.all(imagePromises);
-
-            if (newImages.length > 0) {
-                const existingImagePaths = existingProduct.images.map(img => path.join(__dirname, '../public', img));
-                existingImagePaths.forEach((imagePath) => {
-                    if (fs.existsSync(imagePath)) {
-                        fs.unlinkSync(imagePath); 
-                    }
-                });
-            }
         } else {
             newImages = existingProduct.images;
         }
@@ -171,7 +155,6 @@ const editProduct = async (req, res) => {
         existingProduct.productDescription = req.body.productDescription;
         existingProduct.images = newImages;
 
-        // Save updated product details
         const updatedProduct = await existingProduct.save();
         if (updatedProduct) {
             res.redirect('/admin/productslist');
@@ -199,11 +182,11 @@ const verifyAdmin =  async(req,res)=>{
                 req.session.admin_id = email
                 res.redirect('/admin/')
             }else{
-                console.log("password is woring");
+                res.render('adminlogin',{message:"password is wrong"})
             }
 
         }else{
-            console.log('user does not exists');
+            res.render('adminlogin',{message:"Admin does not exists"})
         }
         
     } catch (error) {
@@ -266,25 +249,9 @@ const addCategory = async (req, res) => {
         
         if (!categoryExist) {
             if (!req.files || req.files.length === 0) {
-                return res.status(400).send('An image is required.');
+                return res.send('An image is required.');
             }
-
-            const imagesDir = path.join(__dirname, '../public/CategoryImages');
-            if (!fs.existsSync(imagesDir)) {
-                fs.mkdirSync(imagesDir, { recursive: true });
-            }
-
-            // Process only the first image
-            const file = req.files[0];
-            const localFilePath = path.join(imagesDir, `${Date.now()}-${file.originalname}`);
-            await sharp(file.buffer)
-                .resize(500, 500, {
-                    fit: sharp.fit.cover,
-                    position: sharp.strategy.entropy
-                })
-                .toFile(localFilePath);
-
-            const databasePath = `/CategoryImages/${path.basename(localFilePath)}`;
+            const databasePath = await addCategoryImage(req.files)
 
             const newCategory = new Category({
                 categoryName: categoryName,
@@ -323,37 +290,20 @@ const editCategory = async (req, res) => {
 
         const existingCategory = await Category.findById(categoryId);
         if (!existingCategory) {
-            return res.status(404).send('Category not found');
+            return res.send('Category not found');
         }
 
         let newImage;
         if (req.file) {
-            const imagesDir = path.join(__dirname, '../public/CategoryImages');
-            if (!fs.existsSync(imagesDir)) {
-                fs.mkdirSync(imagesDir, { recursive: true });
-            }
 
-            const localFilePath = path.join(imagesDir, `${Date.now()}-${req.file.originalname}`);
-            await sharp(req.file.buffer)
-                .resize(500, 500, { fit: sharp.fit.cover, position: sharp.strategy.entropy })
-                .toFile(localFilePath);
-
-            const databasePath = `/CategoryImages/${path.basename(localFilePath)}`;
-            newImage = databasePath;
-
-            const existingImagePath = path.join(__dirname, '../public', existingCategory.image[0]);
-            if (fs.existsSync(existingImagePath)) {
-                fs.unlinkSync(existingImagePath); // Delete existing image from file system
-            }
+           newImage = await editCategoryImage(req.file)    
         } else {
             newImage = existingCategory.image[0];
         }
 
-        // Update category details
         existingCategory.categoryName = req.body.categoryName;
         existingCategory.image = [newImage];
 
-        // Save updated category details
         const updatedCategory = await existingCategory.save();
         if (updatedCategory) {
             res.redirect('/admin/categorylist');
@@ -377,39 +327,22 @@ const addProduct = async(req,res)=>{
         const productPrice = req.body.productPrice
         const productStocks = req.body.productStocks
         const productDescription = req.body.productDescription
+        const category = await Category.find({})
+   
+        if (productname.trim() === "") {
+            return res.render('addproduct', {category,message: 'Enter a valid name' });
+        }
+        if (productDescription.trim() === "") {
+            return res.render('addproduct', {category,message: 'Enter a valid Description' });
+        }
+        
 
 
         if (!req.files || req.files.length < 3) {
-            return res.status(400).send('At least 3 images are required.');
+            return res.send('At least 3 images are required.');
         }
-          const imagesDir = path.join(__dirname, '../public/productImages');
 
-          if (!fs.existsSync(imagesDir)) {
-              fs.mkdirSync(imagesDir, { recursive: true });
-          }
-  
-          const imagePromises = req.files.map(async (file) => {
-              const localFilePath = path.join(imagesDir, `${Date.now()}-${file.originalname}`);
-  
-              await sharp(file.buffer)
-                  .resize(500, 500, {
-                      fit: sharp.fit.cover,
-                      position: sharp.strategy.entropy
-                  })
-                  .toFile(localFilePath);
-  
-              const databasePath = `/productImages/${path.basename(localFilePath)}`;
-  
-              return {
-                  localFilePath,
-                  databasePath
-              };
-          });
-  
-          const processedImages = await Promise.all(imagePromises);
-  
-          const localFilePaths = processedImages.map(img => img.localFilePath);
-          const databasePaths = processedImages.map(img => img.databasePath);
+        const imagePaths = await addProductImages(req.files);
   
           const newProduct = new Product({
               productName: productname,
@@ -417,7 +350,7 @@ const addProduct = async(req,res)=>{
               productDescription: productDescription,
               productPrice: productPrice,
               num_of_stocks: productStocks,
-              images: databasePaths,
+              images: imagePaths,
               is_blocked:false,
           });
   

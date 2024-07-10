@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer')
 const User = require('../models/userModel');
 const Product = require('../models/productModel')
+const Category = require('../models/categoryModel')
 const bcrypt = require('bcrypt')
 const jwt= require('jsonwebtoken')
 let generatedOtp 
@@ -27,13 +28,36 @@ const loadRegister = async(req,res)=>{
 } 
 
 
-const loadHome = async(req,res)=>{
+const loadHome = async(req, res) => {
     try {
-        res.render('index')
+        const categories = await Category.find({});
+        const products = await Product.find({});
+        const recentProducts = await Product.find({});
+        const categoryName = req.query.id || null; 
+        res.render('index', { categories, products, categoryName,recentProducts });
     } catch (error) {
         console.log(error.message);
     }
-}
+};
+
+
+const filterCategory = async(req, res) => {
+    try {
+        const categoryName = req.query.id;
+        const categories = await Category.find({}); 
+        const recentProducts = await Product.find({});
+        let products;
+        if (categoryName) {
+            products = await Product.find({ productCategory: categoryName }); 
+        } else {
+            products = await Product.find({}); 
+
+        }
+        res.render('index', { categories, products, categoryName ,recentProducts});
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error });
+    }
+};
 
 
 const sendVerifyMail =  async(name,email,otp)=>{
@@ -217,7 +241,9 @@ const loadSinglePage = async(req,res)=>{
     try {
         const id = req.query.id
         const product = await Product.findOne({_id:id})
-        res.render('singlepage',{product})
+        const relatedProducts = await Product.find({productCategory:product.productCategory})
+
+        res.render('singlepage',{product,relatedProducts,id})
     } catch (error) {
         console.log(error.message);
     }
@@ -280,8 +306,10 @@ const loadShop = async(req,res)=>{
     try {
 
         const products = await Product.find({})
+        const categories = await Category.find({})
+     
         console.log(products);
-        res.render('shop',{products})
+        res.render('shop',{products,categories})
     } catch (error) {
         console.log(error.message);
     }
@@ -327,7 +355,7 @@ const resendOtp = async (req, res) => {
 
 const userBannedPageLoad = async(req,res)=>{
     try {
-        res.render("userIsBanned")
+        res.render("login",{message:"User is "})
         
     } catch (error) {
         console.log(error.message);
@@ -462,6 +490,7 @@ module.exports ={
     resetPassword,
     loadRestPassword,
     logout,
+    filterCategory,
     
 
 }

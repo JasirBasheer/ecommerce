@@ -7,7 +7,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <title>Molla - Bring The Good Cart To Life.</title>
+    <title>Wood Street - Bring The Good Cart To Life.</title>
     <meta name="keywords" content="HTML5 Template" />
     <meta name="description" content="= - Bootstrap " />
     <meta name="author" content="p-themes" />
@@ -35,8 +35,8 @@
       color="#666666"
     />
     <link rel="shortcut icon" href="assets/images/icons/favicon.ico" />
-    <meta name="apple-mobile-web-app-title" content="Molla" />
-    <meta name="application-name" content="Molla" />
+    <meta name="apple-mobile-web-app-title" content="Wood Street" />
+    <meta name="application-name" content="Wood Street" />
     <meta name="msapplication-TileColor" content="#cc9966" />
     <meta
       name="msapplication-config"
@@ -76,7 +76,7 @@
                   color: black;
                   text-decoration: none;
                 "
-                >Molla
+                >Wood Street
               </a>
 
               <nav class="main-nav">
@@ -144,11 +144,7 @@
                     aria-labelledby="signin-tab-2"
                   >
                     <form action="/admin/login" method="post">
-                      <% if(typeof message !== 'undefined'){ %>
-                      <p style="text-align: center; color: red">
-                        <%= message %>
-                      </p>
-                      <% } %>
+                      
 
                       <div class="form-group">
                         <label for="singin-email-2">Email Id *</label>
@@ -157,9 +153,11 @@
                           class="form-control"
                           id="email"
                           name="email"
+                          onkeyup="validateEmail()"
                         />
                       </div>
-                      <span id="email-error" style="color: red"></span>
+                     
+                      <span id="email-error" class="error-message" style="color: red"></span>
 
                       <div class="form-group">
                         <label for="singin-password-2">Password *</label>
@@ -170,17 +168,24 @@
                           name="password"
                         />
                       </div>
-                      <span id="password-error" style="color: red"></span>
+                      <span id="password-error" class="error-message" style="color: red"></span>
 
                       <div class="form-footer">
                         <button
                           type="submit"
                           class="btn btn-outline-primary-2"
                           id="signinButton"
+                          onclick="return validateForm()"
                         >
                           <span>LOG IN</span>
                           <i class="icon-long-arrow-right"></i>
                         </button>
+
+                        <% if(typeof message !== 'undefined'){ %>
+                          <p style="text-align: center; color: red">
+                            <%= message %>
+                          </p>
+                          <% } %>
                       </div>
                     </form>
                   </div>
@@ -313,7 +318,7 @@
               <script>
                 document.write(new Date().getFullYear());
               </script>
-              Molla Store. All Rights Reserved.
+              Wood Street Store. All Rights Reserved.
             </p>
 
             <!-- <figure class="footer-payments">
@@ -392,5 +397,29 @@
     <script src="assets/js/superfish.min.js"></script>
     <script src="assets/js/owl.carousel.min.js"></script>
     <script src="assets/js/main.js"></script>
+    <script>
+      function validateEmail(){
+        const email = document.getElementById('email').value;
+        const error = document.getElementById('email-error');
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+        error.textContent = 'Invalid email address.';
+        } else {
+        error.textContent = '';
+        }
+        }
+
+        function validateForm() {
+        validateEmail()
+        const errors = document.querySelectorAll('.error-message');
+        for (let error of errors) {
+        if (error.textContent !== '') {
+        return false;
+       }
+ }
+return true;
+}
+      
+    </script>
   </body>
 </html>

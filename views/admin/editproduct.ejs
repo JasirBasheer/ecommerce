@@ -7,7 +7,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <title>Molla - Bring The Good Cart To Life.</title>
+    <title>Wood Street - Bring The Good Cart To Life.</title>
     <meta name="keywords" content="HTML5 Template" />
     <meta name="description" content=" - Bootstrap  " />
     <meta name="author" content="p-themes" />
@@ -82,7 +82,7 @@
                 <i class="icon-bars"></i>
               </button>
 
-              <a href="/admin" class="logo" style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;font-size: 30px;color: black;text-decoration: none;">Molla
+              <a href="/admin" class="logo" style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;font-size: 30px;color: black;text-decoration: none;">Wood Street
 
               </a>
 
@@ -174,12 +174,12 @@
                   <form action="/admin/editproduct" method="post" enctype="multipart/form-data">                       
                     <div class="form-group">
                         <label for="productName">Name of the Product *</label>
-                        <input type="text" class="form-control" id="productName" name="productName" value="<%= product.productName %>">
+                        <input type="text" class="form-control" id="productName" name="productName" value="<%= product.productName %>" required>
                         <input type="hidden" name="id" value="<%= product._id %>">
                     </div>
                     <div class="form-group">
                         <label for="productCategory">Category *</label>
-                        <select name="productCategory" id="productCategory" class="form-control">
+                        <select name="productCategory" id="productCategory" class="form-control" required>
                             <option value="<%= product.productCategory %>"><%= product.productCategory %></option>
                             <% categories.forEach(category => { %>
                                 <option value="<%= category.categoryName %>"><%= category.categoryName %></option>
@@ -193,16 +193,23 @@
                     </div>
                     <div class="form-group">
                         <label for="productPrice">Price *</label>
-                        <input type="number" class="form-control" id="productPrice" name="productPrice" value="<%= product.productPrice %>">
+                        <input type="number" class="form-control" id="productPrice" name="productPrice" value="<%= product.productPrice %>" required>
                     </div>
                     <div class="form-group">
                         <label for="productStocks">No. of Stocks *</label>
-                        <input type="number" class="form-control" id="productStocks" name="productStocks" value="<%= product.num_of_stocks %>">
+                        <input type="number" class="form-control" id="productStocks" name="productStocks" value="<%= product.num_of_stocks %>" required>
                     </div>
                     <div class="form-group">
                         <label for="productDescription">Description *</label>
-                        <input type="text" class="form-control" id="productDescription" name="productDescription" value="<%= product.productDescription %>">
+                        <input type="text" class="form-control" id="productDescription" name="productDescription" value="<%= product.productDescription %>" required>
                     </div>
+                    <% if(typeof message !== 'undefined'){ %>
+                      <p style="text-align: center; color: red">
+                        <%= message %>
+                      </p>
+                      <% } %>
+
+
                     <div class="form-footer">
                         <button type="submit" class="btn btn-outline-primary-2" id="updateButton">
                             <span>Update</span>
@@ -338,7 +345,7 @@
         <div class="footer-bottom">
           <div class="container">
             <p class="footer-copyright">
-              Copyright © <script>document.write(new Date().getFullYear());</script> Molla Store. All Rights Reserved.
+              Copyright © <script>document.write(new Date().getFullYear());</script> Wood Street Store. All Rights Reserved.
             </p>
             
             <!-- <figure class="footer-payments">

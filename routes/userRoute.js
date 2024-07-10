@@ -48,6 +48,7 @@ user_route.get('/userIsBanned',userController.userBannedPageLoad)
 user_route.get('/forgotpassword',userController.loadforgotpassword)
 user_route.get('/resetpassword/:id/:token',userController.loadRestPassword)
 user_route.get('/logout',auth.isLogin,userController.logout)
+user_route.get('/filterCategory',userController.filterCategory)
 
 
 

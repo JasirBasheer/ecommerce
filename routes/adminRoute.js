@@ -4,10 +4,9 @@ const bodyParser = require('body-parser')
 const auth = require("../middleware/adminAuth")
 const session = require('express-session')
 const nocache = require('nocache')
-const multer = require('multer');
-const sharp = require('sharp');
-const path = require('path');
-const fs = require('fs');
+const upload = require('../middleware/multer')
+
+
 admin_route.set('view engine','ejs')
 admin_route.set('views','./views/admin')
 admin_route.use(express.static('public'));
@@ -23,12 +22,7 @@ admin_route.use(session({
 }))
 admin_route.use(nocache())
 
-const storage = multer.memoryStorage();
 
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 1024 * 1024 * 5 }, 
-});
 
 const adminController = require('../contorllers/adminController')
 

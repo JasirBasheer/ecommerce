@@ -1,3 +1,4 @@
+require('dotenv').config(); 
 const express = require('express');
 const authRoute = express.Router();
 const passport = require('passport');
@@ -20,12 +21,11 @@ passport.deserializeUser(function(obj, cb) {
     cb(null, obj);
 });
 
-/*  Google AUTH  */
 
 passport.use(
     new GoogleStrategy({
-    clientID: "1092429707060-f05obifgguuhdi4r49lsgasdi0ge7im3.apps.googleusercontent.com",
-    clientSecret: "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",
+    clientID: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
     callbackURL: "http://localhost:3000/auth/google/callback",
   },
 
@@ -71,7 +71,7 @@ authRoute.get('/google/callback',
       req.session.user_id=req.user;
       res.redirect('/');
     }
-  }
+}
 );
 
 module.exports = authRoute;

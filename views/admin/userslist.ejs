@@ -7,7 +7,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <title>Molla - Bring The Good Cart To Life.</title>
+    <title>Wood Street - Bring The Good Cart To Life.</title>
     <meta name="keywords" content="HTML5 Template" />
     <meta name="description" content=" - Bootstrap" />
     <meta name="author" content="p-themes" />
@@ -109,7 +109,7 @@
                 <i class="icon-bars"></i>
               </button>
 
-              <a href="/admin" class="logo" style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;font-size: 30px;color: black;text-decoration: none;">Molla
+              <a href="/admin" class="logo" style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;font-size: 30px;color: black;text-decoration: none;">Wood Street
 
               </a>
 
@@ -185,53 +185,69 @@
             <table class="table table-striped bg-white" id="myTable">
               <thead class="bg-dark text-light">
                 <tr>
+                  <th style="font-size: 20px;" scope="col" class="sorting" >Id</th>
                   <th style="font-size: 20px;" scope="col" class="sorting" >Name</th>
                   <th style="font-size: 20px;" scope="col" class="sorting" >Email</th>
                   <th style="font-size: 20px;" scope="col" class="sorting" >Mobile</th>
+                  <th style="font-size: 20px;" scope="col" class="sorting" >Status</th>
                   <th style="font-size: 20px;" scope="col" >Action</th>
                   <!--<th style="font-size: 20px;" scope="col">Actions</th>-->
                 </tr>
               </thead>
               <tbody>
-                <% for( let i = users.length-1; i >=0; i-- ) { %>
-                  <tr style="font-size: medium;">
-                    <td data-title="Name"><%= users[i].name %></td>
-                    <td data-title="Email"><%= users[i].email %></td>                  
-                    <td data-title="Mobile"><%= users[i].phone %></td>     
-             
-                    <td data-title="Actions">
-                      <% if (users[i].is_blocked ==1) { %>
-                        <button type="button" class="btn "  style="background-color: rgb(31, 144, 21);" onclick="handleUnblock('<%= users[i]._id %>')" >Unblock</button>
-                        <button type="button" class="btn " style="background-color: rgba(255, 0, 0, 0.279);">Block</button>
-        
-                      <% } else { %>
-                        <button type="button" class="btn " style="background-color: rgba(31, 144, 21, 0.236);"   >Unblock</button>
-                        <button type="button" class="btn" style="background-color: rgb(255, 0, 0);" onclick="handleblock('<%= users[i]._id %>')">Block</button>
+                <% if (users.length!=0) { %>
 
-                        <% } %>
-
-                       
-                      
-                 
+                  <% for( let i = users.length-1; i >=0; i-- ) { %>
+                    <tr style="font-size: medium;">
+                      <td data-title="id"><%= users[i]._id %></td>
+                      <td data-title="Name"><%= users[i].name %></td>
+                      <td data-title="Email"><%= users[i].email %></td>     
+                                   
+                      <td data-title="Mobile"><%= users[i].phone %></td>     
+                      <% if (users[i].is_blocked==false) { %>
+                        <td data-title="Mobile">Active</td>     
+                      <% }else{ %>
+                        <td data-title="Mobile">Blocked</td>     
+  
+                      <% } %>
+               
+                      <td data-title="Actions">
+                        <% if (users[i].is_blocked ==1) { %>
+                          <button type="button" class="btn "  style="background-color: rgb(31, 144, 21);" onclick="handleUnblock('<%= users[i]._id %>')" >Unblock</button>
+                          <button type="button" class="btn " style="background-color: rgba(255, 0, 0, 0.279);">Block</button>
+          
+                        <% } else { %>
+                          <button type="button" class="btn " style="background-color: rgba(31, 144, 21, 0.236);"   >Unblock</button>
+                          <button type="button" class="btn" style="background-color: rgb(255, 0, 0);" onclick="handleblock('<%= users[i]._id %>')">Block</button>
+  
+                          <% } %>
+  
+                         
                         
-                  
+                   
+                          
+                    
+                         
                        
-                     
-                    <button type="button" class="btn">
-
-                    </button>
-
-
-                    </td>
+                      <button type="button" class="btn">
+  
+                      </button>
+  
+  
+                      </td>
+                    </tr>
+                  <% } %>
+                  
+                <% }else{ %>
+                  <tr>
+                    <td colspan="5">Users Not Found</td>
                   </tr>
                 <% } %>
+                
               
                        
                      
-                        <tr>
-                          <td colspan="5">Users Not Found</td>
-                        </tr>
-                     
+                        
               </tbody>
             </table>
           </div>
@@ -357,7 +373,7 @@
         <div class="footer-bottom">
           <div class="container">
             <p class="footer-copyright">
-              Copyright © <script>document.write(new Date().getFullYear());</script> Molla Store. All Rights Reserved.
+              Copyright © <script>document.write(new Date().getFullYear());</script> Wood Street Store. All Rights Reserved.
             </p>
             
             <!-- <figure class="footer-payments">
