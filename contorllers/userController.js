@@ -319,7 +319,7 @@ const authTest = async(req,res)=>{
     try {
         res.end('auth')
     } catch (error) {
-        console.log(error.message);
+        console.log(error.message); 
     }
 }
 

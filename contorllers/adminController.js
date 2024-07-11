@@ -480,6 +480,35 @@ const deleteCategory = async (req, res) => {
 }
 
 
+const deleteProductImage = async(req,res)=>{
+    try {
+        const productId = req.body.productId
+        const productImage = req.body.image
+        console.log(productId,productImage);
+
+        const product = await Product.findOne({_id:productId})
+        const products = await Product.find({})
+        if(product){
+            if(product.images.length<4){
+                res.render('productslist',{products,message:'need at least 3 images'})
+            }else{
+                product.images = product.images.filter(image => image !== productImage)
+
+                await product.save()
+
+                res.redirect('/admin/productslist')
+
+            }
+        }else{
+            res.render('productslist',{products,message:"Product not found"})
+        }
+        
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+
 
 
 module.exports ={
@@ -507,5 +536,6 @@ module.exports ={
     loadEditCategory,
     blockCategory,
     unblockCategory,
-    deleteCategory
+    deleteCategory,
+    deleteProductImage
 }

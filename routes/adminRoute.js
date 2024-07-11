@@ -58,6 +58,7 @@ admin_route.post('/editproduct',auth.isLogin,upload.array('productImages', 10),a
 admin_route.post('/blockcategory',auth.isLogin,adminController.blockCategory)
 admin_route.post('/unblockcategory',auth.isLogin,adminController.unblockCategory)
 admin_route.get('/deletecategory',auth.isLogin,adminController.deleteCategory)
+admin_route.post('/deleteProductImage',auth.isLogin,adminController.deleteProductImage)
 
 
 
