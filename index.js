@@ -13,7 +13,6 @@ const port = 3000
 
 
 
-
 const userRoute = require('./routes/userRoute')
 const adminRoute = require('./routes/adminRoute')
 const authRoute = require('./routes/GoogleAuthRoute')
