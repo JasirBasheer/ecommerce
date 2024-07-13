@@ -88,7 +88,9 @@ const loadAddCategory = async(req,res)=>{
 
 const loadProductsLists = async(req,res)=>{
     try {
-        res.render('productlists')
+       
+
+                res.render('productlists')
         
     } catch (error) {
         console.log(error.message);
@@ -138,6 +140,12 @@ const editProduct = async (req, res) => {
             return res.render('editproduct',{product,categories,message:'required 3 images minimum '});
         }
 
+        const checkDuplicate = await Product.findOne({productName:req.body.productName.trim()})
+        if(checkDuplicate && checkDuplicate.id.toString() !== productId){
+            return res.render('editproduct', { product, categories, message: 'Product already exists' });
+
+        }
+
         let newImages = [];
         if (req.files && req.files.length > 0) {
 
@@ -148,7 +156,7 @@ const editProduct = async (req, res) => {
             newImages = existingProduct.images;
         }
 
-        existingProduct.productName = req.body.productName;
+        existingProduct.productName = req.body.productName.trim();
         existingProduct.productCategory = req.body.productCategory;
         existingProduct.productPrice = req.body.productPrice;
         existingProduct.num_of_stocks = req.body.productStocks;
@@ -157,7 +165,9 @@ const editProduct = async (req, res) => {
 
         const updatedProduct = await existingProduct.save();
         if (updatedProduct) {
-            res.redirect('/admin/productslist');
+          
+            req.flash("success","Product successfuly edited")
+            res.redirect('/admin/productslist')
         } else {
             res.status(500).send('Failed to update product.');
         }
@@ -246,6 +256,11 @@ const addCategory = async (req, res) => {
     try {
         const categoryName = req.body.categoryName;
         const categoryExist = await Category.findOne({ categoryName: categoryName });
+
+        
+        if (req.body.categoryName.trim() === "") {
+            return res.render('addcategory', { message: 'Enter a valid name' });
+        }
         
         if (!categoryExist) {
             if (!req.files || req.files.length === 0) {
@@ -261,12 +276,13 @@ const addCategory = async (req, res) => {
 
             const category = await newCategory.save();
             if (category) {
-                res.redirect('/admin/categorylist');
+                req.flash("success","New category successfuly added")
+                res.redirect('/admin/categorylist')
             } else {
                 res.end('Error: Category not created');
             }
         } else {
-            res.end('Category already exists');
+            res.render('addcategory',{message:'Category already exists'});
         }
     } catch (error) {
         console.log(error.message);
@@ -287,10 +303,22 @@ const loadEditCategory = async(req,res)=>{
 const editCategory = async (req, res) => {
     try {
         const categoryId = req.body.id;
-
         const existingCategory = await Category.findById(categoryId);
+
+          
+        if (req.body.categoryName.trim() === "") {
+            return res.render('editcategory', { category:existingCategory,message: 'Enter a valid name' });
+        }
+
         if (!existingCategory) {
-            return res.send('Category not found');
+            req.flash("error","Category Not found")
+            res.redirect('/admin/categorylist')
+        }
+        const checkDuplicate = await Category.findOne({ categoryName: req.body.categoryName.trim() });
+
+        
+        if(checkDuplicate && checkDuplicate._id.toString() !== categoryId){
+            return res.render('editcategory', { category:existingCategory,message: 'Category already exists' });
         }
 
         let newImage;
@@ -301,15 +329,18 @@ const editCategory = async (req, res) => {
             newImage = existingCategory.image[0];
         }
 
-        existingCategory.categoryName = req.body.categoryName;
+        existingCategory.categoryName = req.body.categoryName.trim();
         existingCategory.image = [newImage];
 
         const updatedCategory = await existingCategory.save();
         if (updatedCategory) {
-            res.redirect('/admin/categorylist');
+            req.flash("success","Category successfuly edited")
+            res.redirect('/admin/categorylist')
         } else {
             res.status(500).send('Failed to update category.');
         }
+
+        
     } catch (error) {
         console.log(error.message);
         res.status(500).send('Error updating category.');
@@ -322,45 +353,43 @@ const editCategory = async (req, res) => {
 
 const addProduct = async(req,res)=>{
     try {
-        const productname = req.body.productName
-        const categoryName = req.body.productCategory
-        const productPrice = req.body.productPrice
-        const productStocks = req.body.productStocks
-        const productDescription = req.body.productDescription
+        const productname = req.body.productName.trim()
+        const categoryName = req.body.productCategory.trim()
+        const productPrice = req.body.productPrice.trim()
+        const productStocks = req.body.productStocks.trim()
+        const productDescription = req.body.productDescription.trim()
         const category = await Category.find({})
    
-        if (productname.trim() === "") {
-            return res.render('addproduct', {category,message: 'Enter a valid name' });
-        }
-        if (productDescription.trim() === "") {
-            return res.render('addproduct', {category,message: 'Enter a valid Description' });
-        }
+        const checkproduct = await Product.findOne({productName:productname})
         
-
-
-        if (!req.files || req.files.length < 3) {
-            return res.send('At least 3 images are required.');
+        if(checkproduct){
+            return res.render('addproduct', {category,message: 'Product already exists' });
         }
 
+    
         const imagePaths = await addProductImages(req.files);
-  
-          const newProduct = new Product({
-              productName: productname,
-              productCategory: categoryName,
-              productDescription: productDescription,
-              productPrice: productPrice,
-              num_of_stocks: productStocks,
-              images: imagePaths,
-              is_blocked:false,
-          });
-  
-          const response = await newProduct.save();
-  
-          if (response) {
-              res.redirect('/admin/productslist');
-          } else {
-              res.end('Error saving product.');
-          }
+      
+        const newProduct = new Product({
+            productName: productname,
+            productCategory: categoryName,
+            productDescription: productDescription,
+            productPrice: productPrice,
+            num_of_stocks: productStocks,
+            images: imagePaths,
+            is_blocked:false,
+        });
+
+        const response = await newProduct.save();
+
+        if (response) {
+          req.flash("success","New Product successfuly added")
+          res.redirect('/admin/productslist')
+        } else {
+            res.end('Error saving product.');
+        }
+
+
+       
         
     } catch (error) {
         console.log(error.message);
@@ -469,9 +498,11 @@ const deleteCategory = async (req, res) => {
 
         const deletecategory = await Category.findByIdAndDelete(categoryId);
         if (deletecategory) {
-            res.redirect('/admin/categorylist');
+            req.flash("warning","category successfully deleted")
+            res.redirect('/admin/categorylist')
         } else {
-            res.end('Category not deleted');
+            req.flash("error","Category not deleted")
+            res.redirect('/admin/categorylist')
         }
     } catch (error) {
         console.log(error.message);
@@ -487,20 +518,23 @@ const deleteProductImage = async(req,res)=>{
         console.log(productId,productImage);
 
         const product = await Product.findOne({_id:productId})
-        const products = await Product.find({})
         if(product){
             if(product.images.length<4){
-                res.render('productslist',{products,message:'need at least 3 images'})
+                req.flash("error","Need at least 3 images")
+                res.redirect('/admin/productslist')
             }else{
                 product.images = product.images.filter(image => image !== productImage)
 
                 await product.save()
-
+                req.flash("warning","Product image successfuly deleted")
                 res.redirect('/admin/productslist')
 
             }
         }else{
-            res.render('productslist',{products,message:"Product not found"})
+
+            req.flash("error","Product not found")
+            res.redirect('/admin/productslist')
+
         }
         
     } catch (error) {

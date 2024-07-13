@@ -26,7 +26,7 @@ user_route.use(session({
 }))
 user_route.use(nocache())
 
-const userController = require('../contorllers/userController')
+const userController = require('../controllers/userController')
 
 
 
@@ -40,14 +40,15 @@ user_route.get('/singlepage',userController.loadSinglePage)
 user_route.get('/about',userController.loadAbout)
 user_route.get('/contactus',userController.loadContactUs)
 user_route.get('/blog',userController.loadBlog)
-user_route.get('/cart',userController.loadCart)
-user_route.get('/wishlist',userController.loadWishlist)
+user_route.get('/cart',auth.isLogin,userController.loadCart)
+user_route.get('/wishlist',auth.isLogin,userController.loadWishlist)
 user_route.get('/user',userController.loadUser)
 user_route.get('/verifyOtp',auth.isLogout,userController.verifyOtp)
-user_route.get('/userIsBanned',userController.userBannedPageLoad)
+user_route.get('/userIsBanned',auth.isLogout,userController.userBannedPageLoad)
 user_route.get('/forgotpassword',userController.loadforgotpassword)
 user_route.get('/resetpassword/:id/:token',userController.loadRestPassword)
 user_route.get('/logout',auth.isLogin,userController.logout)
+user_route.get('/addnewaddress',auth.isLogin,userController.loadCreateNewAddress)
 user_route.get('/filterCategory',userController.filterCategory)
 
 
@@ -58,9 +59,14 @@ user_route.get('/filterCategory',userController.filterCategory)
 //post
 user_route.post('/register',auth.isLogout,userController.insertUser)
 user_route.post('/login',auth.isLogout,userController.userLogin)
-user_route.post('/verifyOtp',userController.verifySignUp)
-user_route.post('/resendOtp',userController.resendOtp)
-user_route.post('/forgotpassword',userController.resetPassword)
+user_route.post('/verifyOtp',auth.isLogout,userController.verifySignUp)
+user_route.post('/resendOtp',auth.isLogout,userController.resendOtp)
+user_route.post('/forgotpassword',auth.isLogout,userController.resetPassword)
+user_route.post('/addnewaddress',auth.isLogin,userController.addNewAddress)
+user_route.post('/markasactive',auth.isLogin,userController.markAddressAsActive)
+user_route.get('/delelteaddress',auth.isLogin,userController.deleteAddress)
+user_route.get('/editaddress',auth.isLogin,userController.loadEditAddress)
+user_route.post('/editaddress',auth.isLogin,userController.editAddress)
 
 
 module.exports = user_route

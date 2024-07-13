@@ -141,7 +141,7 @@
                 </div><!-- End .container -->
             </nav><!-- End .breadcrumb-nav -->
 
-            <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('assets/images/backgrounds/login-bg.jpg')">
+            <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" >
             	<div class="container">
             		<div class="form-box">
             			<div class="form-tab">
@@ -213,6 +213,9 @@
 							    			<label for="register-password-2">Password *</label>
 							    			<input type="password" class="form-control" id="register-password-2" name="loginPassword" required>
 							    		</div><!-- End .form-group -->
+                                        <% if (typeof message !== 'undefined') { %>
+                                            <div style="color:red;"><%= message %></div>
+                                          <% } %>
 
 							    		<div class="form-footer">
 							    			<button type="submit" class="btn btn-outline-primary-2">
@@ -221,9 +224,7 @@
 			                				</button>
                                             
 
-                                            <% if (typeof message !== 'undefined') { %>
-                                                <div style="color:red;"><%= message %></div>
-                                              <% } %>
+                                          
 							    		</div><!-- End .form-footer -->
                                         <a href="/" class="forgot-link">Forgot Your Password?</a>
 

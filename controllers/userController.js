@@ -137,12 +137,12 @@ const verifySignUp =  async(req,res)=>{
                 req.session.user_id=userData._id;
                 res.redirect('/')
             }else{
-                res.render('register',{message:"regisistarion failed" ,title:"Sign Up"})
+                res.render('register',{message:"regisistarion failed"})
             }
 
         
         }else{
-            res.render('register',{message:"regisistarion failed" ,title:"Sign Up"})
+            res.render('verifyOtp',{message:"Please enter a valid otp" })
 
      
 
@@ -174,13 +174,13 @@ const insertUser = async(req,res)=>{
                     res.redirect('/verifyOtp')
     
             }else{
-                res.render('register',{message:"regisistarion fialed" ,title:"Sign Up"})
+                res.render('register',{message:"regisistarion fialed"})
     
             } 
     
         
         }else{
-            return res.render('register',{message:"User Already Exist" ,title:"Sign Up"})
+            return res.render('register',{message:"User Already Exist" })
 
         } 
         
@@ -204,6 +204,7 @@ const userLogin = async(req,res)=>{
                     if(userData.password){
 
                         const passwordMatch =  await bcrypt.compare(password,userData.password)
+
             
                         if(passwordMatch){
                             req.session.user_id=userData._id;
@@ -217,7 +218,7 @@ const userLogin = async(req,res)=>{
                     }
 
                 }else{
-                    res.redirect('/userIsBanned')
+                    res.render('login',{message:"User is Banned"})
                 }
                 
     
@@ -292,10 +293,25 @@ const loadWishlist = async(req,res)=>{
 }
 
 
+const loadCreateNewAddress = async(req,res)=>{
+    try {
+        const user = req.session.user_id
+        res.render('addnewaddress',{user})
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+
 
 const loadUser = async(req,res)=>{
     try {
-        res.render('dashboard')
+        const user = req.session.user_id
+        console.log(user);
+        if(user){
+            var userDetails = await User.findById(user._id)
+        }
+        res.render('dashboard',{user,userDetails})
     } catch (error) {
         console.log(error.message);
     }
@@ -466,13 +482,156 @@ const logout = async(req,res)=>{
     }
 }
 
+const addNewAddress = async(req,res)=>{
+    try {
+        const fullName = req.body.fullName
+        const number = req.body.number
+        const house = req.body.house
+        const street = req.body.street
+        const landMark = req.body.landMark
+        const city = req.body.city
+        const state = req.body.state
+        const pincode = req.body.pincode
+        const id = req.body.id
+        console.log(id);
+        const user = await User.findById(id);
+        if(user){
+            const newAddress = {
+                fullName,
+                number,
+                house,
+                street,
+                landMark,
+                city,
+                state,
+                pincode
+            };
+
+            console.log('New Address:', newAddress);
+
+            user.address.push(newAddress);
+
+            const savedUser = await user.save();
+            console.log('Updated User:', savedUser);
+            res.redirect('/user')
+        }
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+
+const markAddressAsActive = async (req, res) => {
+    try {
+        const { userId, addressId } = req.body;
+
+        const user = await User.findById(userId);
+
+        if (user) {
+            user.address.forEach((address) => {
+                address.isActive = address._id.toString() === addressId;
+            });
+
+            await user.save();
+
+            res.redirect('/user')
+        } else {
+            res.status(404).json({ message: "User not found" });
+        }
+    } catch (error) {
+        console.log('Error:', error.message);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+
+const deleteAddress = async(req,res)=>{
+    try {
+        const addressId = req.query.id;
+        const userId = req.session.user_id;
+
+        const user = await User.findById(userId);
+
+        if (user) {
+            user.address = user.address.filter(address => address._id.toString() !== addressId);
+            await user.save();
+            res.redirect('/user');
+        } else {
+            res.status(404).json({ message: "User not found" });
+        }
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+
+const loadEditAddress = async (req, res) => {
+    try {
+        const addressId = req.query.id;
+        const user = await User.findOne({ "address._id": addressId });
+
+        if (user) {
+            const address = user.address.find(addr => addr._id.toString() === addressId);
+            res.render('editaddress', { address });
+        } else {
+            res.status(404).json({ message: "Address not found" });
+        }
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+const editAddress = async(req,res)=>{
+    try {
+        const addressId = req.body.addressId; 
+        const fullName = req.body.fullName;
+        const number = req.body.number;
+        const house = req.body.house;
+        const street = req.body.street;
+        const landMark = req.body.landMark;
+        const city = req.body.city;
+        const state = req.body.state;
+        const pincode = req.body.pincode;
+
+
+        const user = await User.findOne({"address._id":addressId})
+        console.log(user);
+
+        if(user){
+
+            const addressIndex = user.address.findIndex(addr => addr._id.toString() === addressId);
+            console.log(addressIndex);
+            if(addressIndex  !== -1){
+                user.address[addressIndex].fullName = fullName;
+                user.address[addressIndex].number = number;
+                user.address[addressIndex].house = house;
+                user.address[addressIndex].street = street;
+                user.address[addressIndex].landMark = landMark;
+                user.address[addressIndex].city = city;
+                user.address[addressIndex].state = state;
+                user.address[addressIndex].pincode = pincode;
+                
+                await user.save()
+                res.redirect('/user')
+            }
+
+        }
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+
 
 module.exports ={
     loadRegister,
     loadHome,
-    insertUser,
-    userLogin,
-    loadLogin,
+    loadLogin, userLogin,
+    insertUser, 
+   
     loadSinglePage,
     loadAbout,
     loadContactUs,
@@ -491,6 +650,8 @@ module.exports ={
     loadRestPassword,
     logout,
     filterCategory,
+    loadCreateNewAddress, addNewAddress, markAddressAsActive, deleteAddress,loadEditAddress,editAddress,
+
     
 
 }

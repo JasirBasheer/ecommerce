@@ -1,0 +1,406 @@
+<%- include('../layouts/user/header') -%>
+
+    <div class="page-wrapper">
+        <header class="header">
+            
+
+            <div class="header-middle sticky-header">
+                <div class="container">
+                    <div class="header-left">
+                        <button class="mobile-menu-toggler">
+                            <span class="sr-only">Toggle mobile menu</span>
+                            <i class="icon-bars"></i>
+                        </button>
+    
+                        <a href="/" class="logo">
+                            <img src="assets/images/logo.png" alt="Wood Street Logo" width="105" height="25">
+                        </a>
+    
+                        <nav class="main-nav">
+                            <ul class="menu sf-arrows">
+                                <li class="megamenu-container active">
+                                    <a href="/" class="sf-with">Home</a>
+    
+                                </li>
+                                <li>
+                                    <a href="/shop" class="sf-with">Shop</a>
+    
+                            
+                                </li>
+                                <li>
+                                    <a href="/about" class="sf-with">About</a>
+                                </li>
+                                <li>
+                                    <a href="/contactus" class="sf-with">Contact Us</a>
+    
+                                    
+                                </li>
+                                <li>
+                                    <a href="/blog" class="sf-with">Blog</a>
+    
+                                    
+                                </li>
+                                
+                            </ul><!-- End .menu -->
+                        </nav><!-- End .main-nav -->
+                    </div><!-- End .header-left -->
+    
+                    <div class="header-right">
+                        <div class="header-search">
+                            <a href="#" class="search-toggle" role="button" title="Search"><i class="icon-search"></i></a>
+                            <form action="#" method="get">
+                                <div class="header-search-wrapper">
+                                    <label for="q" class="sr-only">Search</label>
+                                    <input type="search" class="form-control" name="q" id="q" placeholder="Search in..." required>
+                                </div><!-- End .header-search-wrapper -->
+                            </form>
+                        </div><!-- End .header-search -->
+                        <a href="/wishlist" class="wishlist-link">
+                            <i class="icon-heart-o"></i>
+                                <span class="wishlist-count">3</span>
+                        </a>
+    
+                        <div class="dropdown cart-dropdown">
+                            <a href="/cart" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
+                                <i class="icon-shopping-cart"></i>
+                                <span class="cart-count">2</span>
+                            </a>
+    
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <div class="dropdown-cart-products">
+                                    <div class="product">
+                                        <div class="product-cart-details">
+                                            <h4 class="product-title">
+                                                <a href="product.html">Beige knitted elastic runner shoes</a>
+                                            </h4>
+    
+                                            <span class="cart-product-info">
+                                                <span class="cart-product-qty">1</span>
+                                                x $84.00
+                                            </span>
+                                        </div><!-- End .product-cart-details -->
+    
+                                        <figure class="product-image-container">
+                                            <a href="product.html" class="product-image">
+                                                <img src="assets/images/products/cart/product-1.jpg" alt="product">
+                                            </a>
+                                        </figure>
+                                        <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
+                                    </div><!-- End .product -->
+    
+                                    <div class="product">
+                                        <div class="product-cart-details">
+                                            <h4 class="product-title">
+                                                <a href="product.html">Blue utility pinafore denim dress</a>
+                                            </h4>
+    
+                                            <span class="cart-product-info">
+                                                <span class="cart-product-qty">1</span>
+                                                x $76.00
+                                            </span>
+                                        </div><!-- End .product-cart-details -->
+    
+                                        <figure class="product-image-container">
+                                            <a href="product.html" class="product-image">
+                                                <img src="assets/images/products/cart/product-2.jpg" alt="product">
+                                            </a>
+                                        </figure>
+                                        <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
+                                    </div><!-- End .product -->
+                                </div><!-- End .cart-product -->
+    
+                                <div class="dropdown-cart-total">
+                                    <span>Total</span>
+    
+                                    <span class="cart-total-price">$160.00</span>
+                                </div><!-- End .dropdown-cart-total -->
+    
+                                <div class="dropdown-cart-action">
+                                    <a href="/cart" class="btn btn-primary">View Cart</a>
+                                    <a href="checkout.html" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>
+                                </div><!-- End .dropdown-cart-total -->
+                            </div><!-- End .dropdown-menu -->
+                        </div>
+                        <a href="" class="wishlist-link">
+                         <i class="icon-user"></i>
+                        </a>
+                    </div><!-- End .header-right -->
+                </div><!-- End .container -->
+            </div><!-- End .header-middle -->
+        </header><!-- End .header -->
+
+      <main class="main">
+        <div
+          class="page-header text-center"
+          style="background-image: url('assets/images/page-header-bg.jpg')"
+        >
+          <div class="container">
+            <h1 class="page-title">My Account<span>Shop</span></h1>
+          </div>
+        </div>
+        <nav aria-label="breadcrumb" class="breadcrumb-nav mb-3">
+          <div class="container">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/">Home</a></li>
+              <li class="breadcrumb-item active" aria-current="page">
+               <a href="/account"> My Account </a>
+              </li>
+            </ol>
+          </div>
+        </nav>
+
+        <div class="page-content">
+          <div class="dashboard">
+            <div class="container">
+              <div class="row">
+                <div class="col-md-8 col-lg-9">
+                  <div >                   
+                    <div
+                      class="tab-pane "
+                      id="tab-account"
+                      role="tabpanel"
+                      aria-labelledby="tab-account-link"
+                    >
+                      <form action="/editaddress" method="post">                 
+
+                        <label>Full Name *</label>
+                        <input type="text" class="form-control" name="fullName" id="fullName" value="<%= address.fullName%>"/>                        
+                        <div><span id="fullName-error" style="color: red"></span></div>
+                        <input type="hidden" class="form-control" name="addressId" id="fullName" value="<%= address._id%>"/>                        
+
+                        
+
+                        <label>Mobile No *</label>
+                        <input type="text" class="form-control" name="number" id="number" value="<%= address.number%>" />
+                        <div><span id="number-error" style="color: red"></span></div>
+
+                        <label>House *</label>
+                        <input type="text" class="form-control" name="house" id="house" value="<%= address.house%>" />
+                        <div><span id="house-error" style="color: red"></span></div>
+
+                        <label>Street *</label>
+                        <input type="text" class="form-control" name="street" id="street" value="<%= address.street%>"/>
+                        <div><span id="street-error" style="color: red"></span></div>
+
+                        <label>Land mark </label>
+                        <input type="text" class="form-control" name="landMark" id="landMark" value="<%= address.landMark%>"/>
+                        <div><span id="landMark-error" style="color: red"></span></div>
+
+                        <label>City *</label>
+                        <input type="text" class="form-control" name="city" id="city" value="<%= address.city%>"/>
+                        <div><span id="city-error" style="color: red"></span></div>
+
+                        <label>State *</label>
+                        <input type="text" class="form-control" name="state" id="state" value="<%= address.state%>"/>
+                        <div><span id="state-error" style="color: red"></span></div>
+
+                        <label>Pincode *</label>
+                        <input type="text" class="form-control" name="pincode" id="pincode" value="<%= address.pincode%>"/> 
+                        <div><span id="pincode-error" style="color: red"></span></div>                       
+
+                        <button type="submit" class="btn btn-outline-primary-2" id="registerButton">
+                          <span>Edit Address</span>
+                          <i class="icon-long-arrow-right"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="footer">
+        <div class="footer-middle">
+          <div class="container">
+            <div class="row">
+              <div class="col-sm-6 col-lg-3">
+                <div class="widget widget-about">
+                  <img
+                    src="assets/images/logo.png"
+                    class="footer-logo"
+                    alt="Footer Logo"
+                    width="105"
+                    height="25"
+                  />
+                  <p>
+                    Praesent dapibus, neque id cursus ucibus, tortor neque
+                    egestas augue, eu vulputate magna eros eu erat.
+                  </p>
+
+                  <div class="social-icons">
+                    <a
+                      href="#"
+                      class="social-icon"
+                      target="_blank"
+                      title="Facebook"
+                      ><i class="icon-facebook-f"></i></a>
+                    <a
+                      href="#"
+                      class="social-icon"
+                      target="_blank"
+                      title="Twitter"
+                      ><i class="icon-twitter"></i></a>
+                    <a
+                      href="#"
+                      class="social-icon"
+                      target="_blank"
+                      title="Instagram"
+                      ><i class="icon-instagram"></i></a>
+                    <a
+                      href="#"
+                      class="social-icon"
+                      target="_blank"
+                      title="Youtube"
+                      ><i class="icon-youtube"></i></a>
+                    <a
+                      href="#"
+                      class="social-icon"
+                      target="_blank"
+                      title="Pinterest"
+                      ><i class="icon-pinterest"></i
+                    ></a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-6 col-lg-3">
+                <div class="widget">
+                  <h4 class="widget-title">Useful Links</h4>
+
+                  <ul class="widget-list">
+                    <li><a href="/about">About Spy.steps</a></li>
+                    <li><a href="#">How to shop on Spy.steps</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="/contact">Contact us</a></li>
+                    <li><a href="/login">Log in</a></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="col-sm-6 col-lg-3">
+                <div class="widget">
+                  <h4 class="widget-title">Customer Service</h4>
+
+                  <ul class="widget-list">
+                    <li><a href="#">Payment Methods</a></li>
+                    <li><a href="#">Money-back guarantee!</a></li>
+                    <li><a href="#">Returns</a></li>
+                    <li><a href="#">Shipping</a></li>
+                    <li><a href="#">Terms and conditions</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="col-sm-6 col-lg-3">
+                <div class="widget">
+                  <h4 class="widget-title">My Account</h4>
+
+                  <ul class="widget-list">
+                    <li><a href="/login">Sign In</a></li>
+                    <li><a href="/cart">View Cart</a></li>
+                    <li><a href="/wishlist">My Wishlist</a></li>
+                    <li><a href="#">Track My Order</a></li>
+                    <li><a href="#">Help</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <div class="container">
+            <p class="footer-copyright">
+              Copyright © <script>document.write(new Date().getFullYear());</script> Spy.steps Store. All Rights Reserved.
+            </p>
+            <figure class="footer-payments">
+              <img
+                src="assets/images/payments.png"
+                alt="Payment methods"
+                width="272"
+                height="20"
+              />
+            </figure>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <button id="scroll-top" style="border-radius: 50%;background-color: rgba(255, 255, 255, 0.294);" title="Back to Top">
+      <i class="icon-arrow-up"></i>
+    </button>
+
+    <div class="mobile-menu-overlay"></div>
+
+    <div class="mobile-menu-container">
+      <div class="mobile-menu-wrapper">
+        <span class="mobile-menu-close"><i class="icon-close"></i></span>
+
+        <form action="/search" method="get" id="mobile-search-form" class="mobile-search" >
+          <label for="mobile-search" class="sr-only">Search</label>
+          <input
+            type="search"
+            class="form-control"
+            name="search"
+            id="mobile-search-input"
+            placeholder="Search in..."
+            required
+          />
+          <button class="btn btn-primary" type="submit">
+            <i class="icon-search"></i>
+          </button>
+        </form>
+
+        <nav class="mobile-nav">
+          <ul class="mobile-menu">
+            <li class="active">
+              <a href="/">Home</a>
+            </li>
+            <li>
+              <a href="/categories">Categories</a>
+              <ul>
+               
+                  <li><a href="blog.html">Classic</a></li>
+                  <li><a href="blog-listing.html">Listing</a></li>                  
+              </ul>
+            </li>
+            <li>
+              <a href="/products" class="">Products</a>              
+            </li>
+            <li>
+              <a href="/about">About</a>
+            </li>
+            <li>
+              <a href="/contact">Contact Us</a>
+            </li>
+            <li>
+              <a href="/wishlist">Wishlist</a>
+            </li>
+            <li>
+              <a href="/cart">Add to Cart</a>
+            </li>
+          </ul>
+        </nav>
+        <!-- End .mobile-nav -->
+
+        <div class="social-icons">
+          <a href="#" class="social-icon" target="_blank" title="Facebook"
+            ><i class="icon-facebook-f"></i></a>
+          <a href="#" class="social-icon" target="_blank" title="Twitter"
+            ><i class="icon-twitter"></i></a>
+          <a href="#" class="social-icon" target="_blank" title="Instagram"
+            ><i class="icon-instagram"></i></a>
+          <a href="#" class="social-icon" target="_blank" title="Youtube"
+            ><i class="icon-youtube"></i></a>
+        </div>
+        <!-- End .social-icons -->
+      </div>
+      <!-- End .mobile-menu-wrapper -->
+    </div>
+    <!-- End .mobile-menu-container -->
+
+    
+

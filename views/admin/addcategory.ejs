@@ -192,8 +192,11 @@
                           required
                         />
                       </div>
-                      <span id="categoryName-error" style="color: red"></span>
-
+                      <% if(typeof message !== 'undefined'){ %>
+                        <p style="text-align: center; color: red">
+                          <%= message %>
+                        </p>
+                        <% } %>
                       <div class="form-group">
                         <label for="singin-password-2">Photo *</label>
                         <input
@@ -438,6 +441,7 @@
         </div>
       </div>
     </div>
+    
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/jquery.hoverIntent.min.js"></script>

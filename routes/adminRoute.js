@@ -1,10 +1,11 @@
-const express = require('express')
-const admin_route = express()
+const express = require('express');
+const admin_route =express();
 const bodyParser = require('body-parser')
 const auth = require("../middleware/adminAuth")
 const session = require('express-session')
 const nocache = require('nocache')
 const upload = require('../middleware/multer')
+const flash = require('connect-flash')
 
 
 admin_route.set('view engine','ejs')
@@ -17,14 +18,24 @@ admin_route.use(bodyParser.urlencoded({extended:true}))
 admin_route.use(session({
     secret:process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false 
+    saveUninitialized: false,
+    cookie: { maxAge: 60000, secure: false }
+    
 
 }))
 admin_route.use(nocache())
+admin_route.use(flash())
+admin_route.use((req, res, next) => {
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    res.locals.warning = req.flash('warning');
+
+    next();
+});
 
 
 
-const adminController = require('../contorllers/adminController')
+const adminController = require('../controllers/adminController')
 
 admin_route.get('/login',auth.isNotUser,auth.isLogout,adminController.loadAdminLoginPage)
 admin_route.get('/',auth.isLogin,adminController.loadAdminDashboard)
@@ -34,7 +45,6 @@ admin_route.get('/productslist',auth.isLogin,adminController.loadProductsList)
 admin_route.get('/userslist',auth.isLogin,adminController.loadUserLists)
 admin_route.get('/categorylist',auth.isLogin,adminController.loadCategoryList)
 admin_route.get('/addcategory',auth.isLogin,adminController.loadAddCategory)
-admin_route.get('/productslist',auth.isLogin,adminController.loadProductsLists)
 admin_route.get('/addproduct',auth.isLogin,adminController.loadAddProduct)
 admin_route.get('/editproduct',auth.isLogin,adminController.loadEditProduct)
 admin_route.get('/logout',auth.isLogin,adminController.logout)

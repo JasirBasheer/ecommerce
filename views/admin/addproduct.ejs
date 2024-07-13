@@ -205,7 +205,7 @@
                         </select>
                       </div>
 
-                      <div class="form-group">
+                      <div class="form-group" >
                         <label for="singin-password-2">Photo *</label>
                         <input
                           type="file"
@@ -267,21 +267,6 @@
         </div>
       </main>
 
-      <script>
-        function imageValidation(input) {
-          
-
-        const files = input.files;
-        if(files.length <3){
-          document.getElementById('productPhoto-error').innerText = 'At least 3 images are required'
-          input.setCustomValidity('At least 3 images are required')
-
-        }else{
-          document.getElementById('productPhoto-error').innerText='';
-          input.setCustomValidity('')
-        }
-      }
-      </script>
 
       <footer class="footer">
         <!-- <div class="footer-middle">
@@ -501,6 +486,92 @@
     <script src="assets/js/owl.carousel.min.js"></script>
     <!-- Main JS File -->
     <script src="assets/js/main.js"></script>
+    <script>
+       function imageValidation(input) {
+          
+
+          const files = input.files;
+          if(files.length <3){
+            document.getElementById('productPhoto-error').innerText = 'At least 3 images are required'
+            input.setCustomValidity('At least 3 images are required')
+  
+          }else{
+            document.getElementById('productPhoto-error').innerText='';
+            input.setCustomValidity('')
+          }
+        }
+
+
+
+        function validateProductName() {
+            const productNameInput = document.getElementById('productName');
+            const productNameError = document.getElementById('productName-error');
+            const productName = productNameInput.value.trim();
+
+            if (productName === '') {
+                productNameError.textContent = 'Enter a valid Name';
+            } else {
+                productNameError.textContent = '';
+            }
+        }
+
+        function validateProductDescription() {
+            const productDescriptionInput = document.getElementById('productDescription');
+            const productDescriptionError = document.getElementById('productDescription-error');
+            const productDescription = productDescriptionInput.value.trim();
+
+            if (productDescription === '') {
+                productDescriptionError.textContent = 'Enter a valid Description';
+            } else {
+                productDescriptionError.textContent = '';
+            }
+        }
+
+        function validateProductStocks() {
+            const productStocksInput = document.getElementById('productStocks');
+            const productStocksError = document.getElementById('productStocks-error');
+            const productStocks = parseInt(productStocksInput.value, 10);
+
+            if (productStocks < 0) {
+                productStocksError.textContent = 'Enter a valid stock';
+            } else {
+                productStocksError.textContent = '';
+            }
+        }
+
+        function validateProductPrice() {
+            const productPriceInput = document.getElementById('productPrice');
+            const productPriceError = document.getElementById('productPrice-error');
+            const productPrice = parseFloat(productPriceInput.value);
+
+            if ( productPrice < 0) {
+                productPriceError.textContent = 'Enter a valid Price';
+            } else {
+                productPriceError.textContent = '';
+            }
+        }
+
+        document.getElementById('productName').addEventListener('keyup', validateProductName);
+        document.getElementById('productDescription').addEventListener('keyup', validateProductDescription);
+        document.getElementById('productStocks').addEventListener('keyup', validateProductStocks);
+        document.getElementById('productPrice').addEventListener('keyup', validateProductPrice);
+
+        document.getElementById('addProductForm').addEventListener('submit', function(event) {
+            validateProductName();
+            validateProductDescription();
+            validateProductStocks();
+            validateProductPrice();
+
+            const productNameError = document.getElementById('productName-error').textContent;
+            const productDescriptionError = document.getElementById('productDescription-error').textContent;
+            const productStocksError = document.getElementById('productStocks-error').textContent;
+            const productPriceError = document.getElementById('productPrice-error').textContent;
+
+            if (productNameError || productDescriptionError || productStocksError || productPriceError) {
+                event.preventDefault(); 
+            }
+        });
+  </script>
 
     
   </body>

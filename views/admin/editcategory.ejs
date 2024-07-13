@@ -175,15 +175,16 @@
                     aria-labelledby="signin-tab-2"
                   >
                   <form action="/admin/editcategory" method="post" enctype="multipart/form-data">
-                    <% if (typeof message !== 'undefined') { %>
-                    <p style="color: red; text-align: center"><%= message %></p>
-                    <% } %>
+                    
                     <div class="form-group">
                         <label for="categoryName">Category Name *</label>
                         <input type="text" class="form-control" id="categoryName" name="categoryName" value="<%= category.categoryName %>" required>
                     </div>
-                    <span id="categoryName-error" style="color: red"></span>
-                
+                    <% if(typeof message !== 'undefined'){ %>
+                      <p style="text-align: center; color: red">
+                        <%= message %>
+                      </p>
+                      <% } %>                
                     <div class="form-group">
                         <label for="categoryPhoto">Photo *</label>
                         <img src="<%= category.image %>" alt="" style="width: 100px; height: 100px" id="imgView" />

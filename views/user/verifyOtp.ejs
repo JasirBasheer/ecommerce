@@ -148,7 +148,7 @@
                 </div><!-- End .container -->
             </nav><!-- End .breadcrumb-nav -->
 
-            <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('assets/images/backgrounds/login-bg.jpg')">
+            <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" >
             	<div class="container">
             		<div class="form-box">
             			<div class="form-tab">
@@ -211,6 +211,10 @@
                                             <input type="text" class="form-control" id="register-username" name="otp" required >
                                             <div id="usernameError" class="error-message"></div>
                                         </div>
+
+                                        <% if (typeof message !== 'undefined') { %>
+                                            <div style="color:red;"><%= message %></div>
+                                          <% } %>
                                 
                                         <div class="form-footer">
                                             <button type="submit" class="btn btn-outline-primary-2">
@@ -603,6 +607,7 @@
             const interval = setInterval(() => {
                 if (n <= -1) {
                     clearInterval(interval);
+                    document.querySelector(".time").innerHTML = '';
                     document.getElementById("resend").disabled = false;
                     localStorage.removeItem('timer');
                 } else {
@@ -647,7 +652,12 @@
             console.log('otp');
            
         }
+
+        if (performance.navigation.type === 1) {
+            window.location.href = '/register';
+        }
     </script>
+   
 
 
     <%- include('../layouts/user/footer') -%>
