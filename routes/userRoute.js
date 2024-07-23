@@ -27,6 +27,9 @@ user_route.use(session({
 user_route.use(nocache())
 
 const userController = require('../controllers/userController')
+const cartController = require('../controllers/cartController')
+const productController = require('../controllers/productController')
+const checkoutController = require('../controllers/checkoutController')
 
 
 
@@ -36,21 +39,36 @@ user_route.get('/register',auth.isLogout,userController.loadRegister)
 user_route.get('/login',auth.isNotAdmin,auth.isLogout,userController.loadLogin)
 user_route.get('/',auth.isNotAdmin,userController.loadHome)
 user_route.get('/shop',userController.loadShop)
-user_route.get('/singlepage',userController.loadSinglePage)
+
+
+
+user_route.get('/singlepage',productController.loadSinglePage)
 user_route.get('/about',userController.loadAbout)
 user_route.get('/contactus',userController.loadContactUs)
 user_route.get('/blog',userController.loadBlog)
-user_route.get('/cart',auth.isLogin,userController.loadCart)
+user_route.get('/cart',auth.isLogin,cartController.loadCart)
 user_route.get('/wishlist',auth.isLogin,userController.loadWishlist)
 user_route.get('/user',userController.loadUser)
 user_route.get('/verifyOtp',auth.isLogout,userController.verifyOtp)
-user_route.get('/userIsBanned',auth.isLogout,userController.userBannedPageLoad)
 user_route.get('/forgotpassword',userController.loadforgotpassword)
-user_route.get('/resetpassword/:id/:token',userController.loadRestPassword)
+user_route.post('/forgotpassword',userController.forgotpassword)
 user_route.get('/logout',auth.isLogin,userController.logout)
-user_route.get('/addnewaddress',auth.isLogin,userController.loadCreateNewAddress)
-user_route.get('/filterCategory',userController.filterCategory)
+user_route.get('/checkout',auth.isLogin,checkoutController.loadCheckout)
+user_route.get('/addnewaddress',auth.isLogin,checkoutController.loadCreateNewAddress)
+user_route.get('/filterCategory',productController.filterCategory)
+user_route.get('/filterprodcutbycategory',productController.filterProdcutByCategory)
+user_route.get('/filter',productController.filter)
 
+user_route.get('/resetpassword',userController.loadResetPassword)
+user_route.post('/resetpassword',userController.resetPassword)
+
+user_route.get('/ordersuccess',auth.isLogin,checkoutController.orderSuccess)
+user_route.post('/cancelorder',auth.isLogin,checkoutController.cancelOrder)
+user_route.get('/recentorders',auth.isLogin,checkoutController.recentOrders)
+user_route.get('/accountdetails',auth.isLogin,userController.loadAccountDetails)
+user_route.get('/updateuserpassword',auth.isLogin,userController.loadUpdateUserPassword)
+user_route.post('/updateuserpassword',auth.isLogin,userController.updateUserPassword)
+user_route.post('/updateuserdetails',auth.isLogin,userController.editUser)
 
 
 
@@ -62,11 +80,16 @@ user_route.post('/login',auth.isLogout,userController.userLogin)
 user_route.post('/verifyOtp',auth.isLogout,userController.verifySignUp)
 user_route.post('/resendOtp',auth.isLogout,userController.resendOtp)
 user_route.post('/forgotpassword',auth.isLogout,userController.resetPassword)
-user_route.post('/addnewaddress',auth.isLogin,userController.addNewAddress)
-user_route.post('/markasactive',auth.isLogin,userController.markAddressAsActive)
-user_route.get('/delelteaddress',auth.isLogin,userController.deleteAddress)
-user_route.get('/editaddress',auth.isLogin,userController.loadEditAddress)
-user_route.post('/editaddress',auth.isLogin,userController.editAddress)
+user_route.post('/addnewaddress',auth.isLogin,checkoutController.addNewAddress)
+user_route.post('/markasactive',auth.isLogin,checkoutController.markAddressAsActive)
+user_route.post('/deleteaddress',auth.isLogin,checkoutController.deleteAddress)
+user_route.post('/incquantity',auth.isLogin,cartController.incQuantity)
+
+user_route.get('/editaddress',auth.isLogin,checkoutController.loadEditAddress)
+user_route.post('/editaddress',auth.isLogin,checkoutController.editAddress)
+user_route.post('/addtocart',auth.isLogin,cartController.addToCart)
+user_route.post('/cart/removefromcart',auth.isLogin,cartController.removeFromCart)
+
 
 
 module.exports = user_route

@@ -10,13 +10,13 @@ mongoose.connect(process.env.MONGO_URI)
 const express = require('express')
 const app = express()
 const port = 3000
+app.use(express.static('public'));
 
 
 
 const userRoute = require('./routes/userRoute')
 const adminRoute = require('./routes/adminRoute')
 const authRoute = require('./routes/GoogleAuthRoute')
-app.use(express.static('public'));
 
 
 

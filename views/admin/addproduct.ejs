@@ -49,6 +49,8 @@
       href="assets/css/plugins/owl-carousel/owl.carousel.css"
     />
     <link rel="stylesheet" href="assets/css/style.css" />
+    <link  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+
   </head>
 
   <body>
@@ -148,122 +150,93 @@
         "
       >
       <!-- background-image: url('assets/images/demos/demo-9/slider/slide-1.jpg'); -->
-          <div class="container">
-            <div class="form-box">
-              <div class="form-tab">
-                <ul class="nav nav-pills nav-fill" role="tablist">
-                  <li class="nav-item">
-                    <a
-                      class="nav-link active"
-                      id="signin-tab-2"
-                      data-toggle="tab"
-                      href="#signin-2"
-                      role="tab"
-                      aria-controls="signin-2"
-                      aria-selected="false"
-                      >Add New Product</a
-                    >
-                  </li>
-                </ul>
-                <div class="tab-content">
-                  <div
-                    class="tab-pane fade show active"
-                    id="signin-2"
-                    role="tabpanel"
-                    aria-labelledby="signin-tab-2"
-                  >
-                    <form action="/admin/addproduct" method="post" enctype="multipart/form-data">
-                      <% if(typeof message !== 'undefined'){ %>
-                        <p style="color: red; text-align: center">
-                          <%= message %>
-                        </p>                      
-                        <% } %> 
-                      <div class="form-group">
-                        <label for="singin-email-2"
-                          >Name of the Product *</label
-                        >
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="productName"
-                          name="productName"
-                          required
-                        />
-                      </div><span id="productName-error" style="color: red"></span>
-                      <div class="form-group">
-                        <label for="singin-email-2"
-                          >Category *</label
-                        >
-                        <select name="productCategory" id="productCategory" class="form-control" required>
-                          <option value="">Select Category</option>
-                          <% for( let i = category.length-1; i >=0; i-- ) { %>
-                            <option name="category" value="<%= category[i].categoryName %>"><%= category[i].categoryName %></option>
-                          
-                          <% } %>
-                  
-                                               
-                        </select>
-                      </div>
-
-                      <div class="form-group" >
-                        <label for="singin-password-2">Photo *</label>
-                        <input
-                          type="file"
-                          class="form-control"
-                          id="productPhoto"
-                          name="productImages" 
-                          accept="image/*"
-                          multiple             
-                          required
-                          onchange="imageValidation(this)"
-                                      
-                        />
-                        <span id="productPhoto-error" style="color: red"></span>
-
-                      </div><span id="productPhoto-error" style="color: red"></span>
-                      <div class="form-group">
-                        <label for="singin-password-2">Price *</label>
-                        <input
-                          type="number"
-                          class="form-control"
-                          id="productPrice"
-                          name="productPrice"
-                          required
-                        />
-                      </div><span id="productPrice-error" style="color: red"></span>
-                      <div class="form-group">
-                        <label for="singin-password-2">No. of Stocks *</label>
-                        <input
-                          type="number"
-                          class="form-control"
-                          id="productStocks"
-                          name="productStocks"
-                          required
-                        />
-                      </div><span id="productStocks-error" style="color: red"></span>
-                      <div class="form-group">
-                        <label for="singin-password-2">Description *</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="productDescription"
-                          name="productDescription"
-                          required
-                        />
-                      </div><span id="productDescription-error" style="color: red"></span>
-
-                      <div class="form-footer">
-                        <button type="submit" class="btn btn-outline-primary-2" id="addButton">
-                          <span>Add</span>
-                          <i class="icon-long-arrow-right"></i>
-                        </button>
-                      </div>
-                    </form>
+      <div class="container">
+        <div class="form-box">
+          <div class="form-tab">
+            <ul class="nav nav-pills nav-fill" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link active" id="signin-tab-2" data-toggle="tab" href="#signin-2" role="tab" aria-controls="signin-2" aria-selected="false">Add New Product</a>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane fade show active" id="signin-2" role="tabpanel" aria-labelledby="signin-tab-2">
+                <form id="addProductForm" enctype="multipart/form-data">
+                  <% if(typeof message !== 'undefined'){ %>
+                    <p style="color: red; text-align: center"><%= message %></p>                      
+                  <% } %> 
+                  <div class="form-group">
+                    <label for="productName">Name of the Product *</label>
+                    <input type="text" class="form-control" id="productName" name="productName" required />
                   </div>
-                </div>
+                  <span id="productName-error" style="color: red"></span>
+                  <div class="form-group">
+                    <label for="productCategory">Category *</label>
+                    <select name="productCategory" id="productCategory" class="form-control" required>
+                      <option value="">Select Category</option>
+                      <% for( let i = category.length-1; i >=0; i-- ) { %>
+                        <option name="category" value="<%= category[i].categoryName %>"><%= category[i].categoryName %></option>
+                      <% } %>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="productPhoto">Photo *</label>
+                    <input type="file" class="form-control" id="productPhoto" name="productImages" accept="image/*" multiple required onchange="imageValidation(this)" />
+                    <div id="imagePreview" class="mt-3" style="display: flex; flex-wrap: wrap;"></div>
+                  </div>
+                  <span id="productPhoto-error" style="color: red"></span>
+                  <div class="form-group">
+                    <label for="productPrice">Price *</label>
+                    <input type="number" class="form-control" id="productPrice" name="productPrice" required />
+                  </div>
+                  <span id="productPrice-error" style="color: red"></span>
+                  <div class="form-group">
+                    <label for="productStocks">No. of Stocks *</label>
+                    <input type="number" class="form-control" id="productStocks" name="productStocks" required />
+                  </div>
+                  <span id="productStocks-error" style="color: red"></span>
+                  <div class="form-group">
+                    <label for="productDescription">Description *</label>
+                    <input type="text" class="form-control" id="productDescription" name="productDescription" required />
+                  </div>
+                  <span id="productDescription-error" style="color: red"></span>
+                  <div class="form-footer">
+                    <button type="submit" class="btn btn-outline-primary-2" id="addButton">
+                      <span>Add</span>
+                      <i class="icon-long-arrow-right"></i>
+                    </button>
+                    <p style="color: red;" id="duplicateerror"></p>
+
+                  </div>
+                </form>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+      
+      <!-- Cropper Modal -->
+      <div id="cropperModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="cropperModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="cropperModalLabel">Crop Image</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="img-container">
+                <img id="imageToCrop" src="" alt="Image to crop" />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="cropButton">Crop</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
         </div>
       </main>
 
@@ -484,94 +457,183 @@
     <script src="assets/js/jquery.waypoints.min.js"></script>
     <script src="assets/js/superfish.min.js"></script>
     <script src="assets/js/owl.carousel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
     <!-- Main JS File -->
+     
     <script src="assets/js/main.js"></script>
+    
     <script>
-       function imageValidation(input) {
-          
-
-          const files = input.files;
-          if(files.length <3){
-            document.getElementById('productPhoto-error').innerText = 'At least 3 images are required'
-            input.setCustomValidity('At least 3 images are required')
+      let cropper;
+      let currentFileIndex;
+      let files;
+      let processedImages = []; 
   
-          }else{
-            document.getElementById('productPhoto-error').innerText='';
-            input.setCustomValidity('')
-          }
+      function imageValidation(input) {
+        const imagePreview = document.getElementById('imagePreview');
+        imagePreview.innerHTML = ""; 
+  
+        files = input.files;
+  
+        if (files.length < 4) {
+          document.getElementById('productPhoto-error').innerText = 'At least 4 images are required';
+          input.setCustomValidity('At least 4 images are required');
+        } else {
+          document.getElementById('productPhoto-error').innerText = '';
+          input.setCustomValidity('');
+  
+          processedImages = Array.from(files);
+  
+          Array.from(files).forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              const img = document.createElement('img');
+              img.src = e.target.result;
+              img.style.width = '100px';
+              img.style.height = '100px';
+              img.style.margin = '5px';
+              img.style.cursor = 'pointer';
+              img.onclick = () => openCropper(index, e.target.result);
+              imagePreview.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+          });
         }
-
-
-
-        function validateProductName() {
-            const productNameInput = document.getElementById('productName');
-            const productNameError = document.getElementById('productName-error');
-            const productName = productNameInput.value.trim();
-
-            if (productName === '') {
-                productNameError.textContent = 'Enter a valid Name';
-            } else {
-                productNameError.textContent = '';
-            }
-        }
-
-        function validateProductDescription() {
-            const productDescriptionInput = document.getElementById('productDescription');
-            const productDescriptionError = document.getElementById('productDescription-error');
-            const productDescription = productDescriptionInput.value.trim();
-
-            if (productDescription === '') {
-                productDescriptionError.textContent = 'Enter a valid Description';
-            } else {
-                productDescriptionError.textContent = '';
-            }
-        }
-
-        function validateProductStocks() {
-            const productStocksInput = document.getElementById('productStocks');
-            const productStocksError = document.getElementById('productStocks-error');
-            const productStocks = parseInt(productStocksInput.value, 10);
-
-            if (productStocks < 0) {
-                productStocksError.textContent = 'Enter a valid stock';
-            } else {
-                productStocksError.textContent = '';
-            }
-        }
-
-        function validateProductPrice() {
-            const productPriceInput = document.getElementById('productPrice');
-            const productPriceError = document.getElementById('productPrice-error');
-            const productPrice = parseFloat(productPriceInput.value);
-
-            if ( productPrice < 0) {
-                productPriceError.textContent = 'Enter a valid Price';
-            } else {
-                productPriceError.textContent = '';
-            }
-        }
-
-        document.getElementById('productName').addEventListener('keyup', validateProductName);
-        document.getElementById('productDescription').addEventListener('keyup', validateProductDescription);
-        document.getElementById('productStocks').addEventListener('keyup', validateProductStocks);
-        document.getElementById('productPrice').addEventListener('keyup', validateProductPrice);
-
-        document.getElementById('addProductForm').addEventListener('submit', function(event) {
-            validateProductName();
-            validateProductDescription();
-            validateProductStocks();
-            validateProductPrice();
-
-            const productNameError = document.getElementById('productName-error').textContent;
-            const productDescriptionError = document.getElementById('productDescription-error').textContent;
-            const productStocksError = document.getElementById('productStocks-error').textContent;
-            const productPriceError = document.getElementById('productPrice-error').textContent;
-
-            if (productNameError || productDescriptionError || productStocksError || productPriceError) {
-                event.preventDefault(); 
-            }
+      }
+  
+      function openCropper(index, src) {
+        currentFileIndex = index;
+        const imageToCrop = document.getElementById('imageToCrop');
+        imageToCrop.src = src;
+  
+        $('#cropperModal').modal('show');
+  
+        cropper = new Cropper(imageToCrop, {
+          aspectRatio: 1,
+          viewMode: 1,
         });
-  </script>
+      }
+  
+      document.getElementById('cropButton').addEventListener('click', () => {
+        const canvas = cropper.getCroppedCanvas();
+        canvas.toBlob((blob) => {
+          const croppedFile = new File([blob], files[currentFileIndex].name, { type: 'image/jpeg' });
+          processedImages[currentFileIndex] = croppedFile; 
+  
+          const croppedImageUrl = URL.createObjectURL(blob);
+          const imagePreview = document.getElementById('imagePreview');
+          const img = document.createElement('img');
+          img.src = croppedImageUrl;
+          img.style.width = '100px';
+          img.style.height = '100px';
+          img.style.margin = '5px';
+          img.style.cursor = 'pointer';
+  
+          const originalImage = imagePreview.children[currentFileIndex];
+          imagePreview.replaceChild(img, originalImage);
+  
+          $('#cropperModal').modal('hide');
+          cropper.destroy();
+        });
+      });
+  
+      document.getElementById('addProductForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+  
+        validateProductName();
+        validateProductDescription();
+        validateProductStocks();
+        validateProductPrice();
+  
+        const productNameError = document.getElementById('productName-error').textContent;
+        const productDescriptionError = document.getElementById('productDescription-error').textContent;
+        const productStocksError = document.getElementById('productStocks-error').textContent;
+        const productPriceError = document.getElementById('productPrice-error').textContent;
+  
+        if (productNameError || productDescriptionError || productStocksError || productPriceError) {
+          return; 
+        }
+  
+        const formData = new FormData();
+  
+        formData.append('productName', document.getElementById('productName').value);
+        formData.append('productCategory', document.getElementById('productCategory').value);
+        formData.append('productPrice', document.getElementById('productPrice').value);
+        formData.append('productStocks', document.getElementById('productStocks').value);
+        formData.append('productDescription', document.getElementById('productDescription').value);
+  
+        processedImages.forEach((file) => {
+          formData.append('productImages', file, file.name);
+        });
+  
+        fetch('/admin/addproduct', {
+          method: 'POST',
+          body: formData
+        }).then(response => response.json())
+        .then(data =>{
+          if (data.suc) {
+            window.location.href ="/admin/productslist"
+          }else if(data.dup){
+            document.getElementById('duplicateerror').textContent="Product already exists"
+
+          }
+        })
+      });
+  
+      function validateProductName() {
+        const productNameInput = document.getElementById('productName');
+        const productNameError = document.getElementById('productName-error');
+        const productName = productNameInput.value.trim();
+  
+        if (productName === '') {
+          productNameError.textContent = 'Enter a valid Name';
+        } else {
+          productNameError.textContent = '';
+        }
+      }
+  
+      function validateProductDescription() {
+        const productDescriptionInput = document.getElementById('productDescription');
+        const productDescriptionError = document.getElementById('productDescription-error');
+        const productDescription = productDescriptionInput.value.trim();
+  
+        if (productDescription === '') {
+          productDescriptionError.textContent = 'Enter a valid Description';
+        } else {
+          productDescriptionError.textContent = '';
+        }
+      }
+  
+      function validateProductStocks() {
+        const productStocksInput = document.getElementById('productStocks');
+        const productStocksError = document.getElementById('productStocks-error');
+        const productStocks = parseInt(productStocksInput.value, 10);
+  
+        if (isNaN(productStocks) || productStocks < 0) {
+          productStocksError.textContent = 'Enter a valid stock';
+        } else {
+          productStocksError.textContent = '';
+        }
+      }
+  
+      function validateProductPrice() {
+        const productPriceInput = document.getElementById('productPrice');
+        const productPriceError = document.getElementById('productPrice-error');
+        const productPrice = parseFloat(productPriceInput.value);
+  
+        if (isNaN(productPrice) || productPrice < 0) {
+          productPriceError.textContent = 'Enter a valid Price';
+        } else {
+          productPriceError.textContent = '';
+        }
+      }
+  
+      document.getElementById('productName').addEventListener('keyup', validateProductName);
+      document.getElementById('productDescription').addEventListener('keyup', validateProductDescription);
+      document.getElementById('productStocks').addEventListener('keyup', validateProductStocks);
+      document.getElementById('productPrice').addEventListener('keyup', validateProductPrice);
+    </script>
+    
 
     
   </body>

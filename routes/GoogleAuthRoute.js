@@ -66,7 +66,7 @@ authRoute.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
     if (req.user.isBanned) {
-      res.redirect('/userIsBanned');
+      res.redirect('/login?message=Your account is banned.');
     } else {
       req.session.user_id=req.user;
       res.redirect('/');

@@ -1,4 +1,9 @@
 <%- include('../layouts/user/header') -%>
+<style>
+  .error{
+    color: red;
+  }
+</style>
 
     <div class="page-wrapper">
         <header class="header">
@@ -161,48 +166,47 @@
                       role="tabpanel"
                       aria-labelledby="tab-account-link"
                     >
-                      <form action="/editaddress" method="post">                 
-
-                        <label>Full Name *</label>
-                        <input type="text" class="form-control" name="fullName" id="fullName" value="<%= address.fullName%>"/>                        
-                        <div><span id="fullName-error" style="color: red"></span></div>
-                        <input type="hidden" class="form-control" name="addressId" id="fullName" value="<%= address._id%>"/>                        
-
-                        
-
-                        <label>Mobile No *</label>
-                        <input type="text" class="form-control" name="number" id="number" value="<%= address.number%>" />
-                        <div><span id="number-error" style="color: red"></span></div>
-
-                        <label>House *</label>
-                        <input type="text" class="form-control" name="house" id="house" value="<%= address.house%>" />
-                        <div><span id="house-error" style="color: red"></span></div>
-
-                        <label>Street *</label>
-                        <input type="text" class="form-control" name="street" id="street" value="<%= address.street%>"/>
-                        <div><span id="street-error" style="color: red"></span></div>
-
-                        <label>Land mark </label>
-                        <input type="text" class="form-control" name="landMark" id="landMark" value="<%= address.landMark%>"/>
-                        <div><span id="landMark-error" style="color: red"></span></div>
-
-                        <label>City *</label>
-                        <input type="text" class="form-control" name="city" id="city" value="<%= address.city%>"/>
-                        <div><span id="city-error" style="color: red"></span></div>
-
-                        <label>State *</label>
-                        <input type="text" class="form-control" name="state" id="state" value="<%= address.state%>"/>
-                        <div><span id="state-error" style="color: red"></span></div>
-
-                        <label>Pincode *</label>
-                        <input type="text" class="form-control" name="pincode" id="pincode" value="<%= address.pincode%>"/> 
-                        <div><span id="pincode-error" style="color: red"></span></div>                       
-
-                        <button type="submit" class="btn btn-outline-primary-2" id="registerButton">
+                    <form method="post" id="editAddressForm">
+                      <label>Full Name *</label>
+                      <input type="text" class="form-control" name="fullName" id="fullName" value="<%= address.fullName %>" required/>
+                      <div><span id="fullName-error" class="error"></span></div>
+                      <input type="hidden" class="form-control" name="addressId" id="addressId" value="<%= address._id %>" required/>
+              
+                      <label>Mobile No *</label>
+                      <input type="text" class="form-control" name="number" id="number" value="<%= address.number %>" required/>
+                      <div><span id="number-error" class="error"></span></div>
+              
+                      <label>House *</label>
+                      <input type="text" class="form-control" name="house" id="house" value="<%= address.house %>" required/>
+                      <div><span id="house-error" class="error"></span></div>
+              
+                      <label>Street *</label>
+                      <input type="text" class="form-control" name="street" id="street" value="<%= address.street %>" required/>
+                      <div><span id="street-error" class="error"></span></div>
+              
+                      <label>Land mark </label>
+                      <input type="text" class="form-control" name="landMark" id="landMark" value="<%= address.landMark %>" />
+                      <div><span id="landMark-error" class="error"></span></div>
+              
+                      <label>City *</label>
+                      <input type="text" class="form-control" name="city" id="city" value="<%= address.city %>" required/>
+                      <div><span id="city-error" class="error"></span></div>
+              
+                      <label>State *</label>
+                      <input type="text" class="form-control" name="state" id="state" value="<%= address.state %>" required/>
+                      <div><span id="state-error" class="error"></span></div>
+              
+                      <label>Pincode *</label>
+                      <input type="text" class="form-control" name="pincode" id="pincode" value="<%= address.pincode %>" required/>
+                      <div><span id="pincode-error" class="error"></span></div>
+              
+                      <button type="submit" class="btn btn-outline-primary-2" id="registerButton">
                           <span>Edit Address</span>
                           <i class="icon-long-arrow-right"></i>
-                        </button>
-                      </form>
+                      </button>
+                  </form>
+              
+                  
                     </div>
                   </div>
                 </div>
@@ -402,5 +406,132 @@
     </div>
     <!-- End .mobile-menu-container -->
 
-    
+    <script>
+      const page = "<%= page %>";  // This should be set on the server side
+      document.getElementById("editAddressForm").action = `/editaddress?page=${page}`;
 
+      const fullName = document.getElementById("fullName");
+      const number = document.getElementById("number");
+      const house = document.getElementById("house");
+      const street = document.getElementById("street");
+      const landMark = document.getElementById("landMark");
+      const city = document.getElementById("city");
+      const state = document.getElementById("state");
+      const pincode = document.getElementById("pincode");
+
+      const fullNameError = document.getElementById("fullName-error");
+      const numberError = document.getElementById("number-error");
+      const houseError = document.getElementById("house-error");
+      const streetError = document.getElementById("street-error");
+      const landMarkError = document.getElementById("landMark-error");
+      const cityError = document.getElementById("city-error");
+      const stateError = document.getElementById("state-error");
+      const pincodeError = document.getElementById("pincode-error");
+
+      function validateFullName() {
+          if (fullName.value.trim() === "") {
+              fullNameError.textContent = "Full Name is required";
+              return false;
+          } else {
+              fullNameError.textContent = "";
+              return true;
+          }
+      }
+
+      function validateNumber() {
+          const phoneNumberPattern = /^[0-9]{10}$/; // Example pattern for a 10-digit phone number
+          if (!phoneNumberPattern.test(number.value.trim())) {
+              numberError.textContent = "Invalid Number";
+              return false;
+          } else {
+              numberError.textContent = "";
+              return true;
+          }
+      }
+
+      function validateHouse() {
+          if (house.value.trim() === "") {
+              houseError.textContent = "House is required";
+              return false;
+          } else {
+              houseError.textContent = "";
+              return true;
+          }
+      }
+
+      function validateStreet() {
+          if (street.value.trim() === "") {
+              streetError.textContent = "Street is required";
+              return false;
+          } else {
+              streetError.textContent = "";
+              return true;
+          }
+      }
+
+      function validateLandMark() {
+          if (landMark.value.trim() === "") {
+              landMarkError.textContent = "LandMark is required";
+              return false;
+          } else {
+              landMarkError.textContent = "";
+              return true;
+          }
+      }
+
+      function validateCity() {
+          if (city.value.trim() === "") {
+              cityError.textContent = "City is required";
+              return false;
+          } else {
+              cityError.textContent = "";
+              return true;
+          }
+      }
+
+      function validateState() {
+          if (state.value.trim() === "") {
+              stateError.textContent = "State is required";
+              return false;
+          } else {
+              stateError.textContent = "";
+              return true;
+          }
+      }
+
+      function validatePincode() {
+          const pincodePattern = /^[0-9]{6}$/; // Example pattern for a 6-digit pincode
+          if (!pincodePattern.test(pincode.value.trim())) {
+              pincodeError.textContent = "Invalid Pincode";
+              return false;
+          } else {
+              pincodeError.textContent = "";
+              return true;
+          }
+      }
+
+      document.getElementById("editAddressForm").addEventListener("submit", function(event) {
+          if (
+              !validateFullName() ||
+              !validateNumber() ||
+              !validateHouse() ||
+              !validateStreet() ||
+              !validateLandMark() ||
+              !validateCity() ||
+              !validateState() ||
+              !validatePincode()
+          ) {
+              event.preventDefault(); // Prevent form submission
+          }
+      });
+
+      fullName.addEventListener("keyup", validateFullName);
+      number.addEventListener("keyup", validateNumber);
+      house.addEventListener("keyup", validateHouse);
+      street.addEventListener("keyup", validateStreet);
+      landMark.addEventListener("keyup", validateLandMark);
+      city.addEventListener("keyup", validateCity);
+      state.addEventListener("keyup", validateState);
+      pincode.addEventListener("keyup", validatePincode);
+  </script>
+      

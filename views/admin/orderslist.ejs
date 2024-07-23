@@ -153,7 +153,7 @@
               </nav>
             </div>
 
-            <!-- <div class="header-right">
+            <div class="header-right">
               <div class="header-search">
                 <a href="#" class="search-toggle" role="button" title="Search"
                   ><i class="icon-search"></i
@@ -174,14 +174,14 @@
                 </form>
               </div>
               
-            </div> -->
+            </div>
           </div>
         </div>
       </header>
 
-      <!-- <main class="main">
+      <main class="main">
         <div class="container">
-          <div class="table-responsive" id="no-more-tables" >
+          <div class="table-responsive" id="no-more-tables">
             <table class="table table-striped bg-white" id="myTable">
               <thead class="bg-dark text-light">
                 <tr>
@@ -196,41 +196,62 @@
                 </tr>
               </thead>
               <tbody>
-            
-                        <tr style="font-size: medium; text-align: center;">                                           
+                <% if (orders.length > 0) { %>
+                  <% orders.forEach(order => { %>
+                    <tr style="font-size: medium; text-align: center;">
+                      <td data-title="Date">
+                        <%= new Date(order.orderDetails.createdAt).toLocaleString('en-US', { 
+                            weekday: 'short', 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric', 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                        }) %>
+                    </td>                      <td data-title="OrderId"><%= order.orderDetails._id %></td>
+                      <td data-title="Customer"><%= order.name %></td>
 
-                          <td data-title="Date">asdfasdfasdf</td> 
-                          <td data-title="OrderId">dasfsfasfasfsdfasf</td>                  
-                          <td data-title="Customer">Customer</td>   
-                          <td data-title="Address">sdfasdfasfsf</td> 
-                          <td data-title="TotalPrice">asfasdfsdfadsf</td> 
+                      <% for( let i = 0; i < order.address.length; i++ ) { %>
+                        <% if (order.address[i].isActive) { %>
+                          <td data-title="Address">
+                            <%= order.address[i].fullName %>
+                            <br>
+                            <%= order.address[i].number %>
+                            <br>
+                            <%= order.address[i].house %>
+                            <br>
+                            <%= order.address[i].pincode %>
+                          </td>
+                        <% } %>
+                      
+                      <% } %>
+                      
 
-                          <td data-title="OrderStatus">
-                              <p>Cancelled</p>
-                            <select class="form-select form-select-lg" name="orderStatus" id="orderStatus" >
-                              <option value=""></option>
-                              <option value="Pending">Pending</option>
-                              <option value="Processing">Processing</option>
-                              <option value="Shipped">Shipped</option>
-                              <option value="Delivered">Delivered</option>                              
-                            </select>
-                          </td> 
-                          
-                            <td data-title="Payment"></td> 
-                
-                            <td data-title="Payment">Online</td>
-                          <td data-title="ViewOrders"><a href="/admin/orderview?id">View Details</a></td> 
-                        </tr>
-                   
-                        <tr>
-                          <td colspan="5">Orders Not Found</td>
-                        </tr>
-                   
+                      <td data-title="TotalPrice">₹ <%= order.orderDetails.totalPrice %></td>
+                      <td data-title="OrderStatuss">
+                        <p id="orderMainStatus<%= order.orderDetails._id %>"><%= order.orderDetails.orderStatus %></p>
+                        <select class="form-select form-select-lg" name="orderStatus" id="orderStatus<%= order.orderDetails._id %>" onchange="updateOrderStatus('<%= order.orderDetails._id %>')">
+                          <option value=""></option>
+                          <option value="Pending" <%= order.orderDetails.orderStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
+                          <option value="Processing" <%= order.orderDetails.orderStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
+                          <option value="Shipped" <%= order.orderDetails.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                          <option value="Delivered" <%= order.orderDetails.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                        </select>
+                      </td>
+                      <td data-title="Payment"><%= order.orderDetails.paymentMethod %></td>
+                      <td data-title="ViewOrders"><a href="/admin/orderview?id=<%= order.orderDetails._id %>">View Details</a></td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="8" style="text-align: center;">Orders Not Found</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>
         </div>
-      </main> -->
+      </main>
 
       <!-- <footer class="footer">
         <div class="footer-middle">
@@ -367,7 +388,7 @@
           
         </div>
         
-      </footer>
+      </footer> -->
     </div>
     <button id="scroll-top" style="border-radius: 50%;background-color: rgba(255, 255, 255, 0.294);" title="Back to Top">
       <i class="icon-arrow-up"></i>
@@ -438,7 +459,36 @@
           ></a>
         </div>
       </div>
-    </div> -->
+    </div>
+
+    <script>
+      function updateOrderStatus(orderId) {
+  const selectElement = document.getElementById('orderStatus' + orderId);
+  const selectedStatus = selectElement.value;
+  console.log(selectedStatus);
+
+  fetch('/admin/updateOrderStatus', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ orderId, orderStatus: selectedStatus })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.orderstatus) {
+      document.getElementById('orderMainStatus'+orderId).textContent = selectedStatus
+
+    } else {
+      console.error('Failed to update order status');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+    </script>
     
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/bootstrap.bundle.min.js"></script>

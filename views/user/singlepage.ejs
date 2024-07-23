@@ -58,14 +58,26 @@
                     </div><!-- End .header-search -->
                     <a href="/wishlist" class="wishlist-link">
                         <i class="icon-heart-o"></i>
-                            <span class="wishlist-count">3</span>
+                        <% if (typeof wishlistCount != 'undefined') { %>
+                            <span class="wishlist-count" id="wishlistcount"><%= wishlistCount %></span>
+                        <% }else{ %>
+                            <span class="wishlist-count">0</span>
+
+                        <% } %>
                     </a>
 
                     <div class="dropdown cart-dropdown">
                         <a href="/cart" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
                             <i class="icon-shopping-cart"></i>
-                            <span class="cart-count">2</span>
-                        </a>
+                            <% if (typeof cartCount !== 'undefined') { %>
+                                <span class="cart-count" id="cartcount"><%= cartCount %></span>
+                            <% } else { %>
+                                <span class="cart-count" id="cartcount">0</span>
+                            <% } %>
+                
+                        </a> 
+                        <input type="hidden" value="<%= userId %>" id="checkuserId">
+                        <input type="hidden" value="<%= product.num_of_stocks %>" id="num_of_stocks">
 
                         <div class="dropdown-menu dropdown-menu-right">
                             <div class="dropdown-cart-products">
@@ -217,11 +229,10 @@
                                                         
                                                         <% }else{ %>
                                                             <div class="product-details-quantity">
-                                                                <input type="number" id="qty" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required>
+                                                                <input type="number" id="qty" class="form-control" value="1" min="1" max="5" step="1" data-decimals="0" required>
                                                             </div><!-- End .product-details-quantity -->
-                                                            <a href="/cart" class="btn-product btn-cart"><span>add to cart</span></a>
+                                                            <a  onclick="handleAddToCart('<%=product._id %>')" style="cursor: pointer;" class="btn-product btn-cart"><span>add to cart</span></a>
                                                             <br>
-                                               
 
                                                             
                                             <% } %>
@@ -231,6 +242,8 @@
                                         <div class="details-action-wrapper">
                                             <a href="/wishlist" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
                                         </div><!-- End .details-action-wrapper -->
+                                        <p id="quantityerror" style="color: red;"></p>
+
                                     </div><!-- End .product-details-action -->
 
                                     <div class="product-details-footer">
@@ -810,8 +823,56 @@
     <script src="assets/js/jquery.magnific-popup.min.js"></script>
     <!-- Main JS File -->
     <script src="assets/js/main.js"></script>
+
+    <script>
+  
+        
+        function handleAddToCart(productId){
+            const user = document.getElementById('checkuserId').value
+
+
+            if(user ==""){
+              
+                window.location.href ="/login"
+            }else{
+            let quantity = parseInt(document.getElementById('qty').value)
+            let num_of_stocks = parseInt(document.getElementById('num_of_stocks').value)
+            console.log(quantity);
+                if(quantity>num_of_stocks){
+                    const quantityerror = document.getElementById('quantityerror')
+                    quantityerror.textContent =`Product stock left is only ${num_of_stocks}`
+
+                }else{
+                    console.log(quantity);
+            fetch('/addtocart',{
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body:JSON.stringify({productId , quantity})
+                
+            })
+            .then(response => response.json())
+            .then(data=>{  
+        if (data !== undefined) {
+            const cartCount = document.getElementById('cartcount');
+            if (cartCount) {
+                cartCount.textContent = data.count;
+            }
+        }
+            })
+
+                }
+
+          
+        }
+
+            }
+
+
+
+    </script>
 </body>
 
 
-<!-- Wood Street/product-centered.html  22 Nov 2019 10:03:20 GMT -->
 </html>

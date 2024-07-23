@@ -3,6 +3,8 @@ const User = require('../models/userModel')
 const Category = require('../models/categoryModel');
 const Product = require('../models/productModel');
 const {addProductImages,addCategoryImage, editCategoryImage, editproductImages} = require('../helpers/sharp')
+const Order = require('../models/orderModel');
+const { default: mongoose } = require('mongoose');
 
 
 const loadAdminLoginPage = async(req,res)=>{
@@ -36,10 +38,15 @@ const loadSalesReport = async(req,res)=>{
     }
 }
 
-
-const loadOrderedList = async(req,res)=>{
+const loadOrderedList = async (req, res) => {
     try {
-        res.render('orderslist')
+        const pipeline =[{$lookup:{from:"orders",localField:"_id",foreignField:"customer",as:"orderDetails"}},{$unwind:"$orderDetails"},{$project:{name:1,phone:1,"orderDetails.totalPrice":1,"orderDetails.orderStatus":1,"orderDetails.paymentMethod":1,"orderDetails.createdAt":1,"orderDetails._id":1,address:1}}]
+
+
+        const orders = await User.aggregate(pipeline);
+        // console.log(orders);
+
+        res.render('orderslist', { orders })
         
     } catch (error) {
         console.log(error.message);
@@ -158,7 +165,7 @@ const editProduct = async (req, res) => {
 
         existingProduct.productName = req.body.productName.trim();
         existingProduct.productCategory = req.body.productCategory;
-        existingProduct.productPrice = req.body.productPrice;
+        existingProduct.productPrice = req.body.productPrice.trim();
         existingProduct.num_of_stocks = req.body.productStocks;
         existingProduct.productDescription = req.body.productDescription;
         existingProduct.images = newImages;
@@ -363,11 +370,14 @@ const addProduct = async(req,res)=>{
         const checkproduct = await Product.findOne({productName:productname})
         
         if(checkproduct){
-            return res.render('addproduct', {category,message: 'Product already exists' });
+            const dup ="prdouct alreay exists"
+            res.status(200).json({dup})
         }
 
+        const productimages = req.files
+
     
-        const imagePaths = await addProductImages(req.files);
+        const imagePaths = await addProductImages(productimages);
       
         const newProduct = new Product({
             productName: productname,
@@ -377,14 +387,15 @@ const addProduct = async(req,res)=>{
             num_of_stocks: productStocks,
             images: imagePaths,
             is_blocked:false,
+            viewCount:0
         });
 
-        const response = await newProduct.save();
+        const suc = await newProduct.save();
 
-        if (response) {
+        if (suc) {
           req.flash("success","New Product successfuly added")
-          res.redirect('/admin/productslist')
-        } else {
+            res.status(200).json({suc})
+            } else {
             res.end('Error saving product.');
         }
 
@@ -543,7 +554,106 @@ const deleteProductImage = async(req,res)=>{
 }
 
 
+const loadOrderview = async(req,res)=>{
+    try {
+        const orderId = req.query.id
 
+      const pipeline = [
+        {
+          $lookup: {
+            from: "orders",
+            localField: "_id",
+            foreignField: "customer",
+            as: "orderDetails"
+          }
+        },
+        {
+          $unwind: "$orderDetails"
+        },
+        {
+          $lookup: {
+            from: "products",
+            localField: "orderDetails.items.productId",
+            foreignField: "_id",
+            as: "productDetails"
+          }
+        },
+        {
+          $unwind: "$productDetails"
+        },
+        {
+          $project: {
+            name: 1,
+            phone: 1,
+            address: 1,
+            "orderDetails.totalPrice": 1,
+            "orderDetails.orderStatus": 1,
+            "orderDetails.items.productId": 1,
+            "orderDetails.items.quantity": 1,
+            "orderDetails.items.orderStatus": 1,
+            "orderDetails.paymentMethod": 1,
+            "orderDetails.createdAt": 1,
+            "orderDetails._id": 1,
+            "productDetails.productName": 1,
+            "productDetails.productPrice": 1,
+            "productDetails.productCategory": 1,
+            "productDetails.productDescription": 1,
+            "productDetails.images": 1
+          }
+        }
+      ];
+      
+      const results = await User.aggregate(pipeline);
+
+      const filteredOrders = results.filter(order => order.orderDetails._id.toString() === orderId);
+
+
+      console.log(filteredOrders);
+
+
+        res.render('orderview',{filteredOrders})
+        
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+
+const updateOrderStatus = async(req,res)=>{
+    try {
+        const orderId = req.body.orderId
+        const orderStatus = req.body.orderStatus
+
+        const order = await Order.findOne({_id:orderId})
+
+        if (order) {
+            order.orderStatus = orderStatus;
+
+            let itemsModified = false;
+            for (let i = 0; i < order.items.length; i++) {
+                if (order.items[i].orderStatus !== "Cancelled") {
+                    order.items[i].orderStatus = orderStatus;
+                    itemsModified = true;
+                }
+            }
+
+            if (itemsModified) {
+                order.markModified('items');
+            }
+
+
+            const result = await order.save();
+
+           if(result){
+            console.log("saved successfully");
+            return res.status(200).json({orderstatus:"orderstatuschanged successfully"})
+           }
+        }
+        
+    } catch (error) {
+        
+    }
+}
 
 module.exports ={
     loadAdminDashboard,
@@ -571,5 +681,7 @@ module.exports ={
     blockCategory,
     unblockCategory,
     deleteCategory,
-    deleteProductImage
+    deleteProductImage,
+    loadOrderview,
+    updateOrderStatus
 }

@@ -31,6 +31,10 @@ const productSchema = new mongoose.Schema({
     ,
     reviews: {
         type: [String]
+    },
+    viewCount:{
+        type:Number,
+        default: 0
     }
 
 

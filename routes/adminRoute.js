@@ -41,6 +41,7 @@ admin_route.get('/login',auth.isNotUser,auth.isLogout,adminController.loadAdminL
 admin_route.get('/',auth.isLogin,adminController.loadAdminDashboard)
 admin_route.get('/salesreport',auth.isLogin,adminController.loadSalesReport)
 admin_route.get('/orderslist',auth.isLogin,adminController.loadOrderedList)
+admin_route.get('/orderview',auth.isLogin,adminController.loadOrderview)
 admin_route.get('/productslist',auth.isLogin,adminController.loadProductsList)
 admin_route.get('/userslist',auth.isLogin,adminController.loadUserLists)
 admin_route.get('/categorylist',auth.isLogin,adminController.loadCategoryList)
@@ -69,6 +70,7 @@ admin_route.post('/blockcategory',auth.isLogin,adminController.blockCategory)
 admin_route.post('/unblockcategory',auth.isLogin,adminController.unblockCategory)
 admin_route.get('/deletecategory',auth.isLogin,adminController.deleteCategory)
 admin_route.post('/deleteProductImage',auth.isLogin,adminController.deleteProductImage)
+admin_route.post('/updateOrderStatus',auth.isLogin,adminController.updateOrderStatus)
 
 
 

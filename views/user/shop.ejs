@@ -61,66 +61,20 @@
                             <span class="wishlist-count">3</span>
                     </a>
 
-                    <div class="dropdown cart-dropdown">
+                    <div class="dropdown cart-dropdown" onclick="loadCart()">
                         <a href="/cart" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
                             <i class="icon-shopping-cart"></i>
-                            <span class="cart-count">2</span>
-                        </a>
+                            <% if (typeof cartCount !== 'undefined') { %>
+                                <span class="cart-count" id="cartcount"><%= cartCount %></span>
+                            <% } else { %>
+                                <span class="cart-count" id="cartcount">0</span>
+                            <% } %>
+                
 
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-cart-products">
-                                <div class="product">
-                                    <div class="product-cart-details">
-                                        <h4 class="product-title">
-                                            <a href="product.html">Beige knitted elastic runner shoes</a>
-                                        </h4>
+                     
+                        </a> 
 
-                                        <span class="cart-product-info">
-                                            <span class="cart-product-qty">1</span>
-                                            x $84.00
-                                        </span>
-                                    </div><!-- End .product-cart-details -->
-
-                                    <figure class="product-image-container">
-                                        <a href="product.html" class="product-image">
-                                            <img src="assets/images/products/cart/product-1.jpg" alt="product">
-                                        </a>
-                                    </figure>
-                                    <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                </div><!-- End .product -->
-
-                                <div class="product">
-                                    <div class="product-cart-details">
-                                        <h4 class="product-title">
-                                            <a href="product.html">Blue utility pinafore denim dress</a>
-                                        </h4>
-
-                                        <span class="cart-product-info">
-                                            <span class="cart-product-qty">1</span>
-                                            x $76.00
-                                        </span>
-                                    </div><!-- End .product-cart-details -->
-
-                                    <figure class="product-image-container">
-                                        <a href="product.html" class="product-image">
-                                            <img src="assets/images/products/cart/product-2.jpg" alt="product">
-                                        </a>
-                                    </figure>
-                                    <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                </div><!-- End .product -->
-                            </div><!-- End .cart-product -->
-
-                            <div class="dropdown-cart-total">
-                                <span>Total</span>
-
-                                <span class="cart-total-price">$160.00</span>
-                            </div><!-- End .dropdown-cart-total -->
-
-                            <div class="dropdown-cart-action">
-                                <a href="/cart" class="btn btn-primary">View Cart</a>
-                                <a href="checkout.html" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>
-                            </div><!-- End .dropdown-cart-total -->
-                        </div><!-- End .dropdown-menu -->
+                        
                     </div>
                     <a href="/user" class="wishlist-link">
                      <i class="icon-user"></i>
@@ -160,16 +114,43 @@
                 					<div class="toolbox-sort">
                 						<label for="sortby">Sort by:</label>
                 						<div class="select-custom">
-											<select name="sortby" id="sortby" class="form-control">
-												<option value="popularity" selected="selected">Most Popular</option>
-												<option value="rating">Most Rated</option>
-												<option value="date">Date</option>
-											</select>
+                                            <% if (typeof selectedfilter != "undefined") { %>
+                                                <select name="sortby" id="sortby" class="form-control">
+                                                    <option value="All" <%= (selectedfilter === 'All') ? 'selected' : '' %>>All</option>
+                                                    <option value="popularity" <%= (selectedfilter === 'popularity') ? 'selected' : '' %>>Most Popular</option>
+                                                    <option value="priceDesc" <%= (selectedfilter === 'priceDesc') ? 'selected' : '' %>>High to Low</option>
+                                                    <option value="priceAsc" <%= (selectedfilter === 'priceAsc') ? 'selected' : '' %>>Low to High</option>
+                                                    <option value="nameAsc" <%= (selectedfilter === 'nameAsc') ? 'selected' : '' %>>Aa - zZ</option>
+                                                    <option value="nameDesc" <%= (selectedfilter === 'nameDesc') ? 'selected' : '' %>>Zz - Aa</option>
+                                                </select>
+                                             
+                                            <% }else{ %>
+                                                <select name="sortby" id="sortby" class="form-control">
+                                                <option value="All" selected="selected">All</option>
+                                                <option value="popularity" >Most Popular</option>
+                                                <option value="priceDesc">High to Low</option>
+                                                <option value="priceAsc">Low to High</option>
+                                                <option value="nameAsc">Aa - zZ</option>
+                                                <option value="nameDesc">Zz - Aa</option>
+                                            </select>
+
+                                            <% } %>
+                                            
+                                            
 										</div>
                 					</div><!-- End .toolbox-sort -->
+                                    <% if(typeof selectedCategory !== 'undefined') { %>
+                                        <input type="hidden" id="markedCategory" value="<%= selectedCategory  %>" >
+
+                                        <% }else{ %>
+                                            <input type="hidden" id="markedCategory" value="All" >
+
+                                        <% } %>
                 					
                 				</div><!-- End .toolbox-right -->
                 			</div><!-- End .toolbox -->
+                            <input type="hidden" value="<%= userId %>" id="checkuserId">
+
 
                             <div class="products mb-3">
                                 <div class="row justify-content-center">
@@ -195,7 +176,8 @@
 
                                                         
                                                             <div class="product-action">
-                                                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                                                <a  onclick="handleAddToCart('<%=products[i]._id %>')" style="cursor: pointer;" class="btn-product btn-cart"><span>add to cart</span></a>
+
                                                             </div><!-- End .product-action -->
 
 
@@ -266,7 +248,7 @@
                 			<div class="sidebar sidebar-shop">
                 				<div class="widget widget-clean">
                 					<label>Filters:</label>
-                					<a href="#" class="sidebar-filter-clear">Clean All</a>
+                					<a href="/shop" class="sidebar-filter-clear">Clean All</a>
                 				</div><!-- End .widget widget-clean -->
 
                 				<div class="widget widget-collapsible">
@@ -280,19 +262,21 @@
 										<div class="widget-body">
 											<div class="filter-items filter-items-count">
 								
-                                                <% for( let i = 0; i < categories.length; i++ ) { %>
-                               
-
-												<div class="filter-item">
-													<div class="custom-control custom-checkbox">
-														<input type="checkbox" class="custom-control-input" id="cat-<%=[i]%>">
-														<label class="custom-control-label" for="cat-<%=[i]%>"><%=categories[i].categoryName%></label>
-													</div><!-- End .custom-checkbox -->
-												</div><!-- End .filter-item -->                 
-                                                <% } %>
+                                                <div id="categories-container">
+                                                    <% for (let i = 0; i < categories.length; i++) { %>
+                                                        <div class="filter-item">
+                                                            <div class="custom-control custom-checkbox">
+                                                                <input type="checkbox" class="custom-control-input category-checkbox" id="cat-<%= i %>" value="<%= categories[i].categoryName %>" 
+                                                                <%= (typeof selectedCategory !== 'undefined' && selectedCategory === categories[i].categoryName) ? 'checked' : '' %> >
+                                                                <label class="custom-control-label" for="cat-<%= i %>"><%= categories[i].categoryName %></label>
+                                                            </div><!-- End .custom-checkbox -->
+                                                        </div><!-- End .filter-item -->                 
+                                                    <% } %>
+                                                </div>
+                                                
 
 												
-												
+                                                    
 
 											
 
@@ -698,6 +682,129 @@
     <script src="assets/js/main.js"></script>
 </body>
 
+<script>
+        function handleAddToCart(productId){
+            const user = document.getElementById('checkuserId').value
+            console.log(user);
+
+
+            if(user ==""){
+              
+                window.location.href ="/login"
+            }else{
+            fetch('/addtocart?page=shop',{
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body:JSON.stringify({productId})
+                
+            })
+            .then(response => response.json())
+            .then(data=>{  
+        if (data !== undefined) {
+            if(data.outofstock){
+                Swal.fire({
+                title: "Prodcut is out off stock",
+                text: "",
+                imageUrl: 'https://i.ibb.co/108k1Pw/out-of-stock.png', 
+                imageWidth: 50,  
+                imageHeight: 50, 
+                timer: 3000,
+                confirmButtonColor: "#CC9966",
+
+});
+
+            }else if(data.alreadyincart){
+                Swal.fire({
+        title: "Prdouct already in cart",
+        text: "",
+        imageUrl: 'https://i.ibb.co/PjhBq51/empty-cart.png', 
+        imageWidth: 50,  
+        imageHeight: 50, 
+        confirmButtonColor: "#CC9966",
+        showCancelButton: true,
+        confirmButtonText: 'Go to cart',
+        cancelButtonText: 'Ok'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '/cart'; 
+        }
+    })
+
+            }
+            
+            
+            else{
+                const cartCount = document.getElementById('cartcount');
+                if (cartCount) {
+                    cartCount.textContent = data.count;
+                }
+
+            }
+        }
+            })
+
+                }
+
+          
+        }
+
+            
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const checkboxes = document.querySelectorAll('.category-checkbox');
+        
+        checkboxes.forEach((checkbox) => {
+            checkbox.addEventListener('click', () => {
+                checkboxes.forEach((cb) => {
+                    cb.checked = false;
+                });
+                checkbox.checked = true;
+                
+                const selectedValue = checkbox.value;
+                window.location.href=`/filterprodcutbycategory?id=${selectedValue}`
+                console.log('Selected category:', selectedValue);
+                
+            });
+        });
+    });
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const sortbySelect = document.getElementById('sortby'); 
+
+        sortbySelect.addEventListener('change', () => {
+            const selectedValue = sortbySelect.value;
+            console.log('Selected sort option:', selectedValue);
+
+           const markedCategory = document.getElementById('markedCategory').value
+           console.log(markedCategory);
+      
+           console.log(markedCategory);
+
+                window.location.href =`/filter?category=${markedCategory}&sort=${selectedValue}`
+            
+        });
+    });
+
+    function loadCart(){
+        const user = document.getElementById('checkuserId').value
+
+        if (user) {
+            window.location.href='/cart'
+            
+        }else{
+            window.location.href='/login'
+        }
+    }
+
+        
+  
+    </script>
 
 <!-- Wood Street/category.html  22 Nov 2019 10:02:52 GMT -->
 </html>
