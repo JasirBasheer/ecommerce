@@ -7,7 +7,7 @@ const isLogin = async(req,res,next)=>{
         }
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
@@ -20,7 +20,7 @@ const isLogout = async(req,res,next)=>{
         }
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
@@ -33,7 +33,7 @@ const isNotAdmin = async(req,res,next)=>{
         }
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 

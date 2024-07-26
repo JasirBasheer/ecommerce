@@ -10,8 +10,8 @@ let userProfile;
 authRoute.use(passport.initialize());
 authRoute.use(passport.session());
 
-authRoute.get('/success', (req, res) => res.send(userProfile));
-authRoute.get('/error', (req, res) => res.send("error logging in"));
+authRoute.get('/success', (req,res,next) => res.send(userProfile));
+authRoute.get('/error', (req,res,next) => res.send("error logging in"));
 
 passport.serializeUser(function(user, cb) {
     cb(null, user);
@@ -64,7 +64,7 @@ authRoute.get('/google',
 
 authRoute.get('/google/callback', 
   passport.authenticate('google', { failureRedirect: '/login' }),
-  (req, res) => {
+  (req,res,next) => {
     if (req.user.isBanned) {
       res.redirect('/login?message=Your account is banned.');
     } else {

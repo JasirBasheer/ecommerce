@@ -7,7 +7,7 @@ const Cart = require('../models/cartModel')
 
 
 
-const loadSinglePage = async(req,res)=>{
+const loadSinglePage = async(req,res,next)=>{
     try {
         const id = req.query.id
         const userId = req.session.user_id
@@ -27,18 +27,26 @@ const loadSinglePage = async(req,res)=>{
         console.log(cartCount+"sdfasdfasdf");
         res.render('singlepage',{product, relatedProducts, id, cartCount ,userId})
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
 
 
-const filterCategory = async(req, res) => {
+const filterCategory = async(req,res,next) => {
     try {
         const categoryName = req.query.id;
         const categories = await Category.find({}); 
         const recentProducts = await Product.find({});
+        const userId = req.session.user_id
+        const cart = await Cart.findOne({userId:userId})
+
+        let cartCount = 0;
+        if (cart) {
+            cartCount = cart.products.reduce((total, item) => total + item.quantity, 0);
+        }
+
         let products;
         if (categoryName) {
             products = await Product.find({ productCategory: categoryName }); 
@@ -46,9 +54,9 @@ const filterCategory = async(req, res) => {
             products = await Product.find({}); 
 
         }
-        res.render('index', { categories, products, categoryName ,recentProducts});
+        res.render('index', { categories, products, categoryName ,recentProducts,cartCount,userId});
     } catch (error) {
-        res.status(500).json({ message: 'Server Error', error });
+        next(error);
     }
 };
 
@@ -56,7 +64,7 @@ const filterCategory = async(req, res) => {
 
 
 
-const filterProdcutByCategory = async(req,res)=>{
+const filterProdcutByCategory = async(req,res,next)=>{
     try {
         const category = req.query.id
         console.log(category);
@@ -69,12 +77,12 @@ const filterProdcutByCategory = async(req,res)=>{
         res.render('shop',{products,categories,userId ,selectedCategory: category})
 
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
-const filter = async(req,res)=>{
+const filter = async(req,res,next)=>{
     try {
         const category = req.query.category
         const sort = req.query.sort
@@ -126,7 +134,7 @@ const filter = async(req,res)=>{
 
 
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 

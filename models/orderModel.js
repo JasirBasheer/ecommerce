@@ -30,6 +30,7 @@ const orderSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     required:true     
-  }
+  },
+
 });
 module.exports= mongoose.model('Order',orderSchema);

@@ -158,34 +158,37 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <% orders.forEach(function(order) { %>
-                                                            <% if (order.items.orderStatus!="Cancelled") { %>
-                                                             
-                                                                <tr>
-                                                                    <td class="product-col">
-                                                                        <div class="product">
-                                                                            <figure class="product-media">
-                                                                                <a href="#">
-                                                                                    <img src="<%= order.productDetails.images[0] %>" alt="Product image">
-                                                                                </a>
-                                                                            </figure>
-                                                                            <h3 class="product-title">
-                                                                                <a href="#"><%= order.productDetails.productName %></a>
-                                                                            </h3>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td class="price-col">₹<%= order.productDetails.productPrice %></td>
-                                                                    <td class="price-col"><%= order.items.quantity %></td>
-                                                                    <td class="price-col"><%= order.createdAt.toDateString() %></td>
-                                                                    <td class="price-col"><%= order.items.orderStatus %></td>
-                                                                    <td class="total-col">₹<%= order.totalPrice %></td>
-                                                                    <td class="remove-col">
-                                                                        <button class="btn-remove" onclick="confirmCancelOrder('<%=order.items._id%>')"><i class="icon-close"></i></button>
-                                                                    </td>
-                                                                </tr>
+                                                        <% const limit = orders.length< 9 ? 0 : 9 ; %>
+                                                            <p></p>
+                                                      
+
+                                                        <% for( let i = orders.length-1; i >= limit  ; i-- ) { %>
+                                                            <% if (orders[i].items.orderStatus!="Cancelled") { %>
+                                                            <tr>
+                                                                <td class="product-col">
+                                                                    <div class="product">
+                                                                        <figure class="product-media">
+                                                                            <a href="#">
+                                                                                <img src="<%= orders[i].productDetails.images[0] %>" alt="Product image">
+                                                                            </a>
+                                                                        </figure>
+                                                                        <h3 class="product-title">
+                                                                            <a href="#"><%= orders[i].productDetails.productName %></a>
+                                                                        </h3>
+                                                                    </div>
+                                                                </td>
+                                                                <td class="price-col">₹<%= orders[i].productDetails.productPrice %></td>
+                                                                <td class="price-col"><%= orders[i].items.quantity %></td>
+                                                                <td class="price-col"><%= orders[i].createdAt.toDateString() %></td>
+                                                                <td class="price-col"><%= orders[i].items.orderStatus %></td>
+                                                                <td class="total-col">₹<%= orders[i].totalPrice %></td>
+                                                                <td class="remove-col">
+                                                                    <button class="btn-remove" onclick="confirmCancelOrder('<%=orders[i].items._id%>','<%= orders[i].productDetails.productPrice %>')"><i class="icon-close"></i></button>
+                                                                </td>
+                                                            </tr>
                                                             <% } %>
-                                                           
-                                                        <% }); %>
+                                                        <% } %>
+                                                       
                                                        
                                                     </tbody>
                                                 </table>
@@ -679,7 +682,7 @@ function deleteAddressAlert() {
     showCancelButton: true,
     confirmButtonColor: "#CC9966",
     cancelButtonColor: "",
-    confirmButtonText: "Yes, Cancel it!"
+    confirmButtonText: "Yes, delete it!"
   }).then((result) => {
     return result.isConfirmed;
   });
@@ -785,23 +788,23 @@ function handleAlert() {
 
                                                             
 
-    function confirmCancelOrder(productId) {
+    function confirmCancelOrder(productId,productPrice) {
   handleAlert().then((confirmed) => {
     if (confirmed) {
-      handlecancelOrder(productId);
+      handlecancelOrder(productId,productPrice);
     }
   });
 }
 
 
-function handlecancelOrder(productId) {
+function handlecancelOrder(productId,productPrice) {
     
   fetch('/cancelorder', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ productId })
+    body: JSON.stringify({ productId,productPrice })
   })
   .then(response => response.json())
   .then(data => {

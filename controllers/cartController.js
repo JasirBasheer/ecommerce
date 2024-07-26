@@ -6,7 +6,7 @@ const Cart = require('../models/cartModel')
 
 
 
-const loadCart = async (req, res) => {
+const loadCart = async (req,res,next) => {
     try {
 
         const user = req.session.user_id;
@@ -121,8 +121,7 @@ const loadCart = async (req, res) => {
 
         res.render('cart', { products: findProducts ,cartCount,userId:user , grandTotal} );
     } catch (error) {
-        console.error(error.message);
-        res.status(500).send('An error occurred while loading the cart');
+        next(error)
     }
 };
 
@@ -130,7 +129,7 @@ const loadCart = async (req, res) => {
 
 
 
-const addToCart = async(req,res)=>{
+const addToCart = async(req,res,next)=>{
     try {
         const productId = req.body.productId
         let quantity = 1
@@ -189,7 +188,7 @@ const addToCart = async(req,res)=>{
         }
 
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 
 }
@@ -198,7 +197,7 @@ const addToCart = async(req,res)=>{
 
 
 
-const incQuantity = async (req,res)=>{
+const incQuantity = async (req,res,next)=>{
     try {
         const productId= req.body.productId
         const user = req.session.user_id
@@ -330,12 +329,12 @@ const incQuantity = async (req,res)=>{
         }
 
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
-const removeFromCart = async(req,res)=>{
+const removeFromCart = async(req,res,next)=>{
     try {
         const user = req.session.user_id
         const productId =req.body.productId
@@ -424,7 +423,7 @@ const removeFromCart = async(req,res)=>{
         
 
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 

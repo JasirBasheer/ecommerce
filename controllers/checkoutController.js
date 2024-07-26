@@ -7,7 +7,7 @@ const Product = require('../models/productModel')
 
 
 
-const loadCheckout = async (req, res) => {
+const loadCheckout = async (req,res,next) => {
     try {
         const user = req.session.user_id;
         const userId = new mongoose.Types.ObjectId(user._id);
@@ -122,15 +122,14 @@ const loadCheckout = async (req, res) => {
 
 
     } catch (error) {
-        console.log(error.message);
-        res.status(500).send('Internal Server Error');
+        next(error);
     }
 };
 
 
 
 
-const orderSuccess =  async(req,res)=>{
+const orderSuccess =  async(req,res,next)=>{
     try {
         const { ObjectId } = require('mongoose').Types;
         const method = req.query.method
@@ -219,6 +218,7 @@ const orderSuccess =  async(req,res)=>{
                         }
 
                     }
+                    
 
 
                          const clearCart = await Cart.findByIdAndDelete(cart._id)
@@ -249,16 +249,17 @@ const orderSuccess =  async(req,res)=>{
         }
 
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
 
-const cancelOrder = async (req, res) => {
+const cancelOrder = async (req,res,next) => {
     try {
       const userId = req.session.user_id._id;
       const productId = req.body.productId;
+      const productPrice = req.body.productPrice
   
       const updatedOrder = await Order.findOneAndUpdate(
         {
@@ -267,8 +268,10 @@ const cancelOrder = async (req, res) => {
         },
         {
           $set: {
-            "items.$.orderStatus": "Cancelled"
-          }
+            "items.$.orderStatus": "Cancelled",
+          },    
+          $inc: { totalPrice: -productPrice }
+
         },
         { new: true } 
       );
@@ -283,14 +286,14 @@ const cancelOrder = async (req, res) => {
   
       
     } catch (error) {
-      console.error('Error updating order item status:', error.message);
-      res.status(500).json({ message: 'Error updating order item status' });
+        next(error);
+
     }
   };
   
   
 
-const recentOrders = async(req,res)=>{
+const recentOrders = async(req,res,next)=>{
     try {
         const user = req.session.user_id;
         let orders = [];
@@ -332,7 +335,8 @@ const recentOrders = async(req,res)=>{
         res.render('recentorders', { user, userDetails, orders });
         
     } catch (error) {
-        
+        next(error);
+
     }
 }
 
@@ -345,7 +349,7 @@ const recentOrders = async(req,res)=>{
 
 
 
-const addNewAddress = async(req,res)=>{
+const addNewAddress = async(req,res,next)=>{
     try {
         const {fullName , number, house, street, landMark, city, state, pincode, id } = req.body
         const page = req.query.page
@@ -398,12 +402,12 @@ const addNewAddress = async(req,res)=>{
         }
 
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
-const markAddressAsActive = async (req, res) => {
+const markAddressAsActive = async (req,res,next) => {
     try {
         const { userId, addressId } = req.body;
         const user = await User.findById(userId);
@@ -420,13 +424,13 @@ const markAddressAsActive = async (req, res) => {
             res.status(404).json({ message: "User not found" });
         }
     } catch (error) {
-        console.log('Error:', error.message);
-        res.status(500).json({ message: "Internal Server Error" });
+        next(error);
+
     }
 };
 
 
-const deleteAddress = async(req,res)=>{
+const deleteAddress = async(req,res,next)=>{
     try {
         const { userId, addressId } = req.body;
 
@@ -441,13 +445,12 @@ const deleteAddress = async(req,res)=>{
             res.status(404).json({ message: "User not found" });
         }
     } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ message: "Server error" });
+        next(error);
     }
 }
 
 
-const loadEditAddress = async (req, res) => {
+const loadEditAddress = async (req,res,next) => {
     try {
         const addressId = req.query.id;
         const page = req.query.page
@@ -460,12 +463,11 @@ const loadEditAddress = async (req, res) => {
             res.status(404).json({ message: "Address not found" });
         }
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: "Internal Server Error" });
+        next(error);
     }
 };
 
-const editAddress = async(req,res)=>{
+const editAddress = async(req,res,next)=>{
     try {
         const {addressId, fullName, number, house, street, landMark, city, state, pincode}= req.body
         const user = await User.findOne({"address._id":addressId})
@@ -496,19 +498,19 @@ const editAddress = async(req,res)=>{
 
         }
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
 
-const loadCreateNewAddress = async(req,res)=>{
+const loadCreateNewAddress = async(req,res,next)=>{
     try {
         const user = req.session.user_id
         const page = req.query.id
         res.render('addnewaddress',{user,page})
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 

@@ -115,6 +115,7 @@
 									</thead>
 
 									<tbody>
+                                        
                                         <% if (typeof products !="undefined") { %>
                                          
                                        
@@ -143,6 +144,10 @@
                                                     <div class="cart-product-quantity" onclick="handleQuantity('<%= product.productId  %>')">
                                                         <input type="number" id="quantity<%= product.productId %>" class="form-control"   value="<%= product.quantity  %>" min="1" max="<%= product.num_of_stocks < 5 ? product.num_of_stocks : 5 %>" step="1" data-decimals="0" required>
                                                     </div><!-- End .cart-product-quantity -->
+                                                    <% if (product.num_of_stocks ==0) { %>
+                                                     <p style="color: red;margin-left: 11px;">outoff Stock</p>
+                                                    <% } %>
+
                                                 </td>
                                                 <td class="total-col" id="totalPrice<%= product.productId  %>">₹<%= product.totalPrice  %></td>
                                                 <td class="remove-col"><button class="btn-remove" onclick="handleRemoveCart('<%=product.productId%>')" ><i class="icon-close"></i></button></td>
@@ -232,7 +237,9 @@
 	                					</tbody>
 	                				</table><!-- End .table table-summary -->
 
-	                				<a href="/checkout" class="btn btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</a>
+                                        <a href="/checkout" class="btn btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</a>
+                                     
+                                  
 	                			</div><!-- End .summary -->
                                 <% if (typeof message != "undefined") { %>
                                  <p style="color: red;"><%=message  %></p>
@@ -675,8 +682,8 @@
 
             function loadCart(){
 
-
             window.location.href='/cart'
+            
             
        
     }

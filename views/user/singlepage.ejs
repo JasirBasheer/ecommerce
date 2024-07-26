@@ -66,7 +66,7 @@
                         <% } %>
                     </a>
 
-                    <div class="dropdown cart-dropdown">
+                    <div class="dropdown cart-dropdown" onclick="loadCart()">
                         <a href="/cart" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
                             <i class="icon-shopping-cart"></i>
                             <% if (typeof cartCount !== 'undefined') { %>
@@ -79,60 +79,7 @@
                         <input type="hidden" value="<%= userId %>" id="checkuserId">
                         <input type="hidden" value="<%= product.num_of_stocks %>" id="num_of_stocks">
 
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-cart-products">
-                                <div class="product">
-                                    <div class="product-cart-details">
-                                        <h4 class="product-title">
-                                            <a href="product.html">Beige knitted elastic runner shoes</a>
-                                        </h4>
-
-                                        <span class="cart-product-info">
-                                            <span class="cart-product-qty">1</span>
-                                            x $84.00
-                                        </span>
-                                    </div><!-- End .product-cart-details -->
-
-                                    <figure class="product-image-container">
-                                        <a href="product.html" class="product-image">
-                                            <img src="assets/images/products/cart/product-1.jpg" alt="product">
-                                        </a>
-                                    </figure>
-                                    <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                </div><!-- End .product -->
-
-                                <div class="product">
-                                    <div class="product-cart-details">
-                                        <h4 class="product-title">
-                                            <a href="product.html">Blue utility pinafore denim dress</a>
-                                        </h4>
-
-                                        <span class="cart-product-info">
-                                            <span class="cart-product-qty">1</span>
-                                            x $76.00
-                                        </span>
-                                    </div><!-- End .product-cart-details -->
-
-                                    <figure class="product-image-container">
-                                        <a href="product.html" class="product-image">
-                                            <img src="assets/images/products/cart/product-2.jpg" alt="product">
-                                        </a>
-                                    </figure>
-                                    <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                </div><!-- End .product -->
-                            </div><!-- End .cart-product -->
-
-                            <div class="dropdown-cart-total">
-                                <span>Total</span>
-
-                                <span class="cart-total-price">$160.00</span>
-                            </div><!-- End .dropdown-cart-total -->
-
-                            <div class="dropdown-cart-action">
-                                <a href="/cart" class="btn btn-primary">View Cart</a>
-                                <a href="checkout.html" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>
-                            </div><!-- End .dropdown-cart-total -->
-                        </div><!-- End .dropdown-menu -->
+                        
                     </div>
                     <a href="/user" class="wishlist-link">
                      <i class="icon-user"></i>
@@ -416,7 +363,7 @@
                                         </div><!-- End .product-action-vertical -->
         
                                         <div class="product-action">
-                                            <a href="/cart" class="btn-product btn-cart"><span>add to cart</span></a>
+                                            <a onclick="handleSingleProductAddToCart('<%=relatedProducts[i]._id%>')" class="btn-product btn-cart"><span>add to cart</span></a>
                                         </div><!-- End .product-action -->
                                     </figure><!-- End .product-media -->
         
@@ -869,7 +816,83 @@
 
             }
 
+            function handleSingleProductAddToCart(productId){
+        const user = document.getElementById('checkuserId').value
+        console.log(user);
+        console.log(user);
 
+
+        if(user ==""){
+          
+            window.location.href ="/login"
+        }else{
+        fetch('/addtocart?page=home',{
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({productId})
+            
+        })
+        .then(response => response.json())
+        .then(data=>{  
+            if (data !== undefined) {
+            if(data.outofstock){
+                Swal.fire({
+                title: "Prodcut is out off stock",
+                text: "",
+                imageUrl: 'https://i.ibb.co/108k1Pw/out-of-stock.png', 
+                imageWidth: 50,  
+                imageHeight: 50, 
+                timer: 3000,
+                confirmButtonColor: "#CC9966",
+
+});
+
+            
+}else if(data.alreadyincart){
+                Swal.fire({
+        title: "Prdouct already in cart",
+        text: "",
+        imageUrl: 'https://i.ibb.co/PjhBq51/empty-cart.png', 
+        imageWidth: 50,  
+        imageHeight: 50, 
+        confirmButtonColor: "#CC9966",
+        showCancelButton: true,
+        confirmButtonText: 'Go to cart',
+        cancelButtonText: 'Ok'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '/cart'; 
+        }
+    })
+
+            }
+            else{
+                const cartCount = document.getElementById('cartcount');
+                if (cartCount) {
+                    cartCount.textContent = data.count;
+                }
+
+            }
+        }
+        })
+
+            }
+
+      
+    }
+
+            function loadCart(){
+        const user = document.getElementById('checkuserId').value
+
+        if (user) {
+            window.location.href='/cart'
+            
+        }else{
+            window.location.href='/login'
+        }
+    }
 
     </script>
 </body>

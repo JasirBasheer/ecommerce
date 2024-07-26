@@ -515,7 +515,7 @@ function blockCategory(categoryId){
           body: JSON.stringify({categoryId})
 
         })
-        window.location.href = '/admin/categorylist'
+        window.location.reload()
       }
 
       function unblockCategory(categoryId){
@@ -527,7 +527,7 @@ function blockCategory(categoryId){
         },
         body: JSON.stringify({categoryId})
         })
-        window.location.href = '/admin/categorylist'
+        window.location.reload()
       }
 
 

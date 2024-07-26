@@ -227,16 +227,24 @@
                       <% } %>
                       
 
-                      <td data-title="TotalPrice">₹ <%= order.orderDetails.totalPrice %></td>
-                      <td data-title="OrderStatuss">
-                        <p id="orderMainStatus<%= order.orderDetails._id %>"><%= order.orderDetails.orderStatus %></p>
-                        <select class="form-select form-select-lg" name="orderStatus" id="orderStatus<%= order.orderDetails._id %>" onchange="updateOrderStatus('<%= order.orderDetails._id %>')">
-                          <option value=""></option>
-                          <option value="Pending" <%= order.orderDetails.orderStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
-                          <option value="Processing" <%= order.orderDetails.orderStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
-                          <option value="Shipped" <%= order.orderDetails.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                          <option value="Delivered" <%= order.orderDetails.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                        </select>
+                     
+                        <% if (order.orderDetails.totalPrice!==0 ) { %>
+                          <td data-title="TotalPrice">₹ <%= order.orderDetails.totalPrice %></td>
+                          <td data-title="OrderStatuss">
+                          <p id="orderMainStatus<%= order.orderDetails._id %>"><%= order.orderDetails.orderStatus %></p>
+                          <select class="form-select form-select-lg" name="orderStatus" id="orderStatus<%= order.orderDetails._id %>" onchange="updateOrderStatus('<%= order.orderDetails._id %>')">
+                            <option value=""></option>
+                            <option value="Pending" <%= order.orderDetails.orderStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
+                            <option value="Processing" <%= order.orderDetails.orderStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
+                            <option value="Shipped" <%= order.orderDetails.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                            <option value="Delivered" <%= order.orderDetails.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                          </select>
+                        <% }else{ %>
+                          <td data-title="TotalPrice" style="color: red;">₹ <%= order.orderDetails.totalPrice %></td>
+                          <td data-title="OrderStatuss">
+                          <p style="color: red;">Cancelled</p>
+                        <% } %>
+                        
                       </td>
                       <td data-title="Payment"><%= order.orderDetails.paymentMethod %></td>
                       <td data-title="ViewOrders"><a href="/admin/orderview?id=<%= order.orderDetails._id %>">View Details</a></td>

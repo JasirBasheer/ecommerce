@@ -7,115 +7,121 @@ const Order = require('../models/orderModel');
 const { default: mongoose } = require('mongoose');
 
 
-const loadAdminLoginPage = async(req,res)=>{
+const loadAdminLoginPage = async(req,res,next)=>{
     try {
         res.render('adminlogin')
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
 
-const loadAdminDashboard = async(req,res)=>{
+const loadAdminDashboard = async(req,res,next)=>{
     try {
         res.render('admindashboard')
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
 
-const loadSalesReport = async(req,res)=>{
+const loadSalesReport = async(req,res,next)=>{
     try {
         res.render('salesreport')
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
-const loadOrderedList = async (req, res) => {
+const loadOrderedList = async (req,res,next) => {
     try {
         const pipeline =[{$lookup:{from:"orders",localField:"_id",foreignField:"customer",as:"orderDetails"}},{$unwind:"$orderDetails"},{$project:{name:1,phone:1,"orderDetails.totalPrice":1,"orderDetails.orderStatus":1,"orderDetails.paymentMethod":1,"orderDetails.createdAt":1,"orderDetails._id":1,address:1}}]
 
 
+
         const orders = await User.aggregate(pipeline);
+
         // console.log(orders);
 
         res.render('orderslist', { orders })
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
-const loadProductsList = async(req,res)=>{
+const loadProductsList = async(req,res,next)=>{
     try {
-        const products = await Product.find({})
-        res.render('productslist',{products})
+        const page = parseInt(req.query.page) || 1;
+        const limit = 8;
+
+        const products = await Product.find({}).limit(limit*2).skip((page-1)*limit).exec()
+        const count = await Product.find({}).countDocuments()
+        res.render('productslist',{products,totalPages:Math.ceil(count/limit),currentPage:page})
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
-const loadUserLists = async(req,res)=>{
+const loadUserLists = async(req,res,next)=>{
     try {
         const users = await User.find({})
         res.render('userslist',{users})
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
-const loadCategoryList = async(req,res)=>{
+const loadCategoryList = async(req,res,next)=>{
     try {
         const categories = await Category.find({})
         console.log(categories);
         res.render('categorylist',{categories})
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
-const loadAddCategory = async(req,res)=>{
+const loadAddCategory = async(req,res,next)=>{
     try {
         res.render('addcategory')
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
-const loadProductsLists = async(req,res)=>{
+const loadProductsLists = async(req,res,next)=>{
     try {
        
 
                 res.render('productlists')
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
-const loadAddProduct = async(req,res)=>{
+const loadAddProduct = async(req,res,next)=>{
     try {
         const category = await Category.find({})
         res.render('addproduct',{category})
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
-const loadEditProduct = async(req,res)=>{
+const loadEditProduct = async(req,res,next)=>{
     try {
         const id = req.query.id
         const product = await Product.findOne({_id:id})
@@ -123,12 +129,12 @@ const loadEditProduct = async(req,res)=>{
         res.render('editproduct',{product,categories})
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
-const editProduct = async (req, res) => {
+const editProduct = async (req,res,next) => {
     try {
        
         const productId = req.body.id; 
@@ -180,7 +186,7 @@ const editProduct = async (req, res) => {
         }
 
     } catch (error) {
-        console.log(error.message);
+        next(error);
         res.status(500).send('Error updating product.');
     }
 };
@@ -189,7 +195,7 @@ const editProduct = async (req, res) => {
 
 
 
-const verifyAdmin =  async(req,res)=>{
+const verifyAdmin =  async(req,res,next)=>{
     try {
         const {email,password} = req.body
         console.log(email);
@@ -207,21 +213,21 @@ const verifyAdmin =  async(req,res)=>{
         }
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
-const logout = async(req,res)=>{
+const logout = async(req,res,next)=>{
     try {
         req.session.destroy()
         res.redirect('/admin')
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
-const unBlockUser = async(req,res)=>{
+const unBlockUser = async(req,res,next)=>{
     try {
         const userId =req.body.userId
         const userdata = await User.findOne({_id:userId})
@@ -235,13 +241,13 @@ const unBlockUser = async(req,res)=>{
 
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
 
     }
 }
 
 
-const BlockUser = async(req,res)=>{
+const BlockUser = async(req,res,next)=>{
     try {
         const userId =req.body.userId
         const userdata = await User.findOne({_id:userId})
@@ -253,13 +259,13 @@ const BlockUser = async(req,res)=>{
       
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
 
-const addCategory = async (req, res) => {
+const addCategory = async (req,res,next) => {
     try {
         const categoryName = req.body.categoryName;
         const categoryExist = await Category.findOne({ categoryName: categoryName });
@@ -292,22 +298,22 @@ const addCategory = async (req, res) => {
             res.render('addcategory',{message:'Category already exists'});
         }
     } catch (error) {
-        console.log(error.message);
+        next(error);
         res.status(500).send('Error adding category.');
     }
 };
-const loadEditCategory = async(req,res)=>{
+const loadEditCategory = async(req,res,next)=>{
     try {
         const id = req.query.id
         const category = await Category.findById(id)
 
         res.render('editcategory',{category})
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
-const editCategory = async (req, res) => {
+const editCategory = async (req,res,next) => {
     try {
         const categoryId = req.body.id;
         const existingCategory = await Category.findById(categoryId);
@@ -349,7 +355,7 @@ const editCategory = async (req, res) => {
 
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
         res.status(500).send('Error updating category.');
     }
 };
@@ -358,7 +364,7 @@ const editCategory = async (req, res) => {
 
 
 
-const addProduct = async(req,res)=>{
+const addProduct = async(req,res,next)=>{
     try {
         const productname = req.body.productName.trim()
         const categoryName = req.body.productCategory.trim()
@@ -403,13 +409,13 @@ const addProduct = async(req,res)=>{
        
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
 
-const blockProduct = async(req,res)=>{
+const blockProduct = async(req,res,next)=>{
     try {
         const productId = req.body.productId
         const product = await Product.findByIdAndUpdate(
@@ -425,14 +431,14 @@ const blockProduct = async(req,res)=>{
 
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
 
 
-const unBlockProduct = async(req,res)=>{
+const unBlockProduct = async(req,res,next)=>{
     try {
         const productId = req.body.productId
         const product = await Product.findByIdAndUpdate(
@@ -448,7 +454,7 @@ const unBlockProduct = async(req,res)=>{
 
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
@@ -458,7 +464,7 @@ const unBlockProduct = async(req,res)=>{
 
 
 
-const blockCategory = async(req,res)=>{
+const blockCategory = async(req,res,next)=>{
     try {
         const categoryId = req.body.categoryId
         const blockcategory = await Category.findByIdAndUpdate(
@@ -474,14 +480,14 @@ const blockCategory = async(req,res)=>{
 
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
 
 
-const unblockCategory = async(req,res)=>{
+const unblockCategory = async(req,res,next)=>{
     try {
         const categoryId = req.body.categoryId
         const unblockcategory = await Category.findByIdAndUpdate(
@@ -497,13 +503,13 @@ const unblockCategory = async(req,res)=>{
 
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
 
-const deleteCategory = async (req, res) => {
+const deleteCategory = async (req,res,next) => {
     try {
         const categoryId = req.query.id;
 
@@ -516,30 +522,31 @@ const deleteCategory = async (req, res) => {
             res.redirect('/admin/categorylist')
         }
     } catch (error) {
-        console.log(error.message);
+        next(error);
         res.status(500).send('Error deleting category');
     }
 }
 
 
-const deleteProductImage = async(req,res)=>{
+const deleteProductImage = async(req,res,next)=>{
     try {
         const productId = req.body.productId
         const productImage = req.body.image
-        console.log(productId,productImage);
+        console.log(productImage);
 
         const product = await Product.findOne({_id:productId})
         if(product){
             if(product.images.length<4){
-                req.flash("error","Need at least 3 images")
-                res.redirect('/admin/productslist')
+                return res.status(200).json({error:"need at least 3 images"})
+
             }else{
                 product.images = product.images.filter(image => image !== productImage)
 
                 await product.save()
-                req.flash("warning","Product image successfuly deleted")
-                res.redirect('/admin/productslist')
 
+                res.status(200).json({success:"Product image successfuly deleted"})
+
+                
             }
         }else{
 
@@ -549,12 +556,12 @@ const deleteProductImage = async(req,res)=>{
         }
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
-const loadOrderview = async(req,res)=>{
+const loadOrderview = async(req,res,next)=>{
     try {
         const orderId = req.query.id
 
@@ -595,6 +602,7 @@ const loadOrderview = async(req,res)=>{
             "orderDetails.createdAt": 1,
             "orderDetails._id": 1,
             "productDetails.productName": 1,
+            "productDetails._id": 1,
             "productDetails.productPrice": 1,
             "productDetails.productCategory": 1,
             "productDetails.productDescription": 1,
@@ -609,17 +617,18 @@ const loadOrderview = async(req,res)=>{
 
 
       console.log(filteredOrders);
+      console.log(filteredOrders[0].orderDetails);
 
 
         res.render('orderview',{filteredOrders})
         
     } catch (error) {
-        console.log(error.message);
+        next(error);
     }
 }
 
 
-const updateOrderStatus = async(req,res)=>{
+const updateOrderStatus = async(req,res,next)=>{
     try {
         const orderId = req.body.orderId
         const orderStatus = req.body.orderStatus
@@ -627,6 +636,7 @@ const updateOrderStatus = async(req,res)=>{
         const order = await Order.findOne({_id:orderId})
 
         if (order) {
+            
             order.orderStatus = orderStatus;
 
             let itemsModified = false;
@@ -651,6 +661,7 @@ const updateOrderStatus = async(req,res)=>{
         }
         
     } catch (error) {
+        next(error)
         
     }
 }

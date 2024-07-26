@@ -6,11 +6,13 @@ const session = require('express-session')
 const nocache = require('nocache')
 const upload = require('../middleware/multer')
 const flash = require('connect-flash')
+const errorHandler = require('../middleware/errorHandling')
 
 
 admin_route.set('view engine','ejs')
 admin_route.set('views','./views/admin')
 admin_route.use(express.static('public'));
+admin_route.use(errorHandler)
 
 
 admin_route.use(bodyParser.json())
@@ -25,13 +27,14 @@ admin_route.use(session({
 }))
 admin_route.use(nocache())
 admin_route.use(flash())
-admin_route.use((req, res, next) => {
+admin_route.use((req,res,next) => {
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     res.locals.warning = req.flash('warning');
 
     next();
 });
+
 
 
 

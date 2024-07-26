@@ -5,6 +5,7 @@ const auth = require("../middleware/userAuth")
 const session = require('express-session')
 const nocache = require('nocache')
 const path = require('path')
+const errorHandler =require('../middleware/errorHandling')
 
 
 user_route.use(express.static('public'));
@@ -25,6 +26,7 @@ user_route.use(session({
 
 }))
 user_route.use(nocache())
+user_route.use(errorHandler)
 
 const userController = require('../controllers/userController')
 const cartController = require('../controllers/cartController')

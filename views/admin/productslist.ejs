@@ -252,7 +252,7 @@
               <tbody>
         
                 <% if (products.length !== 0) { %>
-                  <% for (let i = products.length - 1; i >= 0; i--) { %>
+                  <% for (let i = 0; i< products.length; i++) { %>
                     <tr style="font-size: medium; text-align: center;">
                       <td data-title="Name"><%= products[i].productName %></td>
                       <td data-title="Category"><%= products[i].productCategory %></td>
@@ -265,21 +265,20 @@
                        
                           <% for( let j = 0; j < products[i].images.length; j++ ) { %>
 
-                            <div style="display: flex; align-items: center; "> 
-                              <img 
-                                src="<%= products[i].images[j] %>" 
-                                alt="<%= products[i].images[j] %>"
-                                width="40px" height="40px" style="margin-bottom: 10px;">
-
-                                <form action="/admin/deleteProductImage" method="POST">
-                                  <input type="hidden" name="productId" value="<%=products[i]._id%>" />
-                                  <input type="hidden" name="image" value="<%=products[i].images[j]%>" />
-                                  <button type="submit" class="btn-danger ps-2 mx-md-5" 
-                                    onclick="return confirm('Are you surely want to delete it?')">
-                                    <i class="fa-sharp fa-solid fa-trash"></i>
-                                  </button>                                
-                                </form>                             
-                            </div>  
+                            <div style="display: flex; align-items: center;">
+                              <img id="productImageAndDelete<%= products[i]._id %>"
+                                  src="<%= products[i].images[j] %>" 
+                                  alt="<%= products[i].images[j] %>"
+                                  width="40px" height="40px" style="margin-bottom: 10px;">
+                              <form onsubmit="return handleDeleteImg('<%= products[i]._id %>', '<%= products[i].images[j] %>')">
+                                  <input type="hidden" name="productId" value="<%= products[i]._id %>" />
+                                  <input type="hidden" name="image" value="<%= products[i].images[j] %>" />
+                                  <button type="submit" id="productImageDeleteBtn<%= products[i]._id %>"  class="btn-danger ps-2 mx-md-5" 
+                                      onclick="return confirm('Are you sure you want to delete it?')">
+                                      <i class="fa-sharp fa-solid fa-trash"></i>
+                                  </button>
+                              </form>
+                          </div>
                           
                           <% } %>
                         
@@ -313,6 +312,28 @@
               
             </table>
           </div>
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item    <%= (currentPage == 1) ? 'disabled' : '' %>" >
+                    <a class="page-link page-link-prev" onclick="handleprevious('<%=currentPage%>')"  aria-label="Previous" tabindex="-1" aria-disabled="true" >
+                        <span aria-hidden="true"><i class="icon-long-arrow-left"></i></span>Prev
+                    </a>
+                </li>
+                              <% for( let i = 1; i <= totalPages; i++ ) { %>
+                                  <li class="page-item <%= (currentPage == i) ? 'active' : '' %>" aria-current="page"><a class="page-link" href="?page=<%= i %>"><%= i %></a></li>
+
+                              <% } %>
+                              
+  
+                <li class="page-item-total">of <%=totalPages%></li>
+                <li class="page-item <%= (currentPage == totalPages) ? 'disabled' : '' %>" >
+                    <a class="page-link page-link-next" onclick="handleNext('<%=currentPage%>')" aria-label="Next">
+                        Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
         </div>
       </main>
 
@@ -552,6 +573,44 @@
     <script src="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.js"></script>
    
     <script>
+
+      function handleDeleteImg(productId,productImg){
+        event.preventDefault(); // Prevent default form submission
+        console.log("Deleting image", productId, productImg);        
+        fetch('/admin/deleteProductImage',{
+          method:'POST',
+          headers:{
+            'Content-type':'application/json'
+          },
+          body: JSON.stringify({productId,image: productImg})
+
+        }).then(response => response.json())
+          .then(data=>{
+            if(data.success){
+              console.log('data');
+              document.getElementById(`productImageAndDelete${productId}`).remove()
+              document.getElementById(`productImageDeleteBtn${productId}`).remove()
+              Swal.fire({
+  title: "Product Image Deleted Successfully",
+  icon: "success",
+  timer:3000,
+  timerProgressBar: true,
+
+});
+
+            }else if(data.error){
+              Swal.fire({
+  title: "Need at least 3 images for a product",
+  icon: "error",
+  timer:3000,
+  timerProgressBar: true,
+
+});
+
+            }
+          })
+      
+      }
    
 
       function blockproduct(productId){
@@ -563,7 +622,7 @@
           body: JSON.stringify({productId})
 
         })
-        window.location.href = '/admin/productslist'
+        window.location.reload()
       }
 
       function unBlockproduct(productId){
@@ -574,7 +633,7 @@
         },
         body: JSON.stringify({productId})
         })
-        window.location.href = '/admin/productslist'
+        window.location.reload()
       }
       
 
@@ -588,8 +647,21 @@
         });
 
       
+        function handleNext(currentPage){
+      const page = parseInt(currentPage)+1;
+      window.location.href = `/admin/productslist?page=${page}`
 
+
+    }
+    
+    function handleprevious(currentPage){
+      const page = parseInt(currentPage)-1;
+      window.location.href = `/admin/productslist?page=${page}`
+
+
+    }
     </script>
+
 
     
   </body>
