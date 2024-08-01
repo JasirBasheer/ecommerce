@@ -26,6 +26,8 @@ const addProductImages = async (files) => {
 };
 
 const editproductImages = async(files) =>{
+    
+    console.log(files);
     const imagesDir = path.join(__dirname, '../public/productImages');
     let newImages = [];
          

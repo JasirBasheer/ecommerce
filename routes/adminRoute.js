@@ -53,6 +53,9 @@ admin_route.get('/addproduct',auth.isLogin,adminController.loadAddProduct)
 admin_route.get('/editproduct',auth.isLogin,adminController.loadEditProduct)
 admin_route.get('/logout',auth.isLogin,adminController.logout)
 admin_route.get('/editcategory',auth.isLogin,adminController.loadEditCategory)
+admin_route.get('/couponslist',auth.isLogin,adminController.loadCouponList)
+admin_route.get('/addcoupon',auth.isLogin,adminController.loadAddCoupon)
+admin_route.post('/addcoupon',auth.isLogin,adminController.AddCoupon)
 
 
 

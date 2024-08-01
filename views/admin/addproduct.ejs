@@ -471,169 +471,201 @@
       let files;
       let processedImages = []; 
   
-      function imageValidation(input) {
-        const imagePreview = document.getElementById('imagePreview');
-        imagePreview.innerHTML = ""; 
-  
-        files = input.files;
-  
-        if (files.length < 4) {
-          document.getElementById('productPhoto-error').innerText = 'At least 4 images are required';
-          input.setCustomValidity('At least 4 images are required');
-        } else {
-          document.getElementById('productPhoto-error').innerText = '';
-          input.setCustomValidity('');
-  
-          processedImages = Array.from(files);
-  
-          Array.from(files).forEach((file, index) => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-              const img = document.createElement('img');
-              img.src = e.target.result;
-              img.style.width = '100px';
-              img.style.height = '100px';
-              img.style.margin = '5px';
-              img.style.cursor = 'pointer';
-              img.onclick = () => openCropper(index, e.target.result);
-              imagePreview.appendChild(img);
-            };
-            reader.readAsDataURL(file);
-          });
-        }
-      }
-  
-      function openCropper(index, src) {
-        currentFileIndex = index;
-        const imageToCrop = document.getElementById('imageToCrop');
-        imageToCrop.src = src;
-  
-        $('#cropperModal').modal('show');
-  
-        cropper = new Cropper(imageToCrop, {
-          aspectRatio: 1,
-          viewMode: 1,
-        });
-      }
-  
-      document.getElementById('cropButton').addEventListener('click', () => {
-        const canvas = cropper.getCroppedCanvas();
-        canvas.toBlob((blob) => {
-          const croppedFile = new File([blob], files[currentFileIndex].name, { type: 'image/jpeg' });
-          processedImages[currentFileIndex] = croppedFile; 
-  
-          const croppedImageUrl = URL.createObjectURL(blob);
-          const imagePreview = document.getElementById('imagePreview');
-          const img = document.createElement('img');
-          img.src = croppedImageUrl;
-          img.style.width = '100px';
-          img.style.height = '100px';
-          img.style.margin = '5px';
-          img.style.cursor = 'pointer';
-  
-          const originalImage = imagePreview.children[currentFileIndex];
-          imagePreview.replaceChild(img, originalImage);
-  
-          $('#cropperModal').modal('hide');
-          cropper.destroy();
-        });
-      });
-  
-      document.getElementById('addProductForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-  
-        validateProductName();
-        validateProductDescription();
-        validateProductStocks();
-        validateProductPrice();
-  
-        const productNameError = document.getElementById('productName-error').textContent;
-        const productDescriptionError = document.getElementById('productDescription-error').textContent;
-        const productStocksError = document.getElementById('productStocks-error').textContent;
-        const productPriceError = document.getElementById('productPrice-error').textContent;
-  
-        if (productNameError || productDescriptionError || productStocksError || productPriceError) {
-          return; 
-        }
-  
-        const formData = new FormData();
-  
-        formData.append('productName', document.getElementById('productName').value);
-        formData.append('productCategory', document.getElementById('productCategory').value);
-        formData.append('productPrice', document.getElementById('productPrice').value);
-        formData.append('productStocks', document.getElementById('productStocks').value);
-        formData.append('productDescription', document.getElementById('productDescription').value);
-  
-        processedImages.forEach((file) => {
-          formData.append('productImages', file, file.name);
-        });
-  
-        fetch('/admin/addproduct', {
-          method: 'POST',
-          body: formData
-        }).then(response => response.json())
-        .then(data =>{
-          if (data.suc) {
-            window.location.href ="/admin/productslist"
-          }else if(data.dup){
-            document.getElementById('duplicateerror').textContent="Product already exists"
+          function imageValidation(input) {
+      const imagePreview = document.getElementById('imagePreview');
+      imagePreview.innerHTML = "";
 
-          }
-        })
+      files = input.files;
+
+      if (files.length < 4) {
+        document.getElementById('productPhoto-error').innerText = 'At least 4 images are required';
+        input.setCustomValidity('At least 4 images are required');
+      } else {
+        document.getElementById('productPhoto-error').innerText = '';
+        input.setCustomValidity('');
+
+        processedImages = Array.from(files);
+
+        Array.from(files).forEach((file, index) => {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const imgContainer = document.createElement('div');
+            imgContainer.style.position = 'relative';
+            imgContainer.style.display = 'inline-block';
+            imgContainer.style.margin = '5px';
+
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.width = '100px';
+            img.style.height = '100px';
+            img.style.cursor = 'pointer';
+            img.onclick = () => openCropper(index, e.target.result);
+
+            const deleteButton = document.createElement('button');
+             deleteButton.textContent = 'x';
+             deleteButton.style.position = 'absolute';
+              deleteButton.style.top = '0';
+             deleteButton.style.right = '0';
+             deleteButton.style.color = 'red';
+             deleteButton.style.border = 'none';
+             deleteButton.style.cursor = 'pointer';
+            deleteButton.onclick = () => deleteImage(index);
+  
+            imgContainer.appendChild(img);
+            imgContainer.appendChild(deleteButton);
+            imagePreview.appendChild(imgContainer);
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+    }
+
+    function openCropper(index, src) {
+      currentFileIndex = index;
+      const imageToCrop = document.getElementById('imageToCrop');
+      imageToCrop.src = src;
+
+      $('#cropperModal').modal('show');
+
+      cropper = new Cropper(imageToCrop, {
+        aspectRatio: 1,
+        viewMode: 1,
       });
-  
-      function validateProductName() {
-        const productNameInput = document.getElementById('productName');
-        const productNameError = document.getElementById('productName-error');
-        const productName = productNameInput.value.trim();
-  
-        if (productName === '') {
-          productNameError.textContent = 'Enter a valid Name';
-        } else {
-          productNameError.textContent = '';
-        }
+    }
+
+    document.getElementById('cropButton').addEventListener('click', () => {
+      const canvas = cropper.getCroppedCanvas();
+      canvas.toBlob((blob) => {
+        const croppedFile = new File([blob], files[currentFileIndex].name, { type: 'image/jpeg' });
+        processedImages[currentFileIndex] = croppedFile;
+
+        const croppedImageUrl = URL.createObjectURL(blob);
+        const imagePreview = document.getElementById('imagePreview');
+        const imgContainer = imagePreview.children[currentFileIndex];
+        const img = imgContainer.querySelector('img');
+        img.src = croppedImageUrl;
+
+        $('#cropperModal').modal('hide');
+        cropper.destroy();
+      });
+    });
+
+    function deleteImage(index) {
+      processedImages.splice(index, 1);
+      const imagePreview = document.getElementById('imagePreview');
+      imagePreview.removeChild(imagePreview.children[index]);
+
+      if (processedImages.length < 4) {
+        document.getElementById('productPhoto-error').innerText = 'At least 4 images are required';
+        document.getElementById('productPhoto').setCustomValidity('At least 4 images are required');
+      } else {
+        document.getElementById('productPhoto-error').innerText = '';
+        document.getElementById('productPhoto').setCustomValidity('');
       }
-  
-      function validateProductDescription() {
-        const productDescriptionInput = document.getElementById('productDescription');
+
+           Array.from(imagePreview.children).forEach((imgContainer, newIndex) => {
+             const img = imgContainer.querySelector('img');
+                const deleteButton = imgContainer.querySelector('button');
+                img.onclick = () => openCropper(newIndex, img.src);
+            deleteButton.onclick = () => deleteImage(newIndex);
+                });
+    }
+
+    document.getElementById('addProductForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      validateProductName();
+      validateProductDescription();
+      validateProductStocks();
+      validateProductPrice();
+
+      const productNameError = document.getElementById('productName-error').textContent;
+      const productDescriptionError = document.getElementById('productDescription-error').textContent;
+        const productStocksError = document.getElementById('productStocks-error').textContent;
+      const productPriceError = document.getElementById('productPrice-error').textContent;
+
+      if (productNameError || productDescriptionError || productStocksError || productPriceError) {
+        return;
+      }
+
+        const formData = new FormData();
+
+      formData.append('productName', document.getElementById('productName').value);
+      formData.append('productCategory', document.getElementById('productCategory').value);
+      formData.append('productPrice', document.getElementById('productPrice').value);
+      formData.append('productStocks', document.getElementById('productStocks').value);
+      formData.append('productDescription', document.getElementById('productDescription').value);
+
+      processedImages.forEach((file) => {
+        formData.append('productImages', file, file.name);
+      });
+
+      fetch('/admin/addproduct', {
+        method: 'POST',
+        body: formData
+      }).then(response => response.json())
+          .then(data =>{
+        if (data.suc) {
+          window.location.href = "/admin/productslist";
+        } else if (data.dup) {
+          document.getElementById('duplicateerror').textContent = "Product already exists";
+        }
+      });
+    });
+
+    function validateProductName() {
+      const productNameInput = document.getElementById('productName');
+      const productNameError = document.getElementById('productName-error');
+      const productName = productNameInput.value.trim();
+
+      if (productName === '') {
+        productNameError.textContent = 'Enter a valid Name';
+      } else {
+        productNameError.textContent = '';
+      }
+    }
+
+    function validateProductDescription() {
+      const productDescriptionInput = document.getElementById('productDescription');
         const productDescriptionError = document.getElementById('productDescription-error');
-        const productDescription = productDescriptionInput.value.trim();
-  
-        if (productDescription === '') {
-          productDescriptionError.textContent = 'Enter a valid Description';
-        } else {
-          productDescriptionError.textContent = '';
-        }
+      const productDescription = productDescriptionInput.value.trim();
+
+      if (productDescription === '') {
+        productDescriptionError.textContent = 'Enter a valid Description';
+      } else {
+        productDescriptionError.textContent = '';
       }
-  
-      function validateProductStocks() {
-        const productStocksInput = document.getElementById('productStocks');
-        const productStocksError = document.getElementById('productStocks-error');
-        const productStocks = parseInt(productStocksInput.value, 10);
-  
-        if (isNaN(productStocks) || productStocks < 0) {
-          productStocksError.textContent = 'Enter a valid stock';
-        } else {
-          productStocksError.textContent = '';
-        }
+    }
+
+    function validateProductStocks() {
+      const productStocksInput = document.getElementById('productStocks');
+      const productStocksError = document.getElementById('productStocks-error');
+      const productStocks = parseInt(productStocksInput.value, 10);
+
+      if (isNaN(productStocks) || productStocks < 0) {
+        productStocksError.textContent = 'Enter a valid stock';
+      } else {
+        productStocksError.textContent = '';
       }
-  
-      function validateProductPrice() {
-        const productPriceInput = document.getElementById('productPrice');
-        const productPriceError = document.getElementById('productPrice-error');
-        const productPrice = parseFloat(productPriceInput.value);
-  
-        if (isNaN(productPrice) || productPrice < 0) {
-          productPriceError.textContent = 'Enter a valid Price';
-        } else {
-          productPriceError.textContent = '';
-        }
+    }
+
+    function validateProductPrice() {
+      const productPriceInput = document.getElementById('productPrice');
+       const productPriceError = document.getElementById('productPrice-error');
+      const productPrice = parseFloat(productPriceInput.value);
+
+      if (isNaN(productPrice) || productPrice < 0) {
+        productPriceError.textContent = 'Enter a valid Price';
+      } else {
+        productPriceError.textContent = '';
       }
-  
-      document.getElementById('productName').addEventListener('keyup', validateProductName);
-      document.getElementById('productDescription').addEventListener('keyup', validateProductDescription);
-      document.getElementById('productStocks').addEventListener('keyup', validateProductStocks);
+    }
+
+    document.getElementById('productName').addEventListener('keyup', validateProductName);
+    document.getElementById('productDescription').addEventListener('keyup', validateProductDescription);
+    document.getElementById('productStocks').addEventListener('keyup', validateProductStocks);
       document.getElementById('productPrice').addEventListener('keyup', validateProductPrice);
+
     </script>
     
 

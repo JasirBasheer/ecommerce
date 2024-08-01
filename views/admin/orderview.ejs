@@ -143,26 +143,16 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="h5">Customer Name:</div>
-                <div><%= filteredOrders[0].name %></div>
+                <div><%= filteredOrders[0].orderDetails.addresss.name %></div>
                 <div class="h5 mt-3">Address:</div>
-                <% let k = 0; %>
-                <% for (let i = 0; i < filteredOrders.length; i++) { %>
-                  <% for (let j = 0; j < filteredOrders[i].address.length; j++) { %>
-                    <% if (filteredOrders[i].address[j].isActive) { %>
-                      <% if (k === 1) { %>
-                        <% break; %>
-                      <% } %>
+               
                       <div>
-                        <%= filteredOrders[i].address[j].fullName %><br>
-                        <%= filteredOrders[i].address[j].number %><br>
-                        <%= filteredOrders[i].address[j].house %><br>
-                        <%= filteredOrders[i].address[j].pincode %>
+                        <%= filteredOrders[0].orderDetails.addresss.fullName %><br>
+                        <%=filteredOrders[0].orderDetails.addresss.number %><br>
+                        <%= filteredOrders[0].orderDetails.addresss.house %><br>
+                        <%= filteredOrders[0].orderDetails.addresss.pincode %>
                       </div>
-                      <% k = 1; %>
-                      <% break; %>
-                    <% } %>
-                  <% } %>
-                <% } %>
+                      
               </div>
               <div class="col-md-3">
                 <div class="h5">Mode of Payment:</div>

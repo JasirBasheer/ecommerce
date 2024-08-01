@@ -199,24 +199,36 @@
                   <th style="font-size: 20px;" scope="col">Status</th>
                 </tr>
               </thead>
-              <tbody>
-             
+              <tbody> 
+
+                  <% if (typeof coupons !="undefined") { %>
+                    <% for( let i = 0; i < coupons.length; i++ ) { %>
+                    
+
+
+                   
                       <tr style="font-size: medium;">
-                        <td data-title="Name"></td>   
-                        <td data-title="Name"></td> 
-                        <td data-title="Name"></td> 
-                        <td data-title="Name"></td> 
-                        <td data-title="Name"></td> 
+                        <td data-title="Name"><%= coupons[i].couponName %></td>   
+                        <td data-title="Name">%<%= coupons[i].discountPercentage %></td> 
+                        <td data-title="Name"><%= coupons[i].minimumPurchase %></td> 
+                        <td data-title="Name"><%= coupons[i].limit %></td> 
+                        <td data-title="Name"><%= coupons[i].expiryDate %></td> 
                         <td data-title="Actions">                          
                               <button type="button" class="btn btn-success" onclick="active('<%= coupons[i]._id %>' )">Deactivate</button>
                               <button type="button" class="btn btn-danger" onclick="active('<%= coupons[i]._id %>')">Active</button>
                     
                         </td>
                       </tr>
+                    <% } %>
+
+                  <% }else{ %>
+
             
                         <tr>
                           <td colspan="5">Coupons Not Found</td>
                         </tr>
+                  <% } %>
+
                     
               </tbody>
             </table>

@@ -7,9 +7,27 @@ const mongoose = require('mongoose');
 const jwt= require('jsonwebtoken')
 const Cart = require('../models/cartModel')
 const Order = require('../models/orderModel')
+const Wishlist = require('../models/wishlistModel')
 let generatedOtp 
 let userdetails ={}
 let editUserDetails ={}
+
+
+
+const getWishlistCount = async (userId) => {
+    try {
+        const wishlist = await Wishlist.findOne({ userId:userId });
+
+        if (wishlist) {
+            return wishlist.products.length;
+        } else {
+            return 0;
+        }
+    } catch (error) {
+        console.error('Error fetching wishlist count:', error);
+        return 0; 
+    }
+};
 
 
 
@@ -45,7 +63,7 @@ const loadHome = async(req,res,next) => {
         const products = await Product.find({});
         const recentProducts = await Product.find({});
         const categoryName = req.query.id || null; 
-        const userId = req.session.user_id
+        const userId = req.session.user_id || null
         const cart = await Cart.findOne({userId:userId})
 
         let cartCount = 0;
@@ -53,8 +71,14 @@ const loadHome = async(req,res,next) => {
             cartCount = cart.products.reduce((total, item) => total + item.quantity, 0);
         }
 
+        let wishlistCount ;
+        if(userId){
+         wishlistCount =  await getWishlistCount(userId._id);
+        }else{
+            wishlist =0
+        }
 
-        res.render('index', { categories, products, categoryName,recentProducts,cartCount,userId });
+        res.render('index', { categories, products,search:"", categoryName,recentProducts,cartCount,userId,wishlistCount });
     } catch (error) {
         next(error);
     }
@@ -269,20 +293,12 @@ const loadBlog = async(req,res,next)=>{
 
 
 
-const loadWishlist = async(req,res,next)=>{
-    try {
-        res.render('wishlist')
-    } catch (error) {
-        next(error);
-    }
-}
-
-
 
 
 const loadUser = async (req,res,next) => {
     try {
         const user = req.session.user_id;
+
         let orders = [];
         const cart = await Cart.findOne({userId:user})
 
@@ -292,37 +308,65 @@ const loadUser = async (req,res,next) => {
         }
 
         if (user) {
+            const userId = new mongoose.Types.ObjectId(user._id);
             var userDetails = await User.findById(user._id);
 
+
             const pipeline = [
-                { $match: { customer: new mongoose.Types.ObjectId(user._id) } },
+                { $match: { customerId: userId } },
                 { $unwind: "$items" },
                 {
                     $lookup: {
                         from: "products",
                         localField: "items.productId",
                         foreignField: "_id",
-                        as: "productDetails"
-                    }
+                        as: "productDetails",
+                    },
                 },
                 { $unwind: "$productDetails" },
                 {
                     $project: {
-                        _id: 1,
+                        orderId: 1,
+                        customerId: 1,
+                        customer: 1,
+                        phone: 1,
+                        address: 1,
+                        totalPrice: 1,
                         orderStatus: 1,
+                        paymentMethod: 1,
                         createdAt: 1,
-                        "items.quantity": 1,
-                        "items._id": 1,
-                        "items.orderStatus": 1,
-                        "productDetails.productName": 1,
-                        "productDetails.productPrice": 1,
-                        "productDetails.productCategory": 1,
-                        "productDetails.productDescription": 1,
-                        "productDetails.images": 1,
-                        totalPrice: { $multiply: ["$items.quantity", "$productDetails.productPrice"] }
-                    }
-                }
+                        addresss: 1,
+                        applyedCoupon: 1,
+                        applyedDiscount: 1,
+                        "items.productId": "$productDetails._id",
+                        "items.quantity": "$items.quantity",
+                        "items.orderStatus": "$items.orderStatus", 
+                        "items._id": "$items._id",
+                        "items.images": "$productDetails.images",
+                        "items.productName": "$productDetails.productName",
+                        "items.productPrice": "$productDetails.productPrice"
+                    },
+                },
+                {
+                    $group: {
+                        _id: "$_id",
+                        orderId: { $first: "$orderId" },
+                        customerId: { $first: "$customerId" },
+                        customer: { $first: "$customer" },
+                        phone: { $first: "$phone" },
+                        address: { $first: "$address" },
+                        totalPrice: { $first: "$totalPrice" },
+                        orderStatus: { $first: "$orderStatus" },
+                        paymentMethod: { $first: "$paymentMethod" },
+                        createdAt: { $first: "$createdAt" },
+                        addresss: { $first: "$addresss" },
+                        applyedCoupon: { $first: "$applyedCoupon" },
+                        applyedDiscount: { $first: "$applyedDiscount" },
+                        items: { $push: "$items" },
+                    },
+                },
             ];
+
 
             orders = await Order.aggregate(pipeline);
         }
@@ -335,30 +379,36 @@ const loadUser = async (req,res,next) => {
 
 
 
-const loadShop = async(req,res,next)=>{
+const loadShop = async(req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 11;
 
-
-        const products = await Product.find({}).limit(limit*2).skip((page-1)*limit).exec()
-        const count = await Product.find({}).countDocuments();
-        const categories = await Category.find({})
-        const userId = req.session.user_id
-        const cart = await Cart.findOne({userId:userId})
-
+        const products = await Product.find({}).limit(limit).skip((page - 1) * limit).exec();
+        const count = await Product.countDocuments();
+        const categories = await Category.find({});
+        const userId = req.session.user_id || null
+        const cart = await Cart.findOne({ userId: userId });
 
         let cartCount = 0;
         if (cart) {
             cartCount = cart.products.reduce((total, item) => total + item.quantity, 0);
         }
-     
-        console.log(products);
-        res.render('shop',{products,categories,cartCount,userId,totalPages:Math.ceil(count/limit),currentPage:page})
+
+        let wishlistCount ;
+        if(userId){
+         wishlistCount =  await getWishlistCount(userId._id);
+        }else{
+            wishlist =0
+        }
+
+        res.render('shop', {
+            products,categories,wishlistCount,cartCount,search:"",userId,totalPages: Math.ceil(count / limit),currentPage: page,url: '/shop?'
+        });
     } catch (error) {
         next(error);
     }
-}
+};
 
 
 
@@ -475,19 +525,19 @@ const forgotpassword = async (req,res,next)=>{
                 const generatedToken = await generateToken(userdata._id)
                 const response = await sendMailtoResetPassword(email,generatedToken)
                 if(response){
-                    if (req.session_userId) {
+                    if (req.session.user_id) {
                         req.session.destroy();
                     }
                     return res.status(200).json({success:"email has been sended to reset password"})
                 }else{
-                    res.send('please conform')
+                    return res.status(200).json({error:"user not found"})
                 }
             }  else{
                 res.redirect('/userIsBanned')
             }
            
         }else{
-           res.render('forgotpassword',{message:"User Not Exists"})
+            return res.status(200).json({error:"user not found"})
         }
     
 
@@ -496,6 +546,15 @@ const forgotpassword = async (req,res,next)=>{
         
     } catch (error) {
         next(error);
+    }
+}
+
+const loaduserIsBanned = async (req,res,next)=>{
+    try {
+        res.send("User is Banned")
+        
+    } catch (error) {
+        next(error)
     }
 }
 
@@ -682,6 +741,7 @@ const resetPassword = async(req,res,next)=>{
 module.exports ={
     loadRegister,
     loadLogin, 
+    loaduserIsBanned,
     userLogin,
 
     verifyOtp,
@@ -699,7 +759,6 @@ module.exports ={
     loadAbout,
     loadBlog,
     loadContactUs,
-    loadWishlist,
     loadUser,
     loadShop,
     

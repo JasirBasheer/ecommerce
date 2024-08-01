@@ -101,12 +101,22 @@
             <div class="page-content">
             	<div class="checkout">
 	                <div class="container">
-            			<div class="checkout-discount">
-            				<form action="#">
-        						<input type="text" class="form-control" required id="checkout-discount-input">
-            					<label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here to enter your code</span></label>
-            				</form>
-            			</div><!-- End .checkout-discount -->
+                        <div class="cart-bottom" style="margin-bottom: 0rem;">
+                            <div class="cart-discount">
+                                <form id="applyCoupon">
+                                    <div class="input-group">
+                                        <input type="text" name="couponinp" id="couponinp" class="form-control" required placeholder="coupon code">
+                                        <div class="input-group-append" style="height: 2.9em;">
+                                            <button class="btn btn-outline-primary-2" type="submit"><i class="icon-long-arrow-right"></i></button>
+                                        </div><!-- .End .input-group-append -->
+                                    </div><!-- End .input-group -->
+                                </form>
+                                <p id="couponName-error" style="color: red;"></p>
+                                <p style="color: #CC9966;font-size: 0.8em;text-decoration: underline;cursor: pointer;" onclick="handleClearCoupon()">Clear Coupon..</p>
+
+                            </div><!-- End .cart-discount -->
+
+                        </div><!-- End .cart-bottom -->
             			<form onsubmit="return handlePlaceOrder(event)">
 		                	<div class="row">
 		                		<div class="col-lg-9">
@@ -165,7 +175,7 @@
                                                     <p style="margin-left: 13px;">No addresses found.</p>
                                                 <% } %>
                                         </div>
-                                        <% if (userDetails && userDetails.address && userDetails.address.length > 2) { %>
+                                        <% if (userDetails && userDetails.address && userDetails.address.length > 3) { %>
                                         <% }else{ %>
                                             <input type="hidden"  id="addresscheck" value="<%=userDetails.address.length%>">
 
@@ -217,12 +227,17 @@
 		                					
 		                						<tr class="summary-subtotal">
 		                							<td>Subtotal:</td>
-		                							<td>₹<%=grandTotal%></td>
+		                							<td>₹<%=subTotal%></td>
 		                						</tr><!-- End .summary-subtotal -->
+                                                <tr>
+		                							<td>Coupon:</td>
+		                							<td id="couponprice">₹ -<%=coupon %></td>
+		                						</tr>
 		                						<tr>
 		                							<td>Shipping:</td>
 		                							<td>Free shipping</td>
 		                						</tr>
+                                                
 		                						<tr class="summary-total">
 		                							<td>Total:</td>
 		                							<td>₹<%=grandTotal%></td>
@@ -239,6 +254,9 @@
 										                <a class="collapsed" role="button" id="cashondelivary" onclick="handlePaymentMethod('cashondelivary')" data-toggle="collapse" href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
 										                    Cash on delivery
 										                </a>
+                                                        <!-- <a class="collapsed" role="button" id="cashondelivary" onclick="handlePaymentMethod('cashondelivary')" data-toggle="collapse" href="#collapse-3" aria-expanded="true" aria-controls="collapse-3">
+										                    Cash on delivery
+										                </a> -->
 										            </h2>
 										        </div><!-- End .card-header -->
 										        <div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
@@ -775,7 +793,85 @@ window.location.href='/cart'
 
 }
 
-    </script>
+
+function handleClearCoupon(){
+    fetch('/clearcoupon',{
+        method:'POST',
+        headers:{
+            'Content-Type':'application/json'
+        }
+    }).then(response => response.json())
+    .then(data=>{
+        if(data.success){
+            Swal.fire("Coupon Cleared");
+            document.getElementById('couponprice').innerText=0
+            window.location.reload()
+        }
+    })
+
+}
+
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('applyCoupon').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const couponinp = document.getElementById('couponinp').value;
+            let valid = true;
+
+            if (!couponinp.trim()) {
+                console.log('something');
+                valid = false;
+                Swal.fire("Enter a valid Coupon!");
+            } else {
+                document.getElementById('couponName-error').innerText = '';
+            }
+
+            if (valid) {
+                const formData = { couponinp };
+
+
+                fetch("/applycoupon",{
+                    method:'POST',
+                    headers:{
+                        'Content-Type':'application/json'
+                    },
+                    body:JSON.stringify(formData)
+                }).then(response => response.json())
+                .then(data=>{
+                    console.log(data);
+                    if(data.success){
+                        Swal.fire({
+        title: "Coupon Successfully added",
+        icon: "success",
+        timer: 2000,
+        timerProgressBar: true,
+      }).then(()=>{
+        window.location.reload()
+      })
+
+                    }else if(data.alreadyapplyed){
+                        Swal.fire("This Coupon is Applyed!");
+
+                    }else if(data.couponIsNotActive){
+                        Swal.fire("This Coupon is not active any more!");
+                    }else if(data.totalisless){
+                        Swal.fire("Coupon is minimum requiredment price doesnt matched!");
+                    }else if(data.couponIsExpired){
+                        Swal.fire("This Coupon is Expired!");
+                    }else if(data.couponNotExists){
+                        Swal.fire("Coupon not exists!");
+
+                    }
+                })
+            }
+        });
+    });
+
+</script>
 </body>
 
 

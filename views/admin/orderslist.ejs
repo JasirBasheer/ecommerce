@@ -146,6 +146,14 @@
                       </li>
                     </ul>
                   </li>
+
+                  <li>
+                    <a href="/admin/couponslist" class="sf-with-ul">Coupons</a>
+                    <ul>
+                      <li><a href="/admin/couponslist">Coupon Lists</a></li>
+                      <li><a href="/admin/addcoupon">Add New Coupon</a></li>
+                    </ul>
+                  </li>
                  
                   <li><a href="/admin/userslist">Users</a></li>
                   <li class="megamenu-container active"><a href="/admin/orderslist">Orders</a></li>
@@ -211,24 +219,21 @@
                     </td>                      <td data-title="OrderId"><%= order.orderDetails._id %></td>
                       <td data-title="Customer"><%= order.name %></td>
 
-                      <% for( let i = 0; i < order.address.length; i++ ) { %>
-                        <% if (order.address[i].isActive) { %>
-                          <td data-title="Address">
-                            <%= order.address[i].fullName %>
+=                          <td data-title="Address">
+                            <%= order.orderDetails.addresss.fullName %>
                             <br>
-                            <%= order.address[i].number %>
+                            <%= order.orderDetails.addresss.number %>
                             <br>
-                            <%= order.address[i].house %>
+                            <%= order.orderDetails.addresss.house %>
                             <br>
-                            <%= order.address[i].pincode %>
+                            <%= order.orderDetails.addresss.pincode %>
                           </td>
-                        <% } %>
                       
-                      <% } %>
                       
 
                      
                         <% if (order.orderDetails.totalPrice!==0 ) { %>
+                          <% if (order.orderDetails.orderStatus!=="Delivered" ) { %>
                           <td data-title="TotalPrice">₹ <%= order.orderDetails.totalPrice %></td>
                           <td data-title="OrderStatuss">
                           <p id="orderMainStatus<%= order.orderDetails._id %>"><%= order.orderDetails.orderStatus %></p>
@@ -239,8 +244,14 @@
                             <option value="Shipped" <%= order.orderDetails.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
                             <option value="Delivered" <%= order.orderDetails.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
                           </select>
+                          <% }else{ %>
+                            <td data-title="TotalPrice" s>₹ <%= order.orderDetails.totalPrice %></td>
+                            <td data-title="OrderStatuss">
+                            <p >Delivered</p>
+                          <% } %>
+                          
                         <% }else{ %>
-                          <td data-title="TotalPrice" style="color: red;">₹ <%= order.orderDetails.totalPrice %></td>
+                          <td data-title="TotalPrice" style="color: red;text-decoration: line-through;">₹ <%= order.orderDetails.totalPrice %></td>
                           <td data-title="OrderStatuss">
                           <p style="color: red;">Cancelled</p>
                         <% } %>

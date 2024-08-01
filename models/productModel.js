@@ -18,7 +18,7 @@ const productSchema = new mongoose.Schema({
         required: true
     },
     num_of_stocks: {
-        type: String,
+        type: Number,
         required: true
     },
     images: {
@@ -39,5 +39,7 @@ const productSchema = new mongoose.Schema({
 
 
 })
+productSchema.index({ productName: 'text', productDescription: 'text' });
+
 
 module.exports = mongoose.model('Product', productSchema)

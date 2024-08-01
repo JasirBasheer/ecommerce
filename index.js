@@ -16,7 +16,7 @@ app.use(express.static('public'));
 
 const userRoute = require('./routes/userRoute')
 const adminRoute = require('./routes/adminRoute')
-const authRoute = require('./routes/GoogleAuthRoute')
+const authRoute = require('./routes/googleAuthRoute')
 
 
 

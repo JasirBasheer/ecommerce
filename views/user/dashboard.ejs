@@ -1,6 +1,8 @@
 
 <%- include('../layouts/user/header') -%>
 
+
+
     <div class="page-wrapper">
        
     <header class="header">
@@ -120,7 +122,6 @@
 								    </li>
 								    <li class="nav-item">
 								        <a class="nav-link" href="/logout">Sign Out</a>
-								    </li>
 								</ul>
 	                		</aside><!-- End .col-lg-3 -->
 
@@ -140,17 +141,16 @@
                                         <% } %>
 								    	<!-- .End .tab-pane -->
 
-                                      
+                                        <% let checkCancelledOrder = 0 %>
 
-
+                                            <h5>Recent Orders</h5>
                                         <% if (typeof orders !== "undefined") { %>
-                                            <% if (orders && orders.length > 0) { %>
+                                            <% if (orders.length > 0) { %>
                                                 <table class="table table-cart table-mobile">
                                                     <thead>
                                                         <tr>
-                                                            <th>Product</th>
-                                                            <th>Price</th>
-                                                            <th>Quantity</th>
+                                                            <th></th>
+                                                            <th>Products</th>
                                                             <th>Date</th>
                                                             <th>Status</th>
                                                             <th>Total</th>
@@ -158,63 +158,53 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <% const limit = orders.length< 9 ? 0 : 9 ; %>
-                                                            <p></p>
-                                                      
-
-                                                        <% for( let i = orders.length-1; i >= limit  ; i-- ) { %>
-                                                            <% if (orders[i].items.orderStatus!="Cancelled") { %>
+                                                        <% let listlimit = orders.length >= 4 ? orders.length / 2 : 0 %>
+                                                        <% for (let i = orders.length - 1; i >= 0; i--) { %>
                                                             <tr>
                                                                 <td class="product-col">
-                                                                    <div class="product">
-                                                                        <figure class="product-media">
-                                                                            <a href="#">
-                                                                                <img src="<%= orders[i].productDetails.images[0] %>" alt="Product image">
-                                                                            </a>
-                                                                        </figure>
-                                                                        <h3 class="product-title">
-                                                                            <a href="#"><%= orders[i].productDetails.productName %></a>
-                                                                        </h3>
+                                                                    <div class="product-images" >
+                                                                            <figure class="product-media" style="margin: 0;">
+                                                                                <a href="/orderedlist?id=<%= orders[i]._id %>">
+                                                                                    
+                                                                                        <img src="https://i.ibb.co/8jxkrmc/shopping-cart.png">
+                                                                                </a>
+                                                                            </figure>
+                                                                    
                                                                     </div>
                                                                 </td>
-                                                                <td class="price-col">₹<%= orders[i].productDetails.productPrice %></td>
-                                                                <td class="price-col"><%= orders[i].items.quantity %></td>
-                                                                <td class="price-col"><%= orders[i].createdAt.toDateString() %></td>
-                                                                <td class="price-col"><%= orders[i].items.orderStatus %></td>
+                                                                <td class="quantity-col"><%= orders[i].items.length %></td>
+                                                                <td class="date-col"><%= new Date(orders[i].createdAt).toDateString() %></td>
+                                                                <td class="status-col">
+                                                                    <% 
+                                                                        let status = "Delivered";
+                                                                        let activeItems = orders[i].items.filter(item => item.orderStatus != "Cancelled").length;
+                                                                
+                                                                        if (activeItems === 0) {
+                                                                            status = "Cancelled";
+                                                                            checkCancelledOrder++ ;
+                                                                        } else if (orders[i].items.some(item => item.orderStatus === "Pending")) {
+                                                                            status = "Pending";
+                                                                        } else if (orders[i].items.some(item => item.orderStatus === "Shipped")) {
+                                                                            status = "Shipped";
+                                                                        }
+                                                                    %>
+                                                                    <%= status %>
+                                                                </td>
                                                                 <td class="total-col">₹<%= orders[i].totalPrice %></td>
                                                                 <td class="remove-col">
-                                                                    <button class="btn-remove" onclick="confirmCancelOrder('<%=orders[i].items._id%>','<%= orders[i].productDetails.productPrice %>')"><i class="icon-close"></i></button>
+                                                                        <button  class="btn-remove" >
+                                                                            <a href="/orderedlist?id=<%= orders[i]._id %>">
+                                                                            <i   class="icon-long-arrow-right"></i>
+                                                                        </a>
+                                                                        </button>
                                                                 </td>
                                                             </tr>
-                                                            <% } %>
                                                         <% } %>
-                                                       
-                                                       
                                                     </tbody>
                                                 </table>
                                             <% } else { %>
-                                                <table class="table table-cart table-mobile">
-                                                    <thead>
-                                                       
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr>
-                                                            <td colspan="7"><p>Orders not found</p></td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
+                                                <p>Orders not found</p>
                                             <% } %>
-                                        <% } else { %>
-                                            <table class="table table-cart table-mobile">
-                                                <thead>
-                                                    
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td colspan="7"><p>Order is empty</p></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
                                         <% } %>
                                         
                                                 

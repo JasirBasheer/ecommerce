@@ -263,24 +263,22 @@
                       
                 
                        
-                          <% for( let j = 0; j < products[i].images.length; j++ ) { %>
-
-                            <div style="display: flex; align-items: center;">
-                              <img id="productImageAndDelete<%= products[i]._id %>"
-                                  src="<%= products[i].images[j] %>" 
-                                  alt="<%= products[i].images[j] %>"
-                                  width="40px" height="40px" style="margin-bottom: 10px;">
-                              <form onsubmit="return handleDeleteImg('<%= products[i]._id %>', '<%= products[i].images[j] %>')">
-                                  <input type="hidden" name="productId" value="<%= products[i]._id %>" />
-                                  <input type="hidden" name="image" value="<%= products[i].images[j] %>" />
-                                  <button type="submit" id="productImageDeleteBtn<%= products[i]._id %>"  class="btn-danger ps-2 mx-md-5" 
-                                      onclick="return confirm('Are you sure you want to delete it?')">
-                                      <i class="fa-sharp fa-solid fa-trash"></i>
-                                  </button>
-                              </form>
+                        <% for( let j = 0; j < products[i].images.length; j++ ) { %>
+                          <div id="imageContainer<%= products[i]._id %><%= j %>" style="display: flex; align-items: center;">
+                            <img id="productImage<%= products[i]._id %>-<%= j %>"
+                                src="<%= products[i].images[j] %>" 
+                                alt="<%= products[i].images[j] %>"
+                                width="40px" height="40px" style="margin-bottom: 10px;">
+                            <form onsubmit="return handleDeleteImg(event, '<%= products[i]._id %>', '<%= products[i].images[j] %>', '<%= j %>')">
+                                <input type="hidden" name="productId" value="<%= products[i]._id %>" />
+                                <input type="hidden" name="image" value="<%= products[i].images[j] %>" />
+                                <button type="submit" id="productImageDeleteBtn<%= products[i]._id %>-<%= j %>"  class="btn-danger ps-2 mx-md-5" 
+                                    onclick="return confirm('Are you sure you want to delete it?')">
+                                    <i class="fa-sharp fa-solid fa-trash"></i>
+                                </button>
+                            </form>
                           </div>
-                          
-                          <% } %>
+                        <% } %>
                         
                       </td>
                       <td data-title="Actions">
@@ -574,43 +572,49 @@
    
     <script>
 
-      function handleDeleteImg(productId,productImg){
-        event.preventDefault(); // Prevent default form submission
-        console.log("Deleting image", productId, productImg);        
-        fetch('/admin/deleteProductImage',{
-          method:'POST',
-          headers:{
-            'Content-type':'application/json'
-          },
-          body: JSON.stringify({productId,image: productImg})
+async function handleDeleteImg(e, productId, productImg, i) {
+  e.preventDefault(); 
+  
+  try {
+    const response = await fetch('/admin/deleteProductImage', {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify({ productId, image: productImg })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      document.getElementById(`imageContainer${productId}${i}`).remove();
 
-        }).then(response => response.json())
-          .then(data=>{
-            if(data.success){
-              console.log('data');
-              document.getElementById(`productImageAndDelete${productId}`).remove()
-              document.getElementById(`productImageDeleteBtn${productId}`).remove()
-              Swal.fire({
-  title: "Product Image Deleted Successfully",
-  icon: "success",
-  timer:3000,
-  timerProgressBar: true,
 
-});
-
-            }else if(data.error){
-              Swal.fire({
-  title: "Need at least 3 images for a product",
-  icon: "error",
-  timer:3000,
-  timerProgressBar: true,
-
-});
-
-            }
-          })
+      Swal.fire({
+        title: "Product Image Deleted Successfully",
+        icon: "success",
+        timer: 3000,
+        timerProgressBar: true,
+      });
       
-      }
+    } else if (data.error) {
+      Swal.fire({
+        title: "Need at least 3 images for a product",
+        icon: "error",
+        timer: 3000,
+        timerProgressBar: true,
+      });
+    }
+  } catch (error) {
+    console.error('Error deleting image:', error);
+    Swal.fire({
+      title: "An error occurred while deleting the image",
+      icon: "error",
+      timer: 3000,
+      timerProgressBar: true,
+    });
+  }
+}
    
 
       function blockproduct(productId){

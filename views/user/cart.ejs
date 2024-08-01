@@ -119,7 +119,7 @@
                                         <% if (typeof products !="undefined") { %>
                                          
                                        
-                                        <% if (products.length ===0) { %>
+                                        <% if (products.length === 0) { %>
                                             <tr>
                                                 <td colspan="5">Your cart is empty</td>
                                               </tr>
@@ -144,10 +144,11 @@
                                                     <div class="cart-product-quantity" onclick="handleQuantity('<%= product.productId  %>')">
                                                         <input type="number" id="quantity<%= product.productId %>" class="form-control"   value="<%= product.quantity  %>" min="1" max="<%= product.num_of_stocks < 5 ? product.num_of_stocks : 5 %>" step="1" data-decimals="0" required>
                                                     </div><!-- End .cart-product-quantity -->
-                                                    <% if (product.num_of_stocks ==0) { %>
-                                                     <p style="color: red;margin-left: 11px;">outoff Stock</p>
+                                                    <% if (typeof returnProductId != "undefined") { %>
+                                                        <% if (returnProductId.equals(product.productId)) { %> 
+                                                            <p style="color: red; margin-left: 11px;">Out of Stock</p>
+                                                        <% } %>
                                                     <% } %>
-
                                                 </td>
                                                 <td class="total-col" id="totalPrice<%= product.productId  %>">₹<%= product.totalPrice  %></td>
                                                 <td class="remove-col"><button class="btn-remove" onclick="handleRemoveCart('<%=product.productId%>')" ><i class="icon-close"></i></button></td>
@@ -165,20 +166,7 @@
 									</tbody>
 								</table><!-- End .table table-wishlist -->
 
-	                			<div class="cart-bottom">
-			            			<div class="cart-discount">
-			            				<form action="#">
-			            					<div class="input-group">
-				        						<input type="text" class="form-control" required placeholder="coupon code">
-				        						<div class="input-group-append">
-													<button class="btn btn-outline-primary-2" type="submit"><i class="icon-long-arrow-right"></i></button>
-												</div><!-- .End .input-group-append -->
-			        						</div><!-- End .input-group -->
-			            				</form>
-			            			</div><!-- End .cart-discount -->
-
-			            			<a href="/cart" class="btn btn-outline-dark-2"><span>UPDATE CART</span><i class="icon-refresh"></i></a>
-		            			</div><!-- End .cart-bottom -->
+	                			
 	                		</div><!-- End .col-lg-9 -->
 	                		<aside class="col-lg-3">
 	                			<div class="summary summary-cart">
@@ -188,8 +176,10 @@
 	                					<tbody>
 	                						<tr class="summary-subtotal">
 	                							<td>Subtotal:</td>
-                                                <td id="subtotal">₹<%= typeof grandTotal !== 'undefined' ? grandTotal : 0.0 %></td>
-	                						</tr><!-- End .summary-subtotal -->
+                                                <td id="subtotal">₹<%= typeof subtotal !== 'undefined' ? subtotal : 0.0 %></td>
+	                						</tr>
+                                   
+                                            <!-- End .summary-subtotal -->
 	                						<tr class="summary-shipping">
 	                							<td>Shipping:</td>
 	                							<td>&nbsp;</td>
@@ -650,6 +640,8 @@
                         document.getElementById('grandtotal').textContent = "₹"+ data.grandTotal
                     document.getElementById('subtotal').textContent = "₹"+ data.grandTotal
 
+
+
              
             }
         })
@@ -676,21 +668,22 @@
                     document.getElementById('subtotal').textContent = "₹"+ data.grandTotal
                     document.getElementById("totalPrice"+productId).textContent = "₹"+ data.totalPrice
 
+
+
                 })
 
             }
 
             function loadCart(){
-
             window.location.href='/cart'
+            }
+
             
-            
-       
-    }
         
     </script>
+
+
 </body>
 
 
-<!-- Wood Street/cart.html  22 Nov 2019 09:55:06 GMT -->
 </html>

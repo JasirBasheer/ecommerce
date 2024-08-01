@@ -7,6 +7,18 @@ const cartSchema = new mongoose.Schema({
         ref:'User',
         required:true,
     },
+    Coupon:{
+      type:Number,
+      default:0
+    },
+    applyedCoupon:{
+      type:String,
+      default:""
+    },
+    applyedDiscount:{
+      type:Number,
+      default:0
+    },
     products : [{
         productId:{
           type: mongoose.Schema.Types.ObjectId,
@@ -16,6 +28,10 @@ const cartSchema = new mongoose.Schema({
         quantity:{
           type: Number,
           required: true
+        },
+        productPrice:{
+          type:Number,
+          required:true
         },
         orderStatus:{
           type: String,

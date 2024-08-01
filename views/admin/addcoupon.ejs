@@ -187,7 +187,7 @@
                     role="tabpanel"
                     aria-labelledby="signin-tab-2"
                   >
-                    <form action="" method="post">
+                    <form id="addCoupon">
                       <% if(typeof message !== 'undefined'){ %>
                       <p style="color: red; text-align: center">
                         <%= message %>
@@ -211,8 +211,8 @@
                         <input
                           type="number"
                           class="form-control"
-                          id="percentage"
-                          name="percentage"
+                          id="discount"
+                          name="discount"
                           required
                         />
                       </div>
@@ -225,8 +225,8 @@
                         <input
                           type="number"
                           class="form-control"
-                          id="minimum"
-                          name="minimum"
+                          id="minimumPur"
+                          name="minimumPur"
                           required
                         />
                       </div>
@@ -492,53 +492,7 @@
           ></a>
         </div>
       </div>
-    </div>
-    <!-- <script>
-      const categoryName = document.getElementById("categoryName");
-      const categoryPhoto = document.getElementById("categoryPhoto");
-      const categoryNameError = document.getElementById("categoryName-error");
-      const categoryPhotoError = document.getElementById("categoryPhoto-error"); 
-      const categoryNamePattern = /^[A-Z][a-z]+(\s[A-Z][a-z]{0,25}){0,3}$/;        
-
-      const categoryNameFunction = () => {
-        if (!categoryNamePattern.test(categoryName.value)) {
-          categoryNameError.textContent = "Invalid name";
-          return false;
-        } else {
-          categoryNameError.textContent = "";
-          return true;
-        }
-      };   
-
-      categoryName.addEventListener("input", categoryNameFunction);
-      categoryPhoto.addEventListener("change", function(){
-        const file = categoryPhoto.files[0];
-        if(!file.type.startsWith("image/")){
-          categoryPhoto.value = "";
-          categoryPhotoError.textContent = "Choose Image File";
-          return;
-        }
-        else{
-          categoryPhotoError.textContent = "";
-        }
-      });
-      
-      let isFormValid = false;
-      const formFunctions =[categoryNameFunction];
-      document
-        .getElementById("addButton")
-        .addEventListener("click", (event) => {
-          if (formFunctions.every((fn) => fn())) {
-            isFormValid = true;
-          }
-          if (!isFormValid) {
-            event.preventDefault();
-            alert("Please fill all the details");
-          } else {
-            form.submit();
-          }
-        });
-    </script> -->
+  
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/jquery.hoverIntent.min.js"></script>
@@ -546,5 +500,81 @@
     <script src="assets/js/superfish.min.js"></script>
     <script src="assets/js/owl.carousel.min.js"></script>
     <script src="assets/js/main.js"></script>
+
+      <script>
+        document.getElementById('addCoupon').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const couponName = document.getElementById('couponName').value;
+    const discount = document.getElementById('discount').value;
+    const minimumPur = document.getElementById('minimumPur').value;
+    const maximum = document.getElementById('maximum').value;
+    const expiryDate = document.getElementById('expiryDate').value;
+
+    let valid = true;
+    if (!couponName) {
+      valid = false;
+      document.getElementById('couponName-error').innerText = 'Coupon name is required.';
+    } else {
+      document.getElementById('couponName-error').innerText = '';
+    }
+    if (!discount || discount <= 0) {
+      valid = false;
+      document.getElementById('percentage-error').innerText = 'Valid discount percentage is required.';
+    } else {
+      document.getElementById('percentage-error').innerText = '';
+    }
+    if (!minimumPur || minimumPur <= 0) {
+      valid = false;
+      document.getElementById('minimum-error').innerText = 'Valid minimum purchase is required.';
+    } else {
+      document.getElementById('minimum-error').innerText = '';
+    }
+    if (!maximum || maximum <= 0) {
+      valid = false;
+      document.getElementById('maximum-error').innerText = 'Valid maximum discount is required.';
+    } else {
+      document.getElementById('maximum-error').innerText = '';
+    }
+    if (!expiryDate) {
+      valid = false;
+      document.getElementById('expiryDate-error').innerText = 'Expiry date is required.';
+    } else {
+      document.getElementById('expiryDate-error').innerText = '';
+    }
+
+    if (valid) {
+      const formData = {
+        couponName,
+        discount,
+        minimumPur,
+        maximum,
+        expiryDate
+      };
+
+      fetch('/admin/addcoupon', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Coupon added successfully');
+        } else {
+          alert('An error occurred: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while adding the coupon');
+      });
+    }
+  });
+      
+      </script>
+
   </body>
 </html>

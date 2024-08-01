@@ -61,7 +61,7 @@
                         <% if (typeof wishlistCount != 'undefined') { %>
                             <span class="wishlist-count" id="wishlistcount"><%= wishlistCount %></span>
                         <% }else{ %>
-                            <span class="wishlist-count">0</span>
+                            <span class="wishlist-count" id="wishlistcount">0</span>
 
                         <% } %>
                     </a>
@@ -184,10 +184,11 @@
                                                             
                                             <% } %>
 
-                                        </div><!-- End .details-action-col -->
+                                        </div>
+                                        <p>Stock: <%=product.num_of_stocks%></p>
 
                                         <div class="details-action-wrapper">
-                                            <a href="/wishlist" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
+                                            <a onclick="handleAddToWishlist('<%=product._id %>')" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
                                         </div><!-- End .details-action-wrapper -->
                                         <p id="quantityerror" style="color: red;"></p>
 
@@ -357,7 +358,7 @@
                                         </a>
         
                                         <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                                            <a onclick="handleAddToWishlist('<%=relatedProducts[i]._id%>')" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
                                             <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
                                             <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
                                         </div><!-- End .product-action-vertical -->
@@ -802,6 +803,19 @@
             .then(response => response.json())
             .then(data=>{  
         if (data !== undefined) {
+            Swal.fire({
+        title: "Product added to cart",
+        icon:"success",
+        confirmButtonColor: "#CC9966",
+        showCancelButton: true,
+        confirmButtonText: 'Go to cart',
+        cancelButtonText: 'Ok'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '/cart'; 
+        }
+    })
+            
             const cartCount = document.getElementById('cartcount');
             if (cartCount) {
                 cartCount.textContent = data.count;
@@ -893,6 +907,85 @@
             window.location.href='/login'
         }
     }
+
+
+
+
+    function handleAddToWishlist(productId){
+        const user = document.getElementById('checkuserId').value
+            console.log(user);
+
+
+            if(user ==""){
+              
+                window.location.href ="/login"
+            }else{
+                fetch('/addtowishlist',{
+                    method:'POST',
+                    headers:{
+                        'Content-Type': 'application/json'
+                    },
+                    body:JSON.stringify({productId})
+                
+                }).then(response => response.json())
+                .then(data =>{
+                    if(data.success){
+                        Swal.fire({
+        title: "Prdouct added in wishlist",
+        text: "",
+        imageUrl: 'https://i.ibb.co/PjhBq51/empty-cart.png', 
+        imageWidth: 50,  
+        imageHeight: 50, 
+        confirmButtonColor: "#CC9966",
+        showCancelButton: true,
+        confirmButtonText: 'Go to wishlist',
+        cancelButtonText: 'Ok'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '/wishlist'; 
+        }
+    })
+    console.log(data);
+    console.log(data.success);
+
+    console.log("count");
+    const wishlistCounts = data.wishlistCount
+    console.log(wishlistCounts);
+
+
+            const wishlistCount = document.getElementById('wishlistcount');
+            if (wishlistCount) {
+                
+                wishlistCount.textContent = data.wishlistCount;
+                console.log(data.wishlistCount);
+            }
+        
+
+                    }else if(data.alreadyinwishlist){
+
+Swal.fire({
+title: "Prdouct already in wishlist",
+text: "",
+imageUrl: 'https://i.ibb.co/PjhBq51/empty-cart.png', 
+imageWidth: 50,  
+imageHeight: 50, 
+confirmButtonColor: "#CC9966",
+showCancelButton: true,
+confirmButtonText: 'Go to wishlist',
+cancelButtonText: 'Ok'
+}).then((result) => {
+if (result.isConfirmed) {
+window.location.href = '/wishlist'; 
+}
+})
+
+}
+                })
+
+
+                }}
+
+
 
     </script>
 </body>

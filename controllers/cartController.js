@@ -1,6 +1,8 @@
 const Product = require('../models/productModel')
 const mongoose = require('mongoose'); 
-const Cart = require('../models/cartModel')
+const Cart = require('../models/cartModel');
+const Coupon = require('../models/couponModel');
+const Wishlist = require('../models/wishlistModel');
 
 
 
@@ -114,12 +116,16 @@ const loadCart = async (req,res,next) => {
             }
         
         ]
+
+
         const findProducts = await Cart.aggregate(pipeline);
         const totalPriceResult = await Cart.aggregate(TotalPricePipeline);
-
+        
         const grandTotal = totalPriceResult[0]?.grandTotal || 0; 
+     
 
-        res.render('cart', { products: findProducts ,cartCount,userId:user , grandTotal} );
+
+        res.render('cart', { products: findProducts ,cartCount,userId:user , grandTotal,subtotal:grandTotal} );
     } catch (error) {
         next(error)
     }
@@ -137,11 +143,19 @@ const addToCart = async(req,res,next)=>{
             quantity = parseInt(req.body.quantity)
         }
         const userId = req.session.user_id._id
+
+        const wishlist = await Wishlist.findOne({userId:userId})
         const product = await Product.findOne({_id:productId})
         const cart = await Cart.findOne({userId:userId})
         const checkCart = await Cart.findOne({userId:userId,"products.productId":productId})
         const page =req.query.page
         console.log(checkCart);
+
+        if(page=="wishlist" && product.num_of_stocks!=0){
+            wishlist.products = wishlist.products.filter((product) => !product.productId.equals(productId));
+            await wishlist.save();
+        }
+        
         if(page){
             if(checkCart){
                 return res.status(200).json({alreadyincart:"product is out of stock"})
@@ -158,6 +172,7 @@ const addToCart = async(req,res,next)=>{
                   {
                     productId,
                     quantity: quantity || 1,
+                    productPrice:product.productPrice
                   },
                 ],
               });
@@ -176,6 +191,7 @@ const addToCart = async(req,res,next)=>{
                 cart.products.push({
                     productId,
                     quantity: quantity|| 1,
+                    productPrice:product.productPrice
                 });
             }
 
@@ -312,11 +328,28 @@ const incQuantity = async (req,res,next)=>{
         const totalPriceResult = await Cart.aggregate(TotalPricePipeline);
         const total = await Cart.aggregate(eachProductTotalPricePipeline);
 
-        const grandTotal = totalPriceResult[0]?.grandTotal || 0; 
+        let grandTotal = totalPriceResult[0]?.grandTotal || 0; 
         const totalPrice = eachProductTotalPricePipeline[0]?.totalPrice || 0; 
         const singleProductTotal=  total.filter((item)=>{
             return item.productId == productId
         })
+
+        if (cart.Coupon) {
+            const coupon = await Coupon.findOne({ couponName: cart.applyedCoupon });
+            if (coupon) {
+                const minimumPurchase = coupon.minimumPurchase;
+
+                if (minimumPurchase  > grandTotal) {
+                    cart.Coupon = 0;
+                    cart.applyedCoupon = "";
+                    cart.applyedDiscount =0;
+                    await cart.save();
+                    console.log("need at least purchase");
+                } 
+            }
+        }
+
+     
 
 
 
@@ -411,7 +444,24 @@ const removeFromCart = async(req,res,next)=>{
             console.log(data);
             const totalPriceResult = await Cart.aggregate(TotalPricePipeline);
 
-        const grandTotal = totalPriceResult[0]?.grandTotal || 0; 
+        let grandTotal = totalPriceResult[0]?.grandTotal || 0; 
+
+        if(cart.Coupon!=0){
+            const coupon = await Coupon.findOne({couponName:cart.applyedCoupon})
+            const minimumPur = coupon.minimumPurchase
+
+            if (minimumPur>grandTotal) {
+            console.log("reached here");
+                cart.Coupon=0
+                cart.applyedCoupon="",
+                cart.applyedDiscount=0
+                await cart.save()
+                console.log("need at least purcase ");
+                
+            }
+            
+        }
+
 
         console.log(grandTotal);
             const count= cart.products.reduce((total, item) => total + item.quantity, 0);
@@ -426,6 +476,7 @@ const removeFromCart = async(req,res,next)=>{
         next(error);
     }
 }
+
 
 
 

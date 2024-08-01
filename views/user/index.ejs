@@ -49,16 +49,22 @@
                 <div class="header-right">
                     <div class="header-search">
                         <a href="#" class="search-toggle" role="button" title="Search"><i class="icon-search"></i></a>
-                        <form action="#" method="get">
+                        <form action="/search" method="get">
                             <div class="header-search-wrapper">
                                 <label for="q" class="sr-only">Search</label>
-                                <input type="search" class="form-control" name="q" id="q" placeholder="Search in..." required>
+                                <input type="text" class="form-control" name="search" placeholder="Search products..." value="<%= search %>">
                             </div><!-- End .header-search-wrapper -->
                         </form>
                     </div><!-- End .header-search -->
+                    
                     <a href="/wishlist" class="wishlist-link">
                         <i class="icon-heart-o"></i>
-                            <span class="wishlist-count">0</span>
+                        <% if (typeof wishlistCount != 'undefined') { %>
+                            <span class="wishlist-count" id="wishlistcount"><%= wishlistCount %></span>
+                        <% }else{ %>
+                            <span class="wishlist-count" id="wishlistcount">0</span>
+
+                        <% } %>
                     </a>
 
                     <div class="dropdown cart-dropdown" onclick="loadCart()">
@@ -300,7 +306,7 @@
                                         <img src="<%= products[i].images[1] %>" alt="Product image" class="product-image-hover">
                                     </a>
                                     <div class="product-action-vertical">
-                                        <a href="#" class="btn-product-icon btn-wishlist"><span>add to wishlist</span></a>
+                                        <a onclick="handleAddToWishlist('<%=products[i]._id %>')" class="btn-product-icon btn-wishlist"><span>add to wishlist</span></a>
                                     </div><!-- End .product-action-vertical -->
                                 </figure><!-- End .product-media -->
         
@@ -403,7 +409,7 @@
                                                     </a>
         
                                                     <div class="product-action-vertical">
-                                                        <a href="#" class="btn-product-icon btn-wishlist "><span>add to wishlist</span></a>
+                                                        <a onclick="handleAddToWishlist('<%= recentProducts[i]._id %>')" class="btn-product-icon btn-wishlist "><span>add to wishlist</span></a>
                                                     </div><!-- End .product-action-vertical -->
                                                 </figure><!-- End .product-media -->
         
@@ -1025,6 +1031,87 @@
     <script src="assets/js/main.js"></script>
 
 <script>
+
+
+function handleAddToWishlist(productId){
+        const user = document.getElementById('checkuserId').value
+            console.log(user);
+
+
+            if(user ==""){
+              
+                window.location.href ="/login"
+            }else{
+                fetch('/addtowishlist',{
+                    method:'POST',
+                    headers:{
+                        'Content-Type': 'application/json'
+                    },
+                    body:JSON.stringify({productId})
+                
+                }).then(response => response.json())
+                .then(data =>{
+                    if(data.success){
+                        Swal.fire({
+        title: "Prdouct added in wishlist",
+        text: "",
+        imageUrl: 'https://i.ibb.co/PjhBq51/empty-cart.png', 
+        imageWidth: 50,  
+        imageHeight: 50, 
+        confirmButtonColor: "#CC9966",
+        showCancelButton: true,
+        confirmButtonText: 'Go to wishlist',
+        cancelButtonText: 'Ok'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '/wishlist'; 
+        }
+    })
+
+    const wishlistCount = document.getElementById('wishlistcount');
+            if (wishlistCount) {
+                
+                wishlistCount.textContent = data.wishlistCount;
+                console.log(data.wishlistCount);
+            }
+        
+
+    
+
+                    }else if(data.alreadyinwishlist){
+
+                        Swal.fire({
+        title: "Prdouct already in wishlist",
+        text: "",
+        imageUrl: 'https://i.ibb.co/PjhBq51/empty-cart.png', 
+        imageWidth: 50,  
+        imageHeight: 50, 
+        confirmButtonColor: "#CC9966",
+        showCancelButton: true,
+        confirmButtonText: 'Go to wishlist',
+        cancelButtonText: 'Ok'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '/wishlist'; 
+        }
+    })
+
+                    }
+                })
+
+
+                }}
+
+
+
+
+
+
+
+
+
+
+
     function handleAddToCart(productId){
         const user = document.getElementById('checkuserId').value
         console.log(user);
@@ -1078,6 +1165,20 @@
 
             }
             else{
+                Swal.fire({
+        title: "Product added to cart",
+        icon:"success",
+        confirmButtonColor: "#CC9966",
+        showCancelButton: true,
+        confirmButtonText: 'Go to cart',
+        cancelButtonText: 'Ok'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '/cart'; 
+        }
+    })
+    
+                
                 const cartCount = document.getElementById('cartcount');
                 if (cartCount) {
                     cartCount.textContent = data.count;

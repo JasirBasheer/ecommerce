@@ -5,6 +5,7 @@ const Product = require('../models/productModel');
 const {addProductImages,addCategoryImage, editCategoryImage, editproductImages} = require('../helpers/sharp')
 const Order = require('../models/orderModel');
 const { default: mongoose } = require('mongoose');
+const Coupon = require('../models/couponModel');
 
 
 const loadAdminLoginPage = async(req,res,next)=>{
@@ -40,13 +41,43 @@ const loadSalesReport = async(req,res,next)=>{
 
 const loadOrderedList = async (req,res,next) => {
     try {
-        const pipeline =[{$lookup:{from:"orders",localField:"_id",foreignField:"customer",as:"orderDetails"}},{$unwind:"$orderDetails"},{$project:{name:1,phone:1,"orderDetails.totalPrice":1,"orderDetails.orderStatus":1,"orderDetails.paymentMethod":1,"orderDetails.createdAt":1,"orderDetails._id":1,address:1}}]
-
+        const pipeline = [
+            {
+              $lookup: {
+                from: "orders",
+                localField: "_id",
+                foreignField: "customerId",
+                as: "orderDetails"
+              }
+            },
+            {
+              $unwind: "$orderDetails"
+            },
+            {
+              $project: {
+                name: 1,
+                phone: 1,
+                "orderDetails.totalPrice": 1,
+                "orderDetails.orderStatus": 1,
+                "orderDetails.paymentMethod": 1,
+                "orderDetails.createdAt": 1,
+                "orderDetails._id": 1,
+                "orderDetails.addresss.fullName": 1,
+                "orderDetails.addresss.number": 1,
+                "orderDetails.addresss.house": 1,
+                "orderDetails.addresss.street": 1,
+                "orderDetails.addresss.landMark": 1,
+                "orderDetails.addresss.city": 1,
+                "orderDetails.addresss.state": 1,
+                "orderDetails.addresss.pincode": 1
+              }
+            }
+          ];
 
 
         const orders = await User.aggregate(pipeline);
 
-        // console.log(orders);
+        console.log(orders);
 
         res.render('orderslist', { orders })
         
@@ -151,9 +182,14 @@ const editProduct = async (req,res,next) => {
         
         if (req.files.length>0&& req.files.length<3) {
             return res.render('editproduct',{product,categories,message:'required 3 images minimum '});
-        }
-
-        const checkDuplicate = await Product.findOne({productName:req.body.productName.trim()})
+        }    
+        
+        const checkDuplicate = await Product.findOne({
+            
+            productName:{$regex: new RegExp(req.body.productName.trim(),'i')}
+        })
+        
+        
         if(checkDuplicate && checkDuplicate.id.toString() !== productId){
             return res.render('editproduct', { product, categories, message: 'Product already exists' });
 
@@ -268,7 +304,11 @@ const BlockUser = async(req,res,next)=>{
 const addCategory = async (req,res,next) => {
     try {
         const categoryName = req.body.categoryName;
-        const categoryExist = await Category.findOne({ categoryName: categoryName });
+
+        
+        const categoryExist = await Category.findOne({
+            categoryName: { $regex: new RegExp(categoryName, 'i') }
+          });
 
         
         if (req.body.categoryName.trim() === "") {
@@ -318,6 +358,10 @@ const editCategory = async (req,res,next) => {
         const categoryId = req.body.id;
         const existingCategory = await Category.findById(categoryId);
 
+                
+       
+
+
           
         if (req.body.categoryName.trim() === "") {
             return res.render('editcategory', { category:existingCategory,message: 'Enter a valid name' });
@@ -327,7 +371,10 @@ const editCategory = async (req,res,next) => {
             req.flash("error","Category Not found")
             res.redirect('/admin/categorylist')
         }
-        const checkDuplicate = await Category.findOne({ categoryName: req.body.categoryName.trim() });
+
+        const checkDuplicate = await Category.findOne({
+            categoryName: { $regex: new RegExp(req.body.categoryName.trim(), 'i') }
+          });
 
         
         if(checkDuplicate && checkDuplicate._id.toString() !== categoryId){
@@ -372,12 +419,17 @@ const addProduct = async(req,res,next)=>{
         const productStocks = req.body.productStocks.trim()
         const productDescription = req.body.productDescription.trim()
         const category = await Category.find({})
+
+
    
-        const checkproduct = await Product.findOne({productName:productname})
+        const checkproduct = await Product.findOne({
+            
+            productName:{$regex: new RegExp(productname,'i')}
+        })
         
         if(checkproduct){
             const dup ="prdouct alreay exists"
-            res.status(200).json({dup})
+             return res.status(200).json({dup})
         }
 
         const productimages = req.files
@@ -570,7 +622,7 @@ const loadOrderview = async(req,res,next)=>{
           $lookup: {
             from: "orders",
             localField: "_id",
-            foreignField: "customer",
+            foreignField: "customerId",
             as: "orderDetails"
           }
         },
@@ -594,6 +646,16 @@ const loadOrderview = async(req,res,next)=>{
             phone: 1,
             address: 1,
             "orderDetails.totalPrice": 1,
+            "orderDetails.addresss.fullName": 1,
+            "orderDetails.addresss.number": 1,
+            "orderDetails.addresss.house": 1,
+            "orderDetails.addresss.street": 1,
+            "orderDetails.addresss.landMark": 1,
+            "orderDetails.addresss.city": 1,
+            "orderDetails.addresss.state": 1,
+            "orderDetails.addresss.pincode": 1,
+            
+
             "orderDetails.orderStatus": 1,
             "orderDetails.items.productId": 1,
             "orderDetails.items.quantity": 1,
@@ -636,7 +698,6 @@ const updateOrderStatus = async(req,res,next)=>{
         const order = await Order.findOne({_id:orderId})
 
         if (order) {
-            
             order.orderStatus = orderStatus;
 
             let itemsModified = false;
@@ -663,6 +724,74 @@ const updateOrderStatus = async(req,res,next)=>{
     } catch (error) {
         next(error)
         
+    }
+}
+
+
+
+const loadCouponList = async(req,res,next)=>{
+    try {
+        const coupons = await Coupon.find({})
+     res.render('couponslist',{coupons})   
+    } catch (error) {
+        next(error)
+    }
+}
+
+const loadAddCoupon = async(req,res,next)=>{
+    try {
+        res.render('addcoupon')
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+function createRandomNumber(length) {
+    const randomNumber = Math.floor(Math.random() * Math.pow(10, length));
+    return randomNumber.toString().padStart(length, '0');
+}
+
+
+
+const AddCoupon = async(req,res,next)=>{
+    try {
+        const couponName = req.body.couponName.trim()
+        const discount = req.body.discount.trim()
+        const minimumPur = req.body.minimumPur.trim()
+        const maximum = req.body.maximum.trim()
+        const expiryDate = req.body.expiryDate.trim()
+
+        console.log('Coupon Name:', couponName);
+        console.log('Discount Percentage:', discount);
+        console.log('Minimum Purchase:', minimumPur);
+        console.log('Maximum Discount:', maximum);
+        console.log('Expiry Date:', expiryDate);
+
+        const randomNumber = createRandomNumber(3);
+
+
+        const newCoupon = `${couponName.toUpperCase()}${randomNumber}`;
+
+        const coupon = new Coupon({
+            couponName:newCoupon,
+            discount:discount,
+            minimumPurchase:minimumPur,
+            limit:maximum,
+            expiryDate:expiryDate,
+            createdAt:Date.now()
+
+        })
+        const createCoupon = await coupon.save()
+        if(createCoupon){
+            return res.status(200).json({success:"coupon created successfully"})
+        }else{
+            return res.status(200).json({error:"Error creating coupon"})
+        }
+
+
+    } catch (error) {
+        next(error)
     }
 }
 
@@ -694,5 +823,8 @@ module.exports ={
     deleteCategory,
     deleteProductImage,
     loadOrderview,
-    updateOrderStatus
+    updateOrderStatus,
+    loadCouponList,
+    loadAddCoupon,
+    AddCoupon,
 }
