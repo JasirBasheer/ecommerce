@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Wood Street - Bring The Good Cart To Life.</title>
+    <meta name="keywords" content="HTML5 Template" />
+    <meta name="description" content=" - Bootstrap " />
+    <meta name="author" content="p-themes" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/icons/favicon-16x16.png" />
+    <link rel="manifest" href="assets/images/icons/site.html" />
+    <link rel="mask-icon" href="assets/images/icons/safari-pinned-tab.svg" color="#666666" />
+    <link rel="shortcut icon" href="assets/images/icons/favicon.ico" />
+    <meta name="apple-mobile-web-app-title" content="Wood Street" />
+    <meta name="application-name" content="Wood Street" />
+    <meta name="msapplication-TileColor" content="#cc9966" />
+    <meta name="msapplication-config" content="assets/images/icons/browserconfig.xml" />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/plugins/owl-carousel/owl.carousel.css" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  </head>
+
+  <body>
+    <div class="page-wrapper">
+      <header class="header">
+        <div class="header-top">
+          <div class="container">
+            <div class="header-left">
+              <div class="header-dropdown"></div>
+              <div class="header-dropdown"></div>
+            </div>
+            <div class="header-right">
+              <div class="header-dropdown">
+                <a href="#"><i class="icon-user"></i>My Account</a>
+                <div class="header-menu">
+                  <ul>
+                    <li><a href="#">Settings</a></li>
+                    <li><a href="/admin/logout">Logout</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-middle sticky-header">
+          <div class="container">
+            <div class="header-left">
+              <button class="mobile-menu-toggler">
+                <span class="sr-only">Toggle mobile menu</span>
+                <i class="icon-bars"></i>
+              </button>
+
+              <a href="/admin" class="logo">
+                <img src="assets/images/logo.png" alt="Wood Street Logo" width="105" height="25">
+              </a>
+
+              <nav class="main-nav">
+                <ul class="menu sf-arrows">
+                  <li class="megamenu-container">
+                    <a href="/admin/">Home</a>
+                  </li>
+                  <li>
+                    <a href="/admin/categorylist" class="sf-with-ul">Categories</a>
+                    <ul>
+                      <li><a href="/admin/categorylist">Category Lists</a></li>
+                      <li><a href="/admin/addcategory">Add New Category</a></li>
+                    </ul>
+                  </li>
+                  <li>
+                    <a href="/admin/productslist" class="sf-with-ul">Products</a>
+                    <ul>
+                      <li><a href="/admin/productslist">Product Lists</a></li>
+                      <li><a href="/admin/addproduct">Add New Product</a></li>
+                    </ul>
+                  </li>
+                  <li>
+                    <a href="/admin/couponslist" class="sf-with-ul">Coupons</a>
+                    <ul>
+                      <li><a href="/admin/couponslist">Coupon Lists</a></li>
+                      <li><a href="/admin/addcoupon">Add New Coupon</a></li>
+                    </ul>
+                  </li>
+                  <li><a href="/admin/userslist">Users</a></li>
+                  <li><a href="/admin/orderslist">Orders</a></li>
+                </ul>
+              </nav>
+            </div>
+
+            <div class="header-right">
+              <div class="header-search">
+                <a href="#" class="search-toggle" role="button" title="Search"><i class="icon-search"></i></a>
+                <form action="#" method="get">
+                  <div class="header-search-wrapper">
+                    <label for="q" class="sr-only">Search</label>
+                    <input type="search" class="form-control" name="q" id="q" placeholder="Search in..." required />
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="main">
+        <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('');">
+            <div class="container">
+                <div class="form-box">
+                    <div class="form-tab">
+                        <ul class="nav nav-pills nav-fill" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="edit-tab-2" data-toggle="tab" href="#edit-2" role="tab" aria-controls="edit-2" aria-selected="false">Edit Offer</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="edit-2" role="tabpanel" aria-labelledby="edit-tab-2">
+                                <form id="editCategoryOffer">
+                                    <% if (typeof message !== 'undefined') { %>
+                                        <p style="color: red; text-align: center"><%= message %></p>
+                                    <% } %>
+                                    <div class="form-group">
+                                        <label for="offerName">Offer Name *</label>
+                                        <input type="text" class="form-control" id="offerName" value="<%= offer.offerName %>" name="offerName" required />
+                                    </div>
+                                    <span id="offerName-error" style="color: red"></span>
+    
+                                    <div class="form-group">
+                                        <label for="category">Category *</label>
+                                        <select name="category" id="category" class="form-control" required>
+                                            <option value="<%= offer.categoryName %>" selected><%= offer.categoryName %></option>
+                                            <% for (let i = category.length - 1; i >= 0; i--) { %>
+                                                <% if (!category[i].is_blocked) { %>
+                                                    <% if (category[i].categoryOfferPercentage === 0 || category[i].categoryName === offer.categoryName) { %>
+                                                        <option value="<%= category[i].categoryName %>"><%= category[i].categoryName %></option>
+                                                    <% } else { %>
+                                                        <option value="<%= category[i].categoryName %>" disabled><%= category[i].categoryName %> (Offer Applied)</option>
+                                                    <% } %>
+                                                <% } %>
+                                            <% } %>
+                                        </select>
+                                    </div>
+                                    <span id="category-error" style="color: red"></span>
+    
+                                    <div class="form-group">
+                                        <label for="discount">Offer Percentage *</label>
+                                        <input type="number" class="form-control" id="discount" value="<%= offer.offerPercentage %>" name="discount" required />
+                                    </div>
+                                    <span id="percentage-error" style="color: red"></span>
+
+                                    <input type="hidden" name="editingcategoryId" id="editingcategoryId" value="<%= id %>">
+                                    <input type="hidden" name="offerid" id="offerid" value="<%= offer._id %>">
+    
+                                    <div class="form-footer">
+                                        <button type="submit" class="btn btn-outline-primary-2" id="editButton">
+                                            <span>Edit</span>
+                                            <i class="icon-long-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+      <footer class="footer">
+        <div class="footer-bottom">
+          <div class="container">
+            <p class="footer-copyright">
+              Copyright ©
+              <script>
+                document.write(new Date().getFullYear());
+              </script>
+              Wood Street Store. All Rights Reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <button id="scroll-top" style="border-radius: 50%; background-color: rgba(255, 255, 255, 0.294)" title="Back to Top">
+      <i class="icon-arrow-up"></i>
+    </button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
+
+    <script>
+      function validateForm(event) {
+        event.preventDefault();
+        const offerName = document.getElementById('offerName').value.trim();
+        const category = document.getElementById('category').value.trim();
+        const discount = document.getElementById('discount').value.trim();
+        const id = document.getElementById('editingcategoryId').value;
+        const offerid = document.getElementById('offerid').value;
+
+        let isValid = true;
+
+        // Offer Name validation
+        if (offerName === '') {
+          document.getElementById('offerName-error').innerText = 'Offer Name is required';
+          isValid = false;
+        } else {
+          document.getElementById('offerName-error').innerText = '';
+        }
+
+        // Category validation
+        if (category === '') {
+          document.getElementById('category-error').innerText = 'Category is required';
+          isValid = false;
+        } else {
+          document.getElementById('category-error').innerText = '';
+        }
+
+        // Discount validation
+        if (discount === '' || isNaN(discount) || discount <= 0 || discount > 100) {
+          document.getElementById('percentage-error').innerText = 'Valid discount percentage is required';
+          isValid = false;
+        } else {
+          document.getElementById('percentage-error').innerText = '';
+        }
+
+        if (isValid) {
+          const formData = {
+            offerName: offerName,
+            category: category,
+            discount: discount,
+            id: id,
+            offerid: offerid
+          };
+
+          fetch('/admin/editcategoryoffer', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+              Swal.fire({
+              title: "offer Successfully edited",
+              icon: "success",
+              }).then(()=>{
+              window.location.href="/admin/offerslist"
+              }) 
+              }else if(data.error){
+                Swal.fire({
+              title: "Offer already exists",
+              icon: "warining",
+              })
+              } else {
+                alert('Failed to update category offer');
+              }
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+              alert('An error occurred while updating the category offer');
+            });
+        }
+      }
+
+      document.getElementById('editCategoryOffer').addEventListener('submit', validateForm);
+    </script>
+  </body>
+</html>

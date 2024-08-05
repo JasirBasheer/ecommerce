@@ -151,10 +151,17 @@
                                         </div><!-- End .ratings -->
                                         <a class="ratings-text" href="#product-review-link" id="review-link">( 2 Reviews )</a>
                                     </div><!-- End .rating-container -->
-
-                                    <div class="product-price">
-                                       $ <%= product.productPrice%>
+                                    <div style="display: flex;text-align: center;justify-content: center;">
+                                    <% if (product.productPrice != product.originalAmount) { %>
+                                        <div class="product-price" style="color: red;text-decoration: line-through;margin-right: 11px;font-size: 15px;">
+                                            ₹ <%= product.originalAmount%>
+                                        </div><!-- End .product-price -->
+                                     
+                                    <% } %>
+                                    <div class="product-price" >
+                                        ₹ <%= product.productPrice%>
                                     </div><!-- End .product-price -->
+                                </div>
 
                                     <div class="product-content">
                                         <p><%= product.productDescription%></p>
@@ -373,8 +380,9 @@
                                             <a href="#"><%=relatedProducts[i].productCategory%></a>
                                         </div><!-- End .product-cat -->
                                         <h3 class="product-title"><a href="product.html"><%=relatedProducts[i].productName%></a></h3><!-- End .product-title -->
+                                      
                                         <div class="product-price">
-                                            <span class="out-price">$<%=relatedProducts[i].productPrice%></span>
+                                            <span class="out-price">₹<%=relatedProducts[i].productPrice%></span>
                                         </div><!-- End .product-price -->
                                         <div class="ratings-container">
                                             <div class="ratings">

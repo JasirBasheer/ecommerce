@@ -233,7 +233,7 @@
 
                      
                         <% if (order.orderDetails.totalPrice!==0 ) { %>
-                          <% if (order.orderDetails.orderStatus!=="Delivered" ) { %>
+                          <% if (order.orderDetails.orderStatus!=="Delivered" && order.orderDetails.orderStatus!=="Returned" ) { %>
                           <td data-title="TotalPrice">₹ <%= order.orderDetails.totalPrice %></td>
                           <td data-title="OrderStatuss">
                           <p id="orderMainStatus<%= order.orderDetails._id %>"><%= order.orderDetails.orderStatus %></p>
@@ -245,12 +245,17 @@
                             <option value="Delivered" <%= order.orderDetails.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
                           </select>
                           <% }else{ %>
-                            <td data-title="TotalPrice" s>₹ <%= order.orderDetails.totalPrice %></td>
+                            <td data-title="TotalPrice" >₹ <%= order.orderDetails.totalPrice %></td>
                             <td data-title="OrderStatuss">
                             <p >Delivered</p>
-                          <% } %>
                           
-                        <% }else{ %>
+                            <% } %>
+                        <% } else if(order.orderDetails.orderStatus== "Returned"){ %>
+       <td data-title="TotalPrice" style="color: rgba(150, 25, 112, 0.899);text-decoration: line-through;">₹ <%= order.orderDetails.totalPrice %></td>
+
+                            <td data-title="OrderStatuss">
+                            <p style="color: rgba(150, 25, 112, 0.899)">Returned</p>
+                            <%}else{ %>
                           <td data-title="TotalPrice" style="color: red;text-decoration: line-through;">₹ <%= order.orderDetails.totalPrice %></td>
                           <td data-title="OrderStatuss">
                           <p style="color: red;">Cancelled</p>
@@ -481,6 +486,10 @@
     </div>
 
     <script>
+          $(document).ready(function () {
+        $("#myTable").DataTable();
+      });
+      
       function updateOrderStatus(orderId) {
   const selectElement = document.getElementById('orderStatus' + orderId);
   const selectedStatus = selectElement.value;
@@ -506,6 +515,7 @@
     console.error('Error:', error);
   });
 }
+
 
     </script>
     

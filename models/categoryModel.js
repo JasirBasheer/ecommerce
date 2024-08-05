@@ -11,6 +11,10 @@ const categorySchema = new mongoose.Schema({
     },
     is_blocked:{
         type:Boolean
+    },
+    categoryOfferPercentage:{
+        type:Number,
+        default:0
     }
     
 })

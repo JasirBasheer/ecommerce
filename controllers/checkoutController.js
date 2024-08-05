@@ -4,6 +4,8 @@ const Cart = require('../models/cartModel')
 const Order = require('../models/orderModel')
 const Product = require('../models/productModel');
 const Coupon = require('../models/couponModel');
+const Wallet = require('../models/walletModel')
+const moment = require('moment')
 
 
 
@@ -14,6 +16,8 @@ const loadCheckout = async (req,res,next) => {
         const userId = new mongoose.Types.ObjectId(user._id);
         const cart = await Cart.findOne({ userId });
         let cartCount = 0;
+        const wallet = await Wallet.findOne({userId:userId})
+        const walletBalance = wallet.totalAmount
 
         let userDetails = null;
         let grandTotal = 0;
@@ -49,7 +53,7 @@ const loadCheckout = async (req,res,next) => {
                         as: "items",
                     },
                 },
-                { $unwind: "$items" }, 
+                { $unwind: "$items" },
                 {
                     $project: {
                         productId: "$items._id",
@@ -63,10 +67,10 @@ const loadCheckout = async (req,res,next) => {
                         reviews: "$items.reviews",
                         quantity: "$quantity",
                         totalPrice: { $multiply: ["$quantity", "$items.productPrice"] },
-    
-                    }
-                }
+                    },
+                },
             ];
+            
 
 
             const TotalPricePipeline = [
@@ -140,12 +144,12 @@ const loadCheckout = async (req,res,next) => {
     
                  if(outoffstock){
                     console.log(returnProductId+"something");
-                     return res.render('cart', { products: findProducts ,cartCount,userId:user , grandTotal, returnProductId} );
+                     return res.render('cart', { products: findProducts ,cartCount,userId:user , grandTotal, returnProductId,walletBalance} );
 
             
                  }
             
-            res.render('checkout', { user, userDetails, products: findProducts , grandTotal,cartCount,subTotal,coupon });
+            res.render('checkout', { user, userDetails, products: findProducts , grandTotal,cartCount,subTotal,coupon,walletBalance});
 
         }
 
@@ -260,15 +264,14 @@ const orderSuccess =  async(req,res,next)=>{
             
         }
         
-
-  
-        
         
         if(method =="COD"){
          
             if(user){
                 const activeAddress = user.address.find(addr => addr.isActive);
                 const orderedUserDetails = await User.findOne({"address._id":activeAddress._id})
+                console.log(orderedUserDetails);
+
                 
                const Orderid = await generateOrderID()
 
@@ -282,7 +285,9 @@ const orderSuccess =  async(req,res,next)=>{
                await coupon.save()
                }
                 
-             
+               const expectedDeliveryDate = new Date();
+              expectedDeliveryDate.setDate(expectedDeliveryDate.getDate() + 7);
+
                     
 
                 if(activeAddress){
@@ -290,7 +295,7 @@ const orderSuccess =  async(req,res,next)=>{
                         orderId:Orderid,
                         customerId:userId,
                         customer:orderedUserDetails.name,
-                        phone:orderedUserDetails.phone,
+                        phone:activeAddress.number,
                         address:activeAddress._id,
                         items:cart.products,
                          totalPrice: grandTotal,
@@ -307,7 +312,9 @@ const orderSuccess =  async(req,res,next)=>{
                          pincode: activeAddress.pincode,
                          },
                          applyedCoupon:applyCoupon,
-                         applyedDiscount:applyedDiscount
+                         applyedDiscount:applyedDiscount,
+                         expectedDeliveryDate: expectedDeliveryDate,
+
                     })
                    const SaveOrder = await newOrder.save()
                    if (SaveOrder) {
@@ -351,6 +358,10 @@ const orderSuccess =  async(req,res,next)=>{
                 
             
 
+        }else if(method =="razorpay"){
+            console.log("success");
+            
+
         }
 
     } catch (error) {
@@ -359,6 +370,15 @@ const orderSuccess =  async(req,res,next)=>{
 }
 
 
+const loadOrderSuccess = async(req,res,next)=>{
+    try {
+        console.log('sp');
+        res.render('ordersuccess')
+
+    } catch (error) {
+        next(error)
+    }
+}
 
 const cancelOrder = async (req,res,next) => {
     try {
@@ -367,7 +387,7 @@ const cancelOrder = async (req,res,next) => {
       const originalProductId = new mongoose.Types.ObjectId(req.body.originalProductId)
       const productPrice = req.body.productPrice;
       const quantity =parseInt(req.body.quantity)
-      console.log(typeof quantity);
+
       const orderId = req.body.orderId
       const orders = await Order.findOne({_id:orderId})
       const clearCoupon = req.body.clearCoupon
@@ -386,6 +406,8 @@ const cancelOrder = async (req,res,next) => {
              orders.applyedCoupon =""
              orders.applyedDiscount=0
              await orders.save()
+             findCoupon.limit++;
+             await findCoupon.save()
 
             const updatedOrder = await Order.findOneAndUpdate(
                 {
@@ -413,9 +435,23 @@ const cancelOrder = async (req,res,next) => {
                 console.log('Order not found');
                 return res.status(404).json({ message: 'Order not found' });
               }
+
+              
+
+              if(updatedOrder.paymentMethod == "online" ){
+                const findWallet = await Wallet.findOne({userId:userId}) 
+
+                findWallet.pendingAmount += parseInt(productpricePlusDiscount);
+                await findWallet.save();
+
+                res.status(200).json({ online: 'Order item status canceled successfully.in Online' });
+
+              }else{
+                console.log('Order item status updated successfully');
+                res.status(200).json({ offline: 'Order item status canceled successfully' });
+              }
           
-              console.log('Order item status updated successfully');
-              res.status(200).json({ success: 'Order item status canceled successfully' });
+            
 
 
         }else{
@@ -433,8 +469,8 @@ const cancelOrder = async (req,res,next) => {
                 },
                 { new: true } 
               );
-              console.log(updatedOrder);
-          
+
+              
               const updateProduct = await Product.findOneAndUpdate(
                 { _id: originalProductId },
                 { $inc: { num_of_stocks: quantity } },
@@ -448,8 +484,19 @@ const cancelOrder = async (req,res,next) => {
                 return res.status(404).json({ message: 'Order not found' });
               }
           
-              console.log('Order item status updated successfully');
-              res.status(200).json({ success: 'Order item status canceled successfully' });
+         
+
+              if(updatedOrder.paymentMethod=="online" ){
+                const findWallet = await Wallet.findOne({userId:userId}) 
+
+                findWallet.pendingAmount += parseInt(productPrice);
+                await findWallet.save();
+                res.status(200).json({ online: 'Order item status canceled successfully.in Online' });
+
+              }else{
+                console.log('Order item status updated successfully');
+                res.status(200).json({ offline: 'Order item status canceled successfully' });
+              }
         }
 
 
@@ -484,20 +531,26 @@ const cancelOrder = async (req,res,next) => {
           if (!updatedOrder && !updateProduct) {
             console.log('Order not found');
             return res.status(404).json({ message: 'Order not found' });
+            
           }
       
-          console.log('Order item status updated successfully');
-          res.status(200).json({ success: 'Order item status canceled successfully' });
+
+    
+          if(updatedOrder.paymentMethod == "online" ){
+            const findWallet = await Wallet.findOne({userId:userId}) 
+
+            findWallet.pendingAmount += parseInt(productPrice);
+            await findWallet.save();
+            res.status(200).json({ online: 'Order item status canceled successfully.in Online' });
+
+          }else{
+            console.log('Order item status updated successfully');
+            res.status(200).json({ offline: 'Order item status canceled successfully' });
+          }
 
 
       }
 
-      
-
-      
-  
-    
-  
       
     } catch (error) {
         next(error);
@@ -570,6 +623,10 @@ const recentOrders = async(req,res,next)=>{
                         items: { $push: "$items" },
                     },
                 },
+                
+    {
+        $sort: { createdAt: 1 }
+    }
             ];
 
 
@@ -1014,13 +1071,67 @@ const loadOrderList = async (req, res, next) => {
 
             console.log(orders[0].items);
 
-            res.render('orderedlist', { orders, discount, minimumPur });
+            res.render('orderedlist', { orders, discount, minimumPur,moment});
         } else {
             console.log('No orders found or orders array is empty.');
             res.render('orderedlist', { orders: [], discount: 0, minimumPur: 0 });
         }
     } catch (error) {
         console.error(error);
+        next(error);
+    }
+};
+
+
+const returnProduct = async (req, res, next) => {
+    try {
+        const orderId = req.body.orderId;
+        const productId = req.body.productId;
+
+        const order = await Order.findOne({ _id: orderId });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        const itemIndex = order.items.findIndex(item => item.productId.toString() === productId);
+        if (itemIndex === -1) {
+            return res.status(404).json({ message: "Product not found in the order" });
+        }
+
+        const itemToReturn = order.items[itemIndex];
+        const totalItemPrice = itemToReturn.productPrice * itemToReturn.quantity;
+        const discountAmount = (totalItemPrice * itemToReturn.offerPercentage) / 100;
+       
+        const adjustedPrice = totalItemPrice - discountAmount;
+
+        const newTotalPrice = order.totalPrice - adjustedPrice;
+
+        
+
+        if (order.applyedCoupon) {
+            const couponValue = order.applyedDiscount;
+            const discountPerProduct = couponValue / order.items.length;
+            const finalTotalPrice = newTotalPrice - discountPerProduct;
+
+            order.totalPrice = Math.max(finalTotalPrice, 0); 
+        } else {
+            order.totalPrice = Math.max(newTotalPrice, 0); 
+        }
+
+        itemToReturn.orderStatus = 'Returned';
+
+        order.markModified('items');
+        await order.save();
+
+        const allReturned = order.items.every(item => item.orderStatus === 'Returned');
+        if (allReturned) {
+            order.orderStatus = 'Returned'; 
+        }
+        await order.save();
+
+
+        res.status(200).json({ success: "Product returned successfully", updatedOrder: order });
+    } catch (error) {
         next(error);
     }
 };
@@ -1039,7 +1150,9 @@ module.exports ={
     cancelOrder,
     recentOrders,loadQuickView,
     applyCoupon,clearCoupon,
-    loadOrderList
+    loadOrderList,
+    returnProduct,
+    loadOrderSuccess
 
 
 

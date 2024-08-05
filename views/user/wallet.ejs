@@ -1,14 +1,7 @@
 
 <%- include('../layouts/user/header') -%>
-<style>
-    .price-col{
-        font-size: 14px!important;
-    }
-    .product-title{
-        font-size: 14px!important;
 
-    }
-</style>
+
 
     <div class="page-wrapper">
        
@@ -70,7 +63,7 @@
                             <span class="wishlist-count">3</span>
                     </a>
 
-                    <div class="dropdown cart-dropdown">
+                    <div class="dropdown cart-dropdown" onclick="loadCart()">
                         <a href="/cart" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
                             <i class="icon-shopping-cart"></i>
                             <% if (typeof cartCount !== 'undefined') { %>
@@ -82,9 +75,10 @@
 
                      
                         </a> 
+
                         
                     </div>
-                    <a href="/user" class="wishlist-link">
+                    <a href="" class="wishlist-link">
                      <i class="icon-user"></i>
                     </a>
                 </div><!-- End .header-right -->
@@ -112,95 +106,62 @@
             	<div class="dashboard">
 	                <div class="container">
 	                	<div class="row">
-	                	
+	                		<aside class="col-md-4 col-lg-3">
+	                			<ul class="nav nav-dashboard flex-column mb-3 mb-md-0" role="tablist">
+								    <li class="nav-item">
+								        <a class="nav-link " id="tab-dashboard-link" data-toggle="tab" href="#tab-dashboard" role="tab" aria-controls="tab-dashboard" aria-selected="false">Dashboard</a>
+								    </li>
+								    <li class="nav-item">
+								        <a class="nav-link" id="tab-orders-link" data-toggle="tab" href="#tab-orders" role="tab" aria-controls="tab-orders" aria-selected="false">Orders</a>
+								    </li>
+                                    <li class="nav-item">
+								        <a class="nav-link active" id="tab-orders-link" data-toggle="tab" href="#tab-orders" role="tab" aria-controls="tab-orders" aria-selected="true">Wallet</a>
+								    </li>
+								    <li class="nav-item">
+								        <a class="nav-link" id="tab-address-link" data-toggle="tab" href="#tab-address" role="tab" aria-controls="tab-address" aria-selected="false">Addresses</a>
+								    </li>
+								    <li class="nav-item">
+								        <a class="nav-link" id="tab-account-link" data-toggle="tab" href="/accountdetails" onclick="loadAccountDetails()" role="tab" aria-controls="tab-account" aria-selected="false">Account Details</a>
+								    </li>
+								    <li class="nav-item">
+								        <a class="nav-link" href="/logout">Sign Out</a>
+								</ul>
+	                		</aside><!-- End .col-lg-3 -->
+
 	                		<div class="col-md-8 col-lg-9">
 	                			<div class="tab-content">
-                                    <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel" aria-labelledby="tab-dashboard-link">
-                                        <% if (typeof user !== "undefined") { %>
-                                            <p>Hello <span class="font-weight-normal text-dark"><%= user.name %></span>
-                                                <br>
-                                            </p>
-                                        <% } else { %>
-                                            <p>Hello <span class="font-weight-normal text-dark">Guest</span>
-                                                <br>
-                                                <span>Please </span> <a href="/login">Login </a> <span>to add items to Cart</span>
-                                            </p>
-                                        <% } %>
-                                        
-                                        <!-- .End .tab-pane -->
-                                        <h5>All Orders</h5>
-                                        <% if (typeof orders !== "undefined") { %>
-                                            <% if (orders.length > 0) { %>
-                                                <table class="table table-cart table-mobile">
-                                                    <thead>
-                                                        <tr>
-                                                            <th></th>
-                                                            <th>Products</th>
-                                                            <th>Date</th>
-                                                            <th>Status</th>
-                                                            <th>Total</th>
-                                                            <th></th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <% for (let i = orders.length - 1; i >= 0; i--) { %>
-                                                            <tr>
-                                                                <td class="product-col">
-                                                                    <div class="product-images" >
-                                                                            <figure class="product-media" style="margin: 0;">
-                                                                                <a href="/orderedlist?id=<%= orders[i]._id %>">
-                                                                                    
-                                                                                        <img src="https://i.ibb.co/8jxkrmc/shopping-cart.png">
-                                                                                </a>
-                                                                            </figure>
-                                                                    
-                                                                    </div>
-                                                                </td>
-                                                                <td class="quantity-col"><%= orders[i].items.length %></td>
-                                                                <td class="date-col"><%= new Date(orders[i].createdAt).toDateString() %></td>
-                                                                <td class="status-col">
-                                                                    <% if (orders[i].orderStatus=="Returned") { %>
-                                                                        <p style="color: chocolate;"><%=orders[i].orderStatus %></p>
-                                                                     
-                                                                    <% }else if(orders[i].orderStatus!="Returned"&& orders[i].totalPrice==0){ %>
-                                                                        <p style="color: red;text-decoration: line-through;">Cancelled</p>
-                                                                    <%}else{ %>
-                                                                        <p><%=orders[i].orderStatus  %></p>
-                                                                        <% } %>
-
-                                                                    
-                                                                </td>
-                                                                <% if (orders[i].orderStatus!="Returned" && orders[i].orderStatus!="Cancelled") { %>
-                                                                    <td class="total-col">₹<%= orders[i].totalPrice %></td>
-
-                                                                <% } %>
-                                                                <td class="remove-col">
-                                                                        <button  class="btn-remove" >
-                                                                            <a href="/orderedlist?id=<%= orders[i]._id %>">
-                                                                            <i   class="icon-long-arrow-right"></i>
-                                                                        </a>
-                                                                        </button>
-                                                                </td>
-                                                            </tr>
-                                                        <% } %>
-                                                    </tbody>
-                                                </table>
+                                    
+								    <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel" aria-labelledby="tab-dashboard-link">
+                
+                                        <div>
+                                            <h6>Wallet</h6>
+                                            <% if (wallet && typeof wallet.pendingAmount !== "undefined") { %>
+                                                <p>Balance: ₹ <%= wallet.pendingAmount %></p>
                                             <% } else { %>
-                                                <p>Orders not found</p>
+                                                <p>No wallet information available.</p>
                                             <% } %>
-                                        <% } %>
+                                        </div>
+                                        
+                                                
+                                                
+                                           <!-- End .table table-wishlist -->
 
-                                       
-                                    </div>
+								    <div class="tab-pane fade" id="tab-downloads" role="tabpanel" aria-labelledby="tab-downloads-link">
+								    	<p>No downloads available yet.</p>
+								    	<a href="category.html" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
+								    </div><!-- .End .tab-pane -->
+
+								    <div class="tab-pane fade" id="tab-address" role="tabpanel" aria-labelledby="tab-address-link">
+								    	<p>The following addresses will be used on the checkout page by default.</p>
+                                        <div class="row">
+                                        
 
 
-
-
-                                  
-
-
-
-
+								    	</div><!-- End .row -->
+								    </div><!-- .End .tab-pane -->
+                                    
+                            
+								    </div><!-- .End .tab-pane -->
 								</div>
 	                		</div><!-- End .col-lg-9 -->
 	                	</div><!-- End .row -->
@@ -581,75 +542,23 @@
     <script src="assets/js/jquery.waypoints.min.js"></script>
     <script src="assets/js/superfish.min.js"></script>
     <script src="assets/js/owl.carousel.min.js"></script>
-    
-<script>
+    <script>
 
-    function handleAlert() {
-      return Swal.fire({
-        title: "Are you sure?",
-        text: "To cancel your order!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#CC9966",
-        cancelButtonColor: "#969696",
-        confirmButtonText: "Yes, Cancel it!"
-      }).then((result) => {
-        return result.isConfirmed;
-      });
-    }
-    
-                                                                
-    
-        function confirmCancelOrder(productId,productPrice) {
-      handleAlert().then((confirmed) => {
-        if (confirmed) {
-          handlecancelOrder(productId,productPrice);
-        }
-      });
-    }
-    
-    
-    function handlecancelOrder(productId,productPrice) {
-        console.log(productPrice);
-        
-      fetch('/cancelorder', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ productId,productPrice })
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log(data);
-        if (data.success) {
-          Swal.fire({
-            title: "Cancelled!",
-            text: "Your order has been cancelled.",
-            icon: "success"
-          });
-    
-        } else {
-          Swal.fire({
-            title: "Error!",
-            text: "Failed to cancel the order.",
-            icon: "error"
-          });
-        }
-    
-        window.location.reload();
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-          title: "Error!",
-          text: "An unexpected error occurred.",
-          icon: "error"
-        });
-      });
-    }
-    </script>
+function loadRecentOrders(){
+    window.location.href ="/recentorders"
+}
+function loadAccountDetails(){
+    window.location.href ="/accountdetails"
+}
 
+function loadCart(){
+            window.location.href='/cart'
+            
+      
+    }
+</script>
+
+    
 
     <!-- Main JS File -->
     <script src="assets/js/main.js"></script>

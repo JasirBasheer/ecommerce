@@ -2,6 +2,7 @@ const Product = require('../models/productModel')
 const Category = require('../models/categoryModel')
 const Cart = require('../models/cartModel')
 const Wishlist = require('../models/wishlistModel')
+const mongoose = require('mongoose'); 
 
 
 
@@ -161,7 +162,6 @@ const filter = async(req, res, next) => {
     }
 };
 
-
 const searchProducts = async (req, res, next) => {
     try {
         const searchTerm = req.query.search || "";
@@ -173,24 +173,29 @@ const searchProducts = async (req, res, next) => {
         const products = await Product.find(query).limit(limit).skip((page - 1) * limit).exec();
         const count = await Product.countDocuments(query);
         const categories = await Category.find({});
-        const userId = req.session.user_id || 0
-        const cart = await Cart.findOne({ userId: userId });
-
-        let cartCount = 0;
-        if (cart) {
-            cartCount = cart.products.reduce((total, item) => total + item.quantity, 0);
-        }
-
-
-        let wishlistCount ;
-        if(userId){
-         wishlistCount =  await getWishlistCount(userId._id);
-        }else{
-            wishlist =0
-        }
         
+        const userId = req.session.user_id; 
+        let cartCount = 0;
 
-        res.render('shop', {products,categories,cartCount,wishlistCount,userId,totalPages: Math.ceil(count / limit),currentPage: page,search: searchTerm,url: `/search?search=${encodeURIComponent(searchTerm)}&`});
+
+        if (userId) {
+            try {
+                const cart = await Cart.findOne({ userId: mongoose.Types.ObjectId(userId) }); 
+                if (cart) {
+                    cartCount = cart.products.reduce((total, item) => total + item.quantity, 0);
+                }
+            } catch (error) {
+                console.error('Error fetching cart:', error);
+            }
+        }
+
+        let wishlistCount = 0; 
+        if (userId) {
+            wishlistCount = await getWishlistCount(userId); 
+        }
+
+        res.render('shop', {products,categories,cartCount,wishlistCount,userId,totalPages: Math.ceil(count / limit),currentPage: page,search: searchTerm,url: `/search?search=${encodeURIComponent(searchTerm)}&` 
+        });
     } catch (error) {
         next(error);
     }

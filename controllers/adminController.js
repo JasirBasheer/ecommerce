@@ -6,6 +6,9 @@ const {addProductImages,addCategoryImage, editCategoryImage, editproductImages} 
 const Order = require('../models/orderModel');
 const { default: mongoose } = require('mongoose');
 const Coupon = require('../models/couponModel');
+const moment = require('moment');
+const Offer = require('../models/offerModel')
+
 
 
 const loadAdminLoginPage = async(req,res,next)=>{
@@ -30,14 +33,53 @@ const loadAdminDashboard = async(req,res,next)=>{
 
 
 
-const loadSalesReport = async(req,res,next)=>{
+const loadSalesReport = async (req, res, next) => {
     try {
-        res.render('salesreport')
-        
+      let orders;
+      let totalNumberSales = 0;
+  
+      if (req.query.startDate && req.query.endDate) {
+
+        const startDate = new Date(req.query.startDate);
+        const endDate = new Date(req.query.endDate);
+  
+        orders = await Order.find({
+          createdAt: { $gte: startDate, $lte: endDate },
+          orderStatus: { $in: [ 'Delivered'] }
+        });
+      } else {
+        orders = await Order.find({
+          orderStatus: { $in: [ 'Delivered'] }
+        });
+      }
+  
+
+      orders.forEach(orderItem => {
+        if (orderItem.items && Array.isArray(orderItem.items) && orderItem.totalPrice!=0) {
+          orderItem.items.forEach(item => {
+            if(item.orderStatus =="Delivered")
+                    totalNumberSales += item.quantity; 
+
+                
+          });
+        }
+      });
+  
+      const total = orders.reduce((acc, cur) => acc + cur.totalPrice, 0); 
+  
+
+      orders = orders.map(order => ({
+        ...order.toObject(),
+        orderDate: moment(order.createdAt).format('DD/MM/YYYY')
+      }));
+  
+      res.render('salesreport', { orders, total, totalNumberSales, moment });
+  
     } catch (error) {
-        next(error);
+      next(error);
     }
-}
+  };
+  
 
 const loadOrderedList = async (req,res,next) => {
     try {
@@ -71,7 +113,10 @@ const loadOrderedList = async (req,res,next) => {
                 "orderDetails.addresss.state": 1,
                 "orderDetails.addresss.pincode": 1
               }
-            }
+            },
+            {
+                $sort: { "orderDetails.createdAt": -1 }
+              }
           ];
 
 
@@ -207,7 +252,36 @@ const editProduct = async (req,res,next) => {
 
         existingProduct.productName = req.body.productName.trim();
         existingProduct.productCategory = req.body.productCategory;
-        existingProduct.productPrice = req.body.productPrice.trim();
+        const newProductPrice = parseFloat(req.body.productPrice.trim());
+
+
+      
+if (newProductPrice === existingProduct.originalAmount) {
+
+    existingProduct.productPrice = newProductPrice; 
+    existingProduct.originalAmount = newProductPrice; 
+} else {
+
+    const discountPercentage = existingProduct.offerPercentage || 0;
+
+    if (discountPercentage !== 0) {
+
+        const discountAmount = (newProductPrice * discountPercentage) / 100;
+
+
+        const discountedPrice = newProductPrice - discountAmount;
+
+
+        existingProduct.productPrice = Math.round(discountedPrice ) 
+    } else {
+
+        existingProduct.productPrice = newProductPrice; 
+    }
+
+
+    existingProduct.originalAmount = Math.round(newProductPrice )  
+}
+        
         existingProduct.num_of_stocks = req.body.productStocks;
         existingProduct.productDescription = req.body.productDescription;
         existingProduct.images = newImages;
@@ -442,6 +516,7 @@ const addProduct = async(req,res,next)=>{
             productCategory: categoryName,
             productDescription: productDescription,
             productPrice: productPrice,
+            originalAmount: productPrice,
             num_of_stocks: productStocks,
             images: imagePaths,
             is_blocked:false,
@@ -477,7 +552,7 @@ const blockProduct = async(req,res,next)=>{
           );       
           
           if (!product) {
-            return res.status(404).json({ success: false, error: 'Product not found' });
+            return res.status(200).json({ success: false, error: 'Product not found' });
           }
 
 
@@ -500,7 +575,7 @@ const unBlockProduct = async(req,res,next)=>{
           );       
           
           if (!product) {
-            return res.status(404).json({ success: false, error: 'Product not found' });
+            return res.status(200).json({ success: false, error: 'Product not found' });
           }
 
 
@@ -526,7 +601,7 @@ const blockCategory = async(req,res,next)=>{
           );       
           
           if (!blockcategory) {
-            return res.status(404).json({ success: false, error: 'Product not found' });
+            return res.status(200).json({ success: false, error: 'Product not found' });
           }
 
 
@@ -549,7 +624,7 @@ const unblockCategory = async(req,res,next)=>{
           );       
           
           if (!unblockcategory) {
-            return res.status(404).json({ success: false, error: 'Product not found' });
+            return res.status(200).json({ success: false, error: 'Product not found' });
           }
 
 
@@ -670,7 +745,8 @@ const loadOrderview = async(req,res,next)=>{
             "productDetails.productDescription": 1,
             "productDetails.images": 1
           }
-        }
+        },
+       
       ];
       
       const results = await User.aggregate(pipeline);
@@ -795,6 +871,808 @@ const AddCoupon = async(req,res,next)=>{
     }
 }
 
+
+
+
+const loadChart = async(req,res,next)=>{
+    try {
+      const startDate = new Date(new Date().getFullYear(),0,1);
+      const endDate = new Date(new Date().getFullYear(),11,31,23,59,59,999);
+      const monthlySales = await Order.aggregate([
+        {
+          $match: {
+            createdAt :{$gte: startDate, $lte: endDate},
+            orderStatus:{$in:['Shipped','Delivered']}
+          }
+        },
+        {
+          $group: {
+            _id:{
+              month: {$month:{$toDate:"$createdAt"}},
+              year: {$year:{$toDate:"$createdAt"}}
+            },
+            totalSales:{$sum:"$totalPrice"},
+            totalOrder:{$sum: 1}
+          }
+        },
+        {
+          $sort: {'_id.year':1, '_id.month':1}
+        }      
+      ]);    
+      res.json(monthlySales);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+
+
+  const loadOrdersChart = async(req,res,next)=>{
+    try {
+      const startDate = new Date(new Date().getFullYear(),0,1);
+      const endDate = new Date(new Date().getFullYear(),11,31,23,59,59,999);
+      const pipeline = [
+        {
+          $match:{
+            createdAt:{
+              $gte:startDate,
+              $lte:endDate
+            }
+          }
+        },
+        {
+          $group:{
+            _id:'$orderStatus',
+            count: {$sum:1}
+          }
+        }
+      ];
+      const result = await Order.aggregate(pipeline);    
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+
+
+  const loadDailySalesChart = async (req, res, next) => {
+    try {
+      const startDate = new Date();
+      startDate.setHours(0, 0, 0, 0);
+      const endDate = new Date();
+      endDate.setHours(23, 59, 59, 999);
+  
+      const dailySales = await Order.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: startDate, $lte: endDate },
+            orderStatus: { $in: ['Shipped', 'Delivered'] }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              day: { $dayOfMonth: { $toDate: "$createdAt" } },
+              month: { $month: { $toDate: "$createdAt" } },
+              year: { $year: { $toDate: "$createdAt" } }
+            },
+            totalSales: { $sum: "$totalPrice" },
+            totalOrder: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 }
+        }
+      ]);
+  
+      res.json(dailySales);
+    } catch (error) {
+      next(error);
+    }
+  };
+  
+  const loadWeeklySalesChart = async (req, res, next) => {
+    try {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 7);
+      startDate.setHours(0, 0, 0, 0);
+      const endDate = new Date();
+      endDate.setHours(23, 59, 59, 999);
+  
+      const weeklySales = await Order.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: startDate, $lte: endDate },
+            orderStatus: { $in: ['Shipped', 'Delivered'] }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              week: { $week: { $toDate: "$createdAt" } },
+              year: { $year: { $toDate: "$createdAt" } }
+            },
+            totalSales: { $sum: "$totalPrice" },
+            totalOrder: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { '_id.year': 1, '_id.week': 1 }
+        }
+      ]);
+  
+      res.json(weeklySales);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+
+
+
+
+
+  const loadAddSingleProductOffer = async(req,res,next)=>{
+    try {
+        const products = await Product.find({is_blocked:false})
+        console.log(products);
+        res.render('addproductoffer',{products})
+        
+    } catch (error) {
+        next(error)
+    }
+  }
+
+
+
+  const AddSingleProductOffer = async(req,res,next)=>{
+    try {
+        const {offerName,product,discount}=req.body
+        console.log(product);
+        const productId = new mongoose.Types.ObjectId(req.body.product)
+        console.log(productId);
+        const findprodcut = await Product.findOne({_id:productId})
+        const productName =findprodcut.productName
+
+              
+        const offer = new Offer.SingleProductOffer({
+            offerName:offerName,
+            productId: productId,
+            offerPercentage:discount,
+            productName:productName
+        })
+
+        const saveOffer = await offer.save()
+        if(saveOffer){
+            const findProduct = await Product.findById(product)
+            
+            console.log(findProduct);
+
+            const offeredPrice = findProduct.originalAmount - (findProduct.originalAmount * discount/100)
+
+
+            findProduct.productPrice =Math.round(offeredPrice)
+            findProduct.offerPercentage = discount
+
+            await findProduct.save()
+            return res.status(200).json({success:true})
+            
+
+        }
+
+    } catch (error) {
+        next(error)
+    }
+  }
+
+
+
+
+  const loadAddCategoryOffer = async(req,res,next)=>{
+    try {
+        console.log('sdfas');
+        const category = await Category.find({is_blocked:false})
+        res.render('addcategoryoffer',{category})
+        
+    } catch (error) {
+        next(error)
+    }
+  }
+
+
+const activateProductoffer = async (req, res, next) => {
+    try {
+        
+        const offerId = req.body.productOfferId;
+        if (!offerId) {
+            return res.status(400).json({ message: "productOfferId is required" });
+        }
+
+        const offer = await Offer.SingleProductOffer.findById(offerId);
+        const findProduct = await Product.findById(offer.productId);
+
+
+        if (findProduct.offerPercentage == 0) {
+            offer.isActive = true;
+            await offer.save();
+
+            const offeredPrice = findProduct.originalAmount - (findProduct.originalAmount * offer.offerPercentage / 100);
+            findProduct.productPrice = Math.round(offeredPrice);
+            findProduct.offerPercentage = offer.offerPercentage;
+
+            await findProduct.save();
+
+            console.log(findProduct);
+            return res.status(200).json({ message: "Product offer activated successfully" });
+        } else {
+            return res.status(400).json({ message: "Product already has an active offer" });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+const deactivateProductoffer = async (req, res, next) => {
+    console.log("here");
+    try {
+        const offerId = req.body.productOfferId;
+        const offer = await Offer.SingleProductOffer.findById(offerId);
+        const findProduct = await Product.findById(offer.productId);
+        
+
+        if (findProduct.offerPercentage !== 0) {
+            offer.isActive = false;
+            await offer.save();
+
+            findProduct.productPrice = findProduct.originalAmount; 
+            findProduct.offerPercentage = 0;
+
+            await findProduct.save();
+
+            console.log(findProduct);
+            return res.status(200).json({ message: "Product offer deactivated successfully" });
+        } else {
+            return res.status(400).json({ message: "Product has no active offer to deactivate" });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+
+
+const deleteProductOffer = async (req, res, next) => {
+    try {
+        const offerId = req.body.productOfferId;
+        console.log(offerId);
+        const offer = await Offer.SingleProductOffer.findOne({_id:new mongoose.Types.ObjectId(offerId)});
+        const findProduct = await Product.findById(offer.productId);
+
+
+        if (findProduct) {
+
+            findProduct.productPrice = findProduct.originalAmount; 
+            findProduct.offerPercentage = 0;
+
+            await findProduct.save();
+
+            await Offer.SingleProductOffer.findOneAndDelete({_id:new mongoose.Types.ObjectId(offerId)})
+
+            return res.status(200).json({ success: "Product offer deactivated successfully" });
+
+        } else {
+            return res.status(400).json({ error: "Product no offer fount to  deactivate" });
+        }
+
+
+        
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+
+
+
+  const AddCategoryOffer = async (req, res, next) => {
+    try {
+        const offerName = req.body.offerName.trim();
+        const category = req.body.product.trim();
+        const discount = parseFloat(req.body.discount.trim()); 
+        console.log(category, offerName, discount);
+
+        
+        const offer = new Offer.CategoryOffer({
+            offerName: offerName,
+            categoryName: category,
+            offerPercentage: discount,
+        });
+        await offer.save();
+
+
+        const updateCategory = await Category.findOne({ categoryName: category });
+        if (!updateCategory) {
+            return res.status(200).json({ error: "Category not found" });
+        }
+
+        updateCategory.categoryOfferPercentage = discount;
+        await updateCategory.save();
+
+
+        const findProducts = await Product.find({ productCategory: category});
+
+        console.log(findProducts);
+
+            if (!Array.isArray(findProducts)) {
+            return res.status(200).json({ error: "Error retrieving products" });
+        }
+
+
+        const savePromises = findProducts.map(async (product) => {
+
+            const singleoffer = await Offer.SingleProductOffer.findOne({productId:product._id})
+
+            if(singleoffer){
+                singleoffer.isActive=false
+                await singleoffer.save()
+            }
+
+
+            const offeredPrice = product.originalAmount - (product.originalAmount * (discount / 100));
+            console.log(offeredPrice);
+
+            product.productPrice = Math.round(offeredPrice);
+            product.offerPercentage = discount;
+
+            return product.save();
+        });
+
+        await Promise.all(savePromises);
+
+
+        res.status(200).json({ success: "Category offer added successfully" });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+const activateCategoryOffer = async (req, res, next) => {
+    try {
+        const offerId = req.body.categoryofferId; 
+        const offer = await Offer.CategoryOffer.findOne({_id:new mongoose.Types.ObjectId(offerId)}); 
+
+        console.log(offer);
+      
+
+        const category = offer.categoryName; 
+        const findProducts = await Product.find({ productCategory: category });
+
+        if (!findProducts.length) {
+            return res.status(200).json({ message: "No products found in this category" });
+        }
+
+        const savePromises = findProducts.map(async (product) => {
+           
+            const singleoffer = await Offer.SingleProductOffer.findOne({productId:product._id})
+
+            if(singleoffer){
+                singleoffer.isActive=false
+                await singleoffer.save()
+            }
+
+
+                const offeredPrice = product.originalAmount - (product.originalAmount * offer.offerPercentage / 100);
+                product.productPrice = Math.round(offeredPrice);
+                product.offerPercentage = offer.offerPercentage;
+
+                await product.save();
+      
+        });
+
+        await Promise.all(savePromises);
+
+        offer.isActive = true;
+        await offer.save();
+
+        return res.status(200).json({ message: "Category offer activated successfully" });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+const deactivateCategoryOffer = async (req, res, next) => {
+    try {
+        const offerId = req.body.categoryofferId;
+        const offer = await Offer.CategoryOffer.findOne({_id:new mongoose.Types.ObjectId(offerId)}); 
+        console.log(offer);
+        const category = offer.categoryName; 
+        const findProducts = await Product.find({ productCategory: category });
+        console.log(findProducts);
+
+        const savePromises = findProducts.map(async (product) => {
+            if (product.offerPercentage !== 0) {
+                product.productPrice = product.originalAmount; 
+                product.offerPercentage = 0;
+
+                await product.save();
+            }
+        });
+
+        await Promise.all(savePromises);
+
+        offer.isActive = false;
+        await offer.save();
+
+        return res.status(200).json({ message: "Category offer deactivated successfully" });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+const deleteCategoryOffer = async (req, res, next) => {
+    try {
+        const offerId = req.body.categoryofferId;
+        const offer = await Offer.CategoryOffer.findOne({_id:new mongoose.Types.ObjectId(offerId)}); 
+        console.log(offer);
+        const category = offer.categoryName; 
+        const update = await Category.findOneAndUpdate({ categoryName: category },{ $set:{ categoryOfferPercentage: 0 } },{ new: true });     
+         const findProducts = await Product.find({ productCategory: category });
+        console.log(findProducts);
+
+        const savePromises = findProducts.map(async (product) => {
+            if (product.offerPercentage !== 0) {                
+                product.productPrice = product.originalAmount; 
+                product.offerPercentage = 0;
+
+                await product.save();
+            }
+        });
+
+        await Promise.all(savePromises);
+
+        await Offer.CategoryOffer.findOneAndDelete({_id:new mongoose.Types.ObjectId(offerId)})
+
+        return res.status(200).json({ success: "Category offer deactivated successfully" });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+const loadOffersList = async (req,res,next)=>{
+    try {
+        const productOffers = await Offer.SingleProductOffer.find()
+        const categoryOffers = await Offer.CategoryOffer.find()
+
+        res.render('offerslist',{productOffers,categoryOffers})
+        
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+const loadEditCoupon = async(req, res, next)=>{
+    try {
+        const couponId = req.query.id
+
+        const coupon = await Coupon.findOne({_id:new mongoose.Types.ObjectId(couponId)})
+        console.log(coupon);
+        res.render('editcoupon',{coupon})
+        
+    } catch (error) {
+        next(error)
+    }
+}
+
+const editCoupon = async (req, res, next) => {
+    try {
+        const findCoupon = await Coupon.findOne({ _id: req.body.id });
+
+        const duplicateCoupon = await Coupon.findOne({ 
+            couponName: { $regex: new RegExp('^' + req.body.couponName + '$', 'i') }
+        });
+        
+        if (duplicateCoupon && duplicateCoupon._id != req.body.id) {
+            return res.status(409).json({ message: "Coupon already exists" });
+        }
+
+        
+        if (findCoupon) {
+            if (findCoupon._id.toString() === req.body.id) {
+                findCoupon.couponName = req.body.couponName;
+                findCoupon.discount = req.body.discount;
+                findCoupon.minimumPurchase = req.body.minimumPur;
+                findCoupon.limit = req.body.maximum;
+                findCoupon.expiryDate = req.body.expiryDate;
+                
+                await findCoupon.save(); 
+
+                return res.status(200).json({ success: "Coupon updated successfully" });
+            } else {
+                return res.status(200).json({ message: "Coupon already exists" });
+            }
+        } else {
+            return res.status(200).json({ message: "Coupon not found" });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+const blockCoupon = async (req,res,next)=>{
+    try {
+        const couponId = req.body.couponId;
+        const coupon = await Coupon.findOne({_id:couponId})
+        console.log(coupon);
+
+        if(coupon){
+            coupon.isActive=false
+            await coupon.save()
+            return res.status(200).json({success:"blocked"})
+        }else{
+            return res.status(200).json({error:"coupon not found"})
+            
+        }
+
+        
+    } catch (error) {
+        
+    }
+}
+
+
+const unBlockCoupon = async (req,res,next)=>{
+    try {
+        const couponId = req.body.couponId;
+        const coupon = await Coupon.findOne({_id:couponId})
+        console.log(coupon);
+
+        if(coupon){
+            coupon.isActive=true
+            await coupon.save()
+            return res.status(200).json({success:"blocked"})
+        }else{
+            return res.status(200).json({error:"coupon not found"})
+            
+        }
+
+    } catch (error) {
+        
+    }
+}
+
+
+
+
+const loadEditproductOffer = async (req,res,next)=>{
+    try {
+        const id = req.query.id
+
+        const offer = await Offer.SingleProductOffer.findOne({_id:id})
+        const products = await Product.find()
+
+        res.render('editproductoffer',{products,offer,id:offer.productId})
+
+        
+        
+    } catch (error) {
+        next(error)
+        
+    }
+}
+
+
+
+const editproductOffer = async (req,res,next)=>{
+    try {
+        const id = req.body.id
+        const offerid = req.body.offerid
+        const productId = req.body.product
+        console.log(productId)
+        console.log(id)
+
+        const offer = await Offer.SingleProductOffer.findOne({_id:offerid})
+        const product = await Product.findOne({_id:productId})
+        const oldProduct = await Product.findOne({_id:id})
+        console.log(offer);
+
+
+        oldProduct.offerPercentage = 0
+        oldProduct.productPrice = oldProduct.originalAmount
+        await oldProduct.save()
+
+
+
+        if (productId !== offer.productId.toString() && product.offerPercentage !== 0) {
+            return res.status(200).json({ error: 'Offer already exists for this product' });
+          }
+
+
+          
+
+
+        if(offer.isActive){
+
+            offer.offerName =req.body.offerName
+            offer.productId = req.body.product
+            offer.productName = product.productName
+            offer.offerPercentage = req.body.discount
+
+            const updateOffer = await offer.save()
+
+            const findProduct =await Product.findOne({_id:updateOffer.productId})
+            console.log(updateOffer);
+            console.log(findProduct);
+
+
+              const offeredPrice = findProduct.originalAmount - (findProduct.originalAmount * offer.offerPercentage / 100);
+              findProduct.productPrice = Math.round(offeredPrice);
+             findProduct.offerPercentage = offer.offerPercentage;
+
+        await findProduct.save();
+
+
+        return res.status(200).json({success:true})
+
+        }else{
+            offer.offerName =req.body.offerName
+            offer.productId = req.body.product
+            offer.productName = product.productName
+            offer.offerPercentage = req.body.discount
+
+            await offer.save();
+
+            return res.status(200).json({success:true})
+    
+        }
+        
+     
+    } catch (error) {
+        next(error)
+        
+    }
+}
+
+
+
+
+
+
+
+const loadEditCategoryOffer = async (req,res,next)=>{
+    try {
+        const id = req.query.id
+
+        const offer = await Offer.CategoryOffer.findOne({_id:id})
+        const category = await Category.find()
+
+        console.log(id);
+        res.render('editcategoryoffer',{category,offer,id:offer.categoryName})
+
+        
+        
+    } catch (error) {
+        next(error)
+        
+    }
+}
+
+
+
+
+
+const EditCategoryOffer = async (req, res, next) => {
+    try {
+        const { id, offerid, offerName, category, discount } = req.body;
+        console.log(req.body);
+
+
+        const oldOffer = await Offer.CategoryOffer.findOne({ categoryName: id });
+        if (oldOffer) {
+            oldOffer.offerPercentage = 0;
+            await oldOffer.save();
+        }
+
+        const oldCategory = await Category.findOne({ categoryName: id });
+        if (oldCategory) {
+            oldCategory.categoryOfferPercentage = 0;
+            await oldCategory.save();
+        }
+
+
+        const offer = await Offer.CategoryOffer.findOne({ _id: new mongoose.Types.ObjectId(offerid) });
+        if (!offer) {
+            return res.status(404).json({ error: "Offer not found" });
+        }
+
+
+        const duplicateOffer = await Offer.CategoryOffer.findOne({
+            offerName: { $regex: new RegExp('^' + offerName + '$', 'i') },
+            _id: { $ne: offerid }
+        });
+
+        if (duplicateOffer) {
+            return res.status(200).json({ error: "Offer already exists" });
+        }
+
+
+        offer.offerName = offerName;
+        offer.categoryName = category;
+        offer.offerPercentage = discount;
+        await offer.save();
+
+
+        const updateCategory = await Category.findOne({ categoryName: category });
+        if (updateCategory) {
+            updateCategory.categoryOfferPercentage = discount;
+            await updateCategory.save();
+        }
+
+
+        const oldProducts = await Product.find({ productCategory: id });
+        const oldProductsPromises = oldProducts.map(async (product) => {
+            const singleoffer = await Offer.SingleProductOffer.findOne({ productId: product._id });
+            if (singleoffer) {
+                singleoffer.isActive = false;
+                await singleoffer.save();
+            }
+
+            product.productPrice = product.originalAmount;
+            product.offerPercentage = 0;
+            await product.save();
+        });
+        await Promise.all(oldProductsPromises);
+
+
+        const findProducts = await Product.find({ productCategory: category });
+        const savePromises = findProducts.map(async (product) => {
+            const singleoffer = await Offer.SingleProductOffer.findOne({ productId: product._id });
+            if (singleoffer) {
+                singleoffer.isActive = false;
+                await singleoffer.save();
+            }
+
+            const offeredPrice = product.originalAmount - (product.originalAmount * discount / 100);
+            product.productPrice = Math.round(offeredPrice);
+            product.offerPercentage = discount;
+            await product.save();
+        });
+        await Promise.all(savePromises);
+
+        return res.status(200).json({ success: "Category offer updated successfully" });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+
+
 module.exports ={
     loadAdminDashboard,
     loadAdminLoginPage,
@@ -827,4 +1705,18 @@ module.exports ={
     loadCouponList,
     loadAddCoupon,
     AddCoupon,
+    loadChart,
+    loadOrdersChart,
+    loadDailySalesChart,
+    loadWeeklySalesChart,
+
+
+
+    loadAddSingleProductOffer,AddSingleProductOffer,
+
+    loadAddCategoryOffer,AddCategoryOffer,
+
+    loadOffersList,activateProductoffer,deactivateProductoffer,deactivateCategoryOffer,activateCategoryOffer,
+    deleteCategoryOffer,deleteProductOffer,loadEditCoupon,editCoupon,blockCoupon,unBlockCoupon,loadEditproductOffer,editproductOffer,
+    loadEditCategoryOffer,EditCategoryOffer
 }

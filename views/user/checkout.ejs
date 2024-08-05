@@ -137,6 +137,10 @@
                                         
                                         
                                             <% if (userDetails && userDetails.address && userDetails.address.length > 0) { %>
+                                                <input type="hidden" value="<%= userDetails._id %>" id="usersId">
+
+
+
                                                 <% userDetails.address.forEach((address) => { %>
                                                     <div class="col-lg-6" id="delete<%= address._id %>">
                                                         <div class="card card-dashboard">
@@ -209,6 +213,11 @@
 		                					</thead>
 
 		                					<tbody>
+                                                
+                                                <input type="hidden" value="<%= products[0]._id %>" id="cartId">
+                                             
+                                        
+
 
 		                						
                                                 <% if (products.length ===0) { %>
@@ -240,7 +249,7 @@
                                                 
 		                						<tr class="summary-total">
 		                							<td>Total:</td>
-		                							<td>₹<%=grandTotal%></td>
+		                							<td id="grandAmount">₹<%=grandTotal%></td>
 		                						</tr><!-- End .summary-total -->
 		                					</tbody>
 		                				</table><!-- End .table table-summary -->
@@ -283,14 +292,15 @@
 										    <div class="card">
 										        <div class="card-header" id="heading-5">
 										            <h2 class="card-title">
-										                <a class="collapsed" role="button" data-toggle="collapse" id="creditCard" onclick="handlePaymentMethod('creditCard')" href="#collapse-5" aria-expanded="false" aria-controls="collapse-5">
-										                    Credit Card (Stripe)
+										                <a class="collapsed" role="button" data-toggle="collapse" id="wallet" onclick="handlePaymentMethod('wallet')" href="#collapse-5" aria-expanded="false" aria-controls="collapse-5">
+										                    Wallet <small>current Balance(<%= walletBalance  %>)</small>
+                                                            <input type="hidden" id="walletBalanceAmount" value="<%= walletBalance  %>">
 										                    <img src="assets/images/payments-summary.png" alt="payments cards">
 										                </a>
 										            </h2>
 										        </div><!-- End .card-header -->
 										        <div id="collapse-5" class="collapse" aria-labelledby="heading-5" data-parent="#accordion-payment">
-										            <div class="card-body"> Donec nec justo eget felis facilisis fermentum.Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Lorem ipsum dolor sit ame.
+										            <div class="card-body"> current  wallet is <%= walletBalance  %>.
 										            </div><!-- End .card-body -->
 										        </div><!-- End .collapse -->
 										    </div><!-- End .card -->
@@ -686,6 +696,8 @@
     <script src="assets/js/owl.carousel.min.js"></script>
     <!-- Main JS File -->
     <script src="assets/js/main.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
     <script>
         const handleActive = (userId,addressId)=>{
             fetch('/markasactive', {
@@ -739,59 +751,11 @@
             })
         }
         
-        
-    </script>
-
-    <script>
-        let paymentMethod ;
-        function handlePaymentMethod(method){
-            paymentMethod = method
-        }
-        function handlePlaceOrder(event){
-            event.preventDefault(); 
-            const addresscheck = document.getElementById('addresscheck').value
-        if(addresscheck==0){
-            Swal.fire({
-        title: "Create a valid address",
-        text: "",
-        imageUrl: 'https://i.ibb.co/4mNkNNz/pin.png', 
-        imageWidth: 50,  
-        imageHeight: 50, 
-        confirmButtonColor: "#CC9966",
-        showCancelButton: true,
-        confirmButtonText: 'Create',
-        cancelButtonText: 'Ok'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = '/addnewaddress?id=checkout'; 
-        }
-    });
-            
-            return false
-
-            }
-            if (!paymentMethod) {
-                document.getElementById('paymentMethodError').textContent ="Select a valid payment Method"
-
-            }else{
-                console.log(paymentMethod);
-
-                if(paymentMethod == 'cashondelivary'){
-                    console.log('reached');
-
-                    window.location.href = "/ordersuccess?method=COD";
-                }
-            }    
-
-        }
-
-       function loadCart(){
-
-    
-window.location.href='/cart'
+            function loadCart(){
+            window.location.href='/cart'
 
 
-}
+    }
 
 
 function handleClearCoupon(){
@@ -811,6 +775,138 @@ function handleClearCoupon(){
 
 }
 
+        
+    </script>
+
+
+
+
+
+
+    <script>
+     let paymentMethod;
+
+function handlePaymentMethod(method) {
+    paymentMethod = method;
+}
+
+async function handlePlaceOrder(event) {
+    event.preventDefault();
+    const addresscheck = document.getElementById('addresscheck').value;
+
+    if (addresscheck == 0) {
+        Swal.fire({
+            title: "Create a valid address",
+            text: "",
+            imageUrl: 'https://i.ibb.co/4mNkNNz/pin.png',
+            imageWidth: 50,
+            imageHeight: 50,
+            confirmButtonColor: "#CC9966",
+            showCancelButton: true,
+            confirmButtonText: 'Create',
+            cancelButtonText: 'Ok'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/addnewaddress?id=checkout';
+            }
+        });
+        return false;
+    }
+
+    if (!paymentMethod) {
+        document.getElementById('paymentMethodError').textContent = "Select a valid payment Method";
+        return;
+    }
+
+    console.log(paymentMethod);
+
+    if (paymentMethod === 'cashondelivary') {
+        console.log('reached');
+        window.location.href = "/ordersuccess?method=COD";
+    } else if(paymentMethod ==='razorpay') {
+
+        const amount = parseFloat(document.getElementById('grandAmount').textContent.replace('₹', '').replace(',', '').trim());
+        console.log(amount);
+       const currency = 'INR';
+
+
+       const orderResponse = await fetch('/createOrder', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ amount, currency })
+        });
+
+        const { id: orderId } = await orderResponse.json();
+
+
+
+        let usersId = document.getElementById('usersId').value
+        let cartId = document.getElementById('cartId').value
+        let grandTotal = amount
+
+
+
+        const options = {
+            key: 'rzp_test_fKh2fGYnPvSVrM', 
+            amount: amount * 100, 
+            currency: currency,
+            name: 'WOODSTREET',
+            order_id: orderId,
+            handler: async function (response) {
+
+                const verificationResponse = await fetch('/verifyPayment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        razorpayOrderId: response.razorpay_order_id,
+                        razorpayPaymentId: response.razorpay_payment_id,
+                        razorpaySignature: response.razorpay_signature,
+                        usersId,cartId,grandTotal
+                    })
+                });
+
+                const verificationResult = await verificationResponse.json();
+                if (verificationResult.success) {
+                    
+                    console.log("reachsdredd");
+                    window.location.href = "/ordersuccesss";
+                } else {
+                    alert('Payment Verification Failed');
+                }
+            },
+            prefill: {
+
+                name: 'Customer Name',
+                email: 'customer@example.com',
+                contact: '9999999999'
+            },
+            theme: {
+                color: '#CC9966' 
+            }
+        };
+
+        const razorpay = new Razorpay(options);
+        razorpay.open();
+    }else if(paymentMethod === 'wallet'){
+        let grandTotal = parseFloat(document.getElementById('grandAmount').textContent.replace('₹', ''))
+        const wallet = parseInt(document.getElementById('walletBalanceAmount').value)
+
+        if(grandTotal>wallet){
+            document.getElementById('paymentMethodError').textContent = "Select a valid payment Method";
+        console.log('somethingnggg');
+
+            return;
+        }else{
+
+
+        }
+    }
+}
+   
 </script>
 
 
@@ -872,6 +968,9 @@ function handleClearCoupon(){
     });
 
 </script>
+
+
+
 </body>
 
 

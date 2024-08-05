@@ -17,6 +17,14 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    originalAmount:{
+        type:Number,
+        default:0
+    },
+    offerPercentage:{
+        type:Number,
+        default:0
+    },
     num_of_stocks: {
         type: Number,
         required: true
@@ -39,7 +47,7 @@ const productSchema = new mongoose.Schema({
 
 
 })
-productSchema.index({ productName: 'text', productDescription: 'text' });
+productSchema.index({ productName: 'text', productDescription: 'text',productCategory: 'text' });
 
 
 module.exports = mongoose.model('Product', productSchema)

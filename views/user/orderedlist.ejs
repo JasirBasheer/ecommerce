@@ -129,7 +129,7 @@
                                                             <th>Product</th>
                                                             <th>Price</th>
                                                             <th>Quantity</th>
-                                                            <th>Date</th>
+                                                            <th>Expected Date</th>
                                                             <th>Status</th>
                                                             <th></th>
                                                         </tr>
@@ -140,7 +140,7 @@
                                                                 <td class="product-col">
                                                                     <div class="product">
                                                                         <figure class="product-media">
-                                                                            <a href="#">
+                                                                            <a href="/quickview?id=<%= orders[i].items[j].productId%>&orderId=<%= orders[i]._id%>">
                                                                                 <img src="<%= orders[i].items[j].images[0] %>" alt="Product image">
                                                                             </a>
                                                                         </figure>
@@ -151,19 +151,21 @@
                                                                 </td>
                                                                 <td class="price-col" >₹<%= orders[i].items[j].productPrice * orders[i].items[j].quantity%></td>
                                                                 <td class="quantity-col"><%= orders[i].items[j].quantity %></td>
-                                                                <td class="date-col"><%= new Date(orders[i].createdAt).toDateString() %></td>
-                                                                <% if (orders[i].items[j].orderStatus === "Shipped") { %>
-                                                                    <td class="status-col" style="color: rgba(215, 178, 11, 0.705);"><%= orders[i].items[j].orderStatus %></td>
+                                                                <td class="date-col"><%= moment(orders[i].expectedDeliveryDate).format('ddd MMM DD YYYY') %></td>
+                                                                <% if (orders[i].items[j].orderStatus === "Returned") { %>
+                                                                    <td class="status-col" style="color: rgba(136, 112, 4, 0.705);"><%= orders[i].items[j].orderStatus %></td>
                                                                 <% } else if (orders[i].items[j].orderStatus === "Cancelled") { %>
                                                                     <td class="status-col" style="color: red;text-decoration: line-through;"><%= orders[i].items[j].orderStatus %></td>
                                                                 <% } else { %>
                                                                     <td class="status-col"><%= orders[i].items[j].orderStatus %></td>
                                                                 <% } %>
-                                                                <% if (orders[i].items[j].orderStatus !== "Cancelled" && orders[i].items[j].orderStatus !== "Delivered" && orders[i].items[j].orderStatus !== "Shipped") { %>
+                                                                <% if (orders[i].items[j].orderStatus !== "Cancelled" && orders[i].items[j].orderStatus !== "Delivered" && orders[i].items[j].orderStatus !== "Returned") { %>
                                                                     <td class="remove-col">
                                                                         <button class="btn-remove" onclick="confirmCancelOrder('<%= orders[i].items[j]._id %>', '<%= orders[i].items[j].productPrice * orders[i].items[j].quantity %>','<%= orders[i].totalPrice %>','<%= orders[i].applyedDiscount +  orders[i].totalPrice %>','<%= orders[i]._id %>','<%= orders[i].items[j].quantity %>','<%= orders[i].items[j].productId %>')"><i class="icon-close"></i></button>
                                                                     </td>
                                                                 <% } %>
+
+
                                                             </tr>
                                                         <% } %>
                                                     </tbody>
@@ -173,15 +175,16 @@
                                     </div>
                                     <input type="hidden" name="" id="discount" value="<%= discount  %>">
                                     <input type="hidden" name="" id="minimumPur" value="<%= minimumPur %>">
-                                    <div class="col-md-3 col-lg-3 p-5" style="background-color: #cc996600;margin-bottom: 22px;margin-let: 12px;height: 31em;box-shadow: 0px 0px 12px 1px rgba(0, 0, 0, 0.045);">
+                                    <div class="col-md-3 col-lg-3 p-5" style="background-color: #cc996600;margin-bottom: 22px;margin-let: 12px;height: 33em;box-shadow: 0px 0px 12px 1px rgba(0, 0, 0, 0.045);">
                                         <h6 class="mt-3 mb-2" >ORDER SUMMARY</h6>
                                         <div class="order-summary-append mb-2">
                                             <h6>OrderId :<%= orders[i]._id %></h6>
                                             <p>Date: <%= new Date(orders[i].createdAt).toDateString() %></p>
                                             <p>Deliverying to : <%= orders[i].addresss.fullName%></p>
-                                            <p>Delivary on : <%= new Date(orders[i].createdAt).toDateString() %></p>
+                                            <p>Delivary on : <%= moment(orders[i].expectedDeliveryDate).format('ddd MMM DD YYYY')  %></p>
                                             <p>Phone : <%= orders[i].addresss.number%></p>
                                             <p>Place : <%= orders[i].addresss.city%>,<%= orders[i].addresss.state%>,<%= orders[i].addresss.pincode%></p>
+                                            <p>Ordered At : <%= new Date(orders[i].createdAt).toDateString() %></p>
                                             <p style="font-weight: 300;">Shipping Fee: ₹0</p>
                                             <p style="font-weight: 300;">Subtotal: ₹<%= orders[i].applyedDiscount +  orders[i].totalPrice %></p>
                                             <p style="font-weight: 410;">Coupon discount: ₹<%= orders[i].applyedDiscount %></p>
@@ -686,22 +689,44 @@ function confirmCancelOrder(productId, productPrice, totalPrice,subTotal,orderId
       .then(response => response.json())
       .then(data => {
         console.log(data);
-        if (data.success) {
+        if (data.offline) {
           Swal.fire({
             title: "Cancelled!",
             text: "Your order has been cancelled.",
             icon: "success"
-          });
+          }).then((result)=>{
+            if (result.isConfirmed) {
+        window.location.reload();
+            }
+          })
     
+        } else if(data.online){
+            Swal.fire({
+    title: "Cancelled!",
+    text: "Your order has been cancelled. The amount will be refunded to your wallet shortly.",
+    icon: "success",
+    confirmButtonText: "OK"
+}).then((result) => {
+    if (result.isConfirmed) {
+        window.location.reload();
+    }
+});
         } else {
           Swal.fire({
-            title: "Error!",
-            text: "Failed to cancel the order.",
-            icon: "error"
-          });
+    title: "Error!",
+    text: "Failed to cancel the order.",
+    icon: "error",
+    confirmButtonText: "OK"
+}).then((result) => {
+    if (result.isConfirmed) {
+        window.location.reload();
+    }
+});
+
+          
         }
     
-        window.location.reload();
+        // window.location.reload();
       })
       .catch(error => {
         console.error('Error:', error);

@@ -11,11 +11,13 @@ const Wishlist = require('../models/wishlistModel');
 const loadCart = async (req,res,next) => {
     try {
 
-        const user = req.session.user_id;
-        console.log(user);
+        let user =0
+        if (req.session){
+            user = req.session.user_id
+        }
 
-        if (!user) {
-            throw new Error("User not found in session");
+        if (user == 0) {
+            return res.render('login')
         }
         
         const userId = new mongoose.Types.ObjectId(user._id);
@@ -172,7 +174,10 @@ const addToCart = async(req,res,next)=>{
                   {
                     productId,
                     quantity: quantity || 1,
-                    productPrice:product.productPrice
+                    productPrice:product.productPrice,
+                    productName:product.productName,
+                    offerPercentage:product.offerPercentage,
+                    originalAmount:product.originalAmount
                   },
                 ],
               });
@@ -191,7 +196,12 @@ const addToCart = async(req,res,next)=>{
                 cart.products.push({
                     productId,
                     quantity: quantity|| 1,
-                    productPrice:product.productPrice
+                    productPrice:product.productPrice,
+                    productName:product.productName,
+                    offerPercentage:product.offerPercentage ,
+                    originalAmount:product.originalAmount
+
+
                 });
             }
 

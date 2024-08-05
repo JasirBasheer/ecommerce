@@ -19,6 +19,7 @@ const cartSchema = new mongoose.Schema({
       type:Number,
       default:0
     },
+    
     products : [{
         productId:{
           type: mongoose.Schema.Types.ObjectId,
@@ -29,6 +30,10 @@ const cartSchema = new mongoose.Schema({
           type: Number,
           required: true
         },
+        productName:{
+          type:String,
+          required:true
+        },
         productPrice:{
           type:Number,
           required:true
@@ -37,6 +42,15 @@ const cartSchema = new mongoose.Schema({
           type: String,
       enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned'],
       default: 'Pending'
+        },
+        offerPercentage:{
+          type:Number,
+          default:0
+        },
+        originalAmount:{
+            type:Number,
+            default:0,
+
         }
       
       }]

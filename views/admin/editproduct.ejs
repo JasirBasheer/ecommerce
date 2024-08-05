@@ -194,7 +194,8 @@
                     </div>
                     <div class="form-group">
                         <label for="productPrice">Price *</label>
-                        <input type="number" class="form-control" id="productPrice" name="productPrice" value="<%= product.productPrice %>" required>
+                        <input type="text" id="productPrice" class="form-control" value="<%= product.productPrice %>" name="productPrice" placeholder="Enter price" pattern="^\d+(\.\d{1,2})?$" title="Please enter a valid price (e.g., 123.45)" required>
+
                     </div>
                     <div class="form-group">
                         <label for="productStocks">No. of Stocks *</label>

@@ -56,7 +56,38 @@ admin_route.get('/editcategory',auth.isLogin,adminController.loadEditCategory)
 admin_route.get('/couponslist',auth.isLogin,adminController.loadCouponList)
 admin_route.get('/addcoupon',auth.isLogin,adminController.loadAddCoupon)
 admin_route.post('/addcoupon',auth.isLogin,adminController.AddCoupon)
+admin_route.get('/chart',adminController.loadChart);
+admin_route.get('/orderstatuschart',adminController.loadOrdersChart);
+admin_route.get('/dailysaleschart',adminController.loadDailySalesChart);
+admin_route.get('/weeklysaleschart',adminController.loadWeeklySalesChart);
+admin_route.get('/addproductoffer',adminController.loadAddSingleProductOffer);
+admin_route.post('/addproductoffer',adminController.AddSingleProductOffer);
+admin_route.post('/addcategoryoffer',adminController.AddCategoryOffer);
+admin_route.get('/editproductoffer',adminController.loadEditproductOffer);
 
+admin_route.get('/editcoupon',adminController.loadEditCoupon);
+admin_route.post('/editcoupon',adminController.editCoupon);
+admin_route.post('/blockcoupon',adminController.blockCoupon);
+admin_route.post('/unblockcoupon',adminController.unBlockCoupon);
+
+
+admin_route.post('/activateproductoffer',adminController.activateProductoffer);
+admin_route.post('/deactivateproductoffer',adminController.deactivateProductoffer);
+
+admin_route.post('/deletecategoryoffer',adminController.deleteCategoryOffer);
+
+admin_route.post('/deleteproductoffer',adminController.deleteProductOffer);
+
+admin_route.post('/activatecategoryoffer',adminController.activateCategoryOffer);
+admin_route.post('/deactivatecategoryoffer',adminController.deactivateCategoryOffer);
+
+admin_route.get('/addcategoryoffer',adminController.loadAddCategoryOffer);
+admin_route.get('/offerslist',adminController.loadOffersList);
+admin_route.get('/editproductoffer',adminController.loadEditproductOffer);
+admin_route.post('/editproductoffer',adminController.editproductOffer);
+
+admin_route.get('/editcategoryoffer',adminController.loadEditCategoryOffer);
+admin_route.post('/editcategoryoffer',adminController.EditCategoryOffer);
 
 
 

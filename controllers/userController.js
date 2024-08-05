@@ -8,6 +8,9 @@ const jwt= require('jsonwebtoken')
 const Cart = require('../models/cartModel')
 const Order = require('../models/orderModel')
 const Wishlist = require('../models/wishlistModel')
+const Coupon = require('../models/couponModel')
+const Wallet = require('../models/walletModel')
+
 let generatedOtp 
 let userdetails ={}
 let editUserDetails ={}
@@ -85,6 +88,34 @@ const loadHome = async(req,res,next) => {
 };
 
 
+const loadWallet = async(req,res,next)=>{
+    try {
+        let user =0
+        let cartCount = 0;
+        let wallet ={}
+
+        if(req.session){
+            user = req.session.user_id
+            console.log(user);
+
+            const cart = await Cart.findOne({userId:user})
+
+            if (cart) {
+                cartCount = cart.products.reduce((total, item) => total + item.quantity, 0);
+            }
+            wallet = await Wallet.findOne({userId:user})
+            console.log(wallet);
+        }
+        if(user ==0){
+            res.redirect('/login')
+        }
+
+        res.render('wallet',{wallet,cartCount})        
+    } catch (error) {
+        next(error)
+    }
+}
+
 
 
 const sendVerifyMail =  async(name,email,otp,subject)=>{
@@ -157,11 +188,20 @@ const verifySignUp =  async(req,res,next)=>{
                 password:spassword,
                 is_blocked:0,
             });  
+            
 
             const userData = await user.save();
 
             if(userData){
                 req.session.user_id=userData;
+
+                const wallet = new Wallet({
+                    userId:userData._id,
+
+                })
+
+            await wallet.save()
+                
                 res.redirect('/')
             }else{
                 res.render('register',{message:"regisistarion failed"})
@@ -365,12 +405,22 @@ const loadUser = async (req,res,next) => {
                         items: { $push: "$items" },
                     },
                 },
+                {$sort: { createdAt: 1 }}
             ];
-
-
+           
             orders = await Order.aggregate(pipeline);
         }
-        res.render('dashboard', { user, userDetails, orders, cartCount });
+
+         
+        let coupons=[]
+
+        if(user){
+            coupons = await Coupon.find()
+        }
+
+
+        
+        res.render('dashboard', { user, userDetails, orders, cartCount,coupons });
     } catch (error) {
         next(error);
         
@@ -761,6 +811,7 @@ module.exports ={
     loadContactUs,
     loadUser,
     loadShop,
+    loadWallet,
     
     loadAccountDetails,
     loadUpdateUserPassword,

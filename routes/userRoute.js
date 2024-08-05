@@ -40,6 +40,8 @@ const cartController = require('../controllers/cartController')
 const productController = require('../controllers/productController')
 const checkoutController = require('../controllers/checkoutController')
 const wishlistController = require('../controllers/wishlistController')
+const paymentController = require('../controllers/paymentController');
+
 
 
 
@@ -49,6 +51,8 @@ user_route.get('/register',auth.isLogout,userController.loadRegister)
 user_route.get('/login',auth.isNotAdmin,auth.isLogout,userController.loadLogin)
 user_route.get('/',auth.isNotAdmin,userController.loadHome)
 user_route.get('/shop',userController.loadShop)
+user_route.get('/wallet',userController.loadWallet)
+
 
 
 
@@ -85,6 +89,7 @@ user_route.get('/recentorders',auth.isLogin,checkoutController.recentOrders)
 user_route.get('/accountdetails',auth.isLogin,userController.loadAccountDetails)
 user_route.get('/updateuserpassword',auth.isLogin,userController.loadUpdateUserPassword)
 user_route.post('/updateuserpassword',auth.isLogin,userController.updateUserPassword)
+user_route.get('/ordersuccesss',auth.isLogin,checkoutController.loadOrderSuccess)
 user_route.post('/updateuserdetails',auth.isLogin,userController.editUser)
 
 
@@ -107,6 +112,15 @@ user_route.get('/editaddress',auth.isLogin,checkoutController.loadEditAddress)
 user_route.post('/editaddress',auth.isLogin,checkoutController.editAddress)
 user_route.post('/addtocart',auth.isLogin,cartController.addToCart)
 user_route.post('/cart/removefromcart',auth.isLogin,cartController.removeFromCart)
+user_route.post('/returnproduct',auth.isLogin,checkoutController.returnProduct)
+
+
+
+
+//razorpay
+user_route.post('/createOrder', paymentController.createOrder);
+user_route.post('/verifyPayment', paymentController.verifyPayment);
+
 
 
 

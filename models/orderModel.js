@@ -37,7 +37,7 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod:{
     type: String,
-    default:'Pending'
+    default:'offline'
   }, 
   shippingPrice:{
     type:Number,
@@ -64,6 +64,14 @@ const orderSchema = new mongoose.Schema({
   applyedDiscount:{
     type:Number,
     default:0
+  },
+  onlineTransactionId:{
+    type:String,
+    default:""
+  },
+  expectedDeliveryDate:{
+    type:Date,
+    required:true
   }
 });
 

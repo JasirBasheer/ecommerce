@@ -173,6 +173,34 @@
 
 									</p>
                                     </div><!-- End .product-content -->
+                                    <% if (orderedDetails.orderStatus== "Delivered") { %>
+                                        
+                                    <% if (orderedDetails.expectedDeliveryDate) { %>
+                                        <% 
+                                            const currentDate = new Date();
+                                            const expectedDate = new Date(orderedDetails.expectedDeliveryDate);
+                                            const threeDaysBeforeExpected = new Date(expectedDate);
+                                            threeDaysBeforeExpected.setDate(expectedDate.getDate() - 3);
+                                    
+                                            if (currentDate <= threeDaysBeforeExpected) { 
+                                        %>
+                                        <div style="margin-bottom: 11px;">
+    <a  
+       onclick="handleReturnProduct('<%= orderedDetails._id %>', '<%= product._id %>')" 
+       style="text-decoration: underline;cursor: pointer;">
+       return product?
+    </a>
+    <br>
+</div>
+
+                                                                            <% } else { %>
+                                            <p>The current date is greater than the expected delivery date minus 3 days.</p>
+                                        <% } %>
+                                    <% } %>
+                                    <% } %>
+
+                                    
+                               
 
                                     
 
@@ -225,7 +253,7 @@
                                 </div><!-- End .product-details -->
                             </div><!-- End .col-md-6 -->
                         </div><!-- End .row -->
-                    </div><!-- End .product-details-top -->
+                    </div>
 
                     <div class="product-details-tab">
                         <ul class="nav nav-pills justify-content-center" role="tablist">
@@ -783,6 +811,55 @@
             window.location.href='/login'
         }
     }
+
+
+    function handleReturnProduct(orderId, productId) {
+        Swal.fire({
+    title: "Are You Sure",
+    icon: "warning",
+    showCancelButton: true, 
+    confirmButtonText: 'Yes, Return this product',
+    cancelButtonText: 'No'
+}).then((result) => {
+
+    if (result.isConfirmed) {
+        fetch('/returnproduct',{
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({orderId,productId})
+        }).then(response =>response.json())
+        .then(data=>{
+            if(data.success){
+
+                Swal.fire({
+    title: "The prodcut amount will be credited to your wallet within 3 working days",
+    icon: "success",
+    confirmButtonText: 'Okey',
+}).then((result) => {
+
+    if (result.isConfirmed) {
+        window.location.href ="/orderedlist?id="+ orderId
+
+    }
+})
+
+            }
+        })
+
+    console.log('Order ID:', orderId);
+    console.log('Product ID:', productId);
+    
+    }
+});
+
+        
+
+       
+    
+}
+
 
     </script>
 

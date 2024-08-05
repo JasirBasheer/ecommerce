@@ -4,6 +4,8 @@ const authRoute = express.Router();
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const User = require('../models/userModel');
+const Wallet = require('../models/walletModel')
+
 
 let userProfile;
 
@@ -42,8 +44,14 @@ passport.use(
                 email: profile.emails[0].value,
                 is_blocked: 0,
             });
-            await user.save();
+            const userData = await user.save();
+            if(userData){
+              const wallet = new Wallet({
+                userId:userData._id,
+            })
+            await wallet.save()
             done(null, user);
+            }
         } else if (user.is_blocked === 0) {
             done(null, user);
         } else {

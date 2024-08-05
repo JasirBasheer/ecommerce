@@ -55,7 +55,7 @@
       integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
       crossorigin="anonymous"
     />
-    <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css">
+    <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.css" rel="stylesheet"/>
     <style>      
@@ -158,29 +158,6 @@
                 </ul>
               </nav>
             </div>
-
-            <!-- <div class="header-right">
-              <div class="header-search">
-                <a href="#" class="search-toggle" role="button" title="Search"
-                  ><i class="icon-search"></i
-                ></a>
-                <form action="#" method="get">
-                  <div class="header-search-wrapper">
-                    <label for="q" class="sr-only">Search</label>
-                    <input
-                      type="search"
-                      class="form-control"
-                      name="q"
-                      id="q"
-                      placeholder="Search in..."
-                      required
-                    />
-                  </div>
-                  
-                </form>
-              </div>
-              
-            </div> -->
           </div>
         </div>
       </header>
@@ -192,272 +169,119 @@
               <thead class="bg-dark text-light">
                 <tr>
                   <th style="font-size: 20px;" scope="col" class="sorting" data-sort="name">Coupon Name</th>
-                  <th style="font-size: 20px;" scope="col">Discount(%)</th>  
+                  <th style="font-size: 20px;" scope="col">Discount</th>  
                   <th style="font-size: 20px;" scope="col">Min Purchase Amount</th>  
-                  <th style="font-size: 20px;" scope="col">Max Applicable Amount</th>
+                  <th style="font-size: 20px;" scope="col">Limit</th>
                   <th style="font-size: 20px;" scope="col">Expiry Date</th>
                   <th style="font-size: 20px;" scope="col">Status</th>
                 </tr>
               </thead>
               <tbody> 
-
-                  <% if (typeof coupons !="undefined") { %>
-                    <% for( let i = 0; i < coupons.length; i++ ) { %>
-                    
-
-
-                   
+                <% if (typeof coupons !="undefined") { %>
+                    <% for(let i = 0; i < coupons.length; i++) { %>
                       <tr style="font-size: medium;">
                         <td data-title="Name"><%= coupons[i].couponName %></td>   
-                        <td data-title="Name">%<%= coupons[i].discountPercentage %></td> 
+                        <td data-title="Name"><%= coupons[i].discount %></td> 
                         <td data-title="Name"><%= coupons[i].minimumPurchase %></td> 
                         <td data-title="Name"><%= coupons[i].limit %></td> 
-                        <td data-title="Name"><%= coupons[i].expiryDate %></td> 
+                        <td data-title="Name">
+                          <% 
+                            var date = new Date(coupons[i].expiryDate);
+                            var day = date.getDate();
+                            var month = date.toLocaleString('default', { month: 'short' });
+                            var year = date.getFullYear();
+                          %>
+                          <%= day + ' ' + month + ' ' + year %>
+                        </td> 
                         <td data-title="Actions">                          
-                              <button type="button" class="btn btn-success" onclick="active('<%= coupons[i]._id %>' )">Deactivate</button>
-                              <button type="button" class="btn btn-danger" onclick="active('<%= coupons[i]._id %>')">Active</button>
-                    
-                        </td>
+                          <% if (coupons[i].isActive == false) { %>
+                              <button id="unblock-btn-<%= coupons[i]._id %>" type="button" class="btn" style="border-radius: 5px; background-color: rgb(25, 135, 84);" onclick="unblockCoupon('<%= coupons[i]._id %>')">Unblock</button>
+                              <button id="block-btn-<%= coupons[i]._id %>" type="button" class="btn" style="border-radius: 5px; background-color: rgb(220,53,69);" onclick="blockCoupon('<%= coupons[i]._id %>')" disabled>Block</button>
+                          <% } else { %>
+                              <button id="unblock-btn-<%= coupons[i]._id %>" type="button" class="btn" style="border-radius: 5px; background-color: rgb(25, 135, 84);" onclick="unblockCoupon('<%= coupons[i]._id %>')" disabled>Unblock</button>
+                              <button id="block-btn-<%= coupons[i]._id %>" type="button" class="btn" style="border-radius: 5px; background-color: rgb(220,53,69);" onclick="blockCoupon('<%= coupons[i]._id %>')">Block</button>
+                          <% } %>                          
+                      </td>
+                      
                       </tr>
                     <% } %>
-
-                  <% }else{ %>
-
-            
-                        <tr>
-                          <td colspan="5">Coupons Not Found</td>
-                        </tr>
-                  <% } %>
-
-                    
+                  <% } else { %>
+                    <tr>
+                      <td colspan="6" class="text-center">No coupons found.</td>
+                    </tr>
+                <% } %>
               </tbody>
             </table>
           </div>
         </div>
       </main>
-
-      <footer class="footer">
-        <!-- <div class="footer-middle">
-          <div class="container">
-            <div class="row">
-              <div class="col-sm-6 col-lg-3">
-                <div class="widget widget-about">
-                  
-                  <p>
-                    Praesent dapibus, neque id cursus ucibus, tortor neque
-                    egestas augue, eu vulputate magna eros eu erat.
-                  </p>
-
-                  <div class="social-icons">
-                    <a
-                      href="#"
-                      class="social-icon"
-                      target="_blank"
-                      title="Facebook"
-                      ><i class="icon-facebook-f"></i
-                    ></a>
-                    <a
-                      href="#"
-                      class="social-icon"
-                      target="_blank"
-                      title="Twitter"
-                      ><i class="icon-twitter"></i
-                    ></a>
-                    <a
-                      href="#"
-                      class="social-icon"
-                      target="_blank"
-                      title="Instagram"
-                      ><i class="icon-instagram"></i
-                    ></a>
-                    <a
-                      href="#"
-                      class="social-icon"
-                      target="_blank"
-                      title="Youtube"
-                      ><i class="icon-youtube"></i
-                    ></a>
-                    <a
-                      href="#"
-                      class="social-icon"
-                      target="_blank"
-                      title="Pinterest"
-                      ><i class="icon-pinterest"></i
-                    ></a>
-                  </div>
-                  
-                </div>
-                
-              </div>
-              
-
-              <div class="col-sm-6 col-lg-3">
-                <div class="widget">
-                  <h4 class="widget-title">Useful Links</h4>
-                  
-
-                  <ul class="widget-list">
-                    <li><a href="about.html">About </a></li>
-                    <li><a href="#">How to shop on </a></li>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="contact.html">Contact us</a></li>
-                    <li><a href="login.html">Log in</a></li>
-                  </ul>
-                  
-                </div>
-                
-              </div>
-              
-
-              <div class="col-sm-6 col-lg-3">
-                <div class="widget">
-                  <h4 class="widget-title">Customer Service</h4>
-                  
-
-                  <ul class="widget-list">
-                    <li><a href="#">Payment Methods</a></li>
-                    <li><a href="#">Money-back guarantee!</a></li>
-                    <li><a href="#">Returns</a></li>
-                    <li><a href="#">Shipping</a></li>
-                    <li><a href="#">Terms and conditions</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                  </ul>
-                  
-                </div>
-                
-              </div>
-              
-
-              <div class="col-sm-6 col-lg-3">
-                <div class="widget">
-                  <h4 class="widget-title">My Account</h4>
-                  
-
-                  <ul class="widget-list">
-                    <li><a href="#">Sign In</a></li>
-                    <li><a href="cart.html">View Cart</a></li>
-                    <li><a href="#">My Wishlist</a></li>
-                    <li><a href="#">Track My Order</a></li>
-                    <li><a href="#">Help</a></li>
-                  </ul>
-                  
-                </div>
-                
-              </div>
-              
-            </div>
-            
-          </div>
-          
-        </div> -->
-        
-
-        <div class="footer-bottom">
-          <div class="container">
-            <p class="footer-copyright">
-              Copyright © <script>document.write(new Date().getFullYear());</script> Wood Street Store. All Rights Reserved.
-            </p>
-            
-            <!-- <figure class="footer-payments">
-              <img
-                src="assets/images/payments.png"
-                alt="Payment methods"
-                width="272"
-                height="20"
-              />
-            </figure> -->
-            
-          </div>
-          
-        </div>
-        
-      </footer>
     </div>
-    <button id="scroll-top" style="border-radius: 50%;background-color: rgba(255, 255, 255, 0.294);" title="Back to Top">
-      <i class="icon-arrow-up"></i>
-    </button>
 
-    <div class="mobile-menu-overlay"></div>
-
-    <div class="mobile-menu-container">
-      <div class="mobile-menu-wrapper">
-        <span class="mobile-menu-close"><i class="icon-close"></i></span>
-
-        <!-- <form action="#" method="get" class="mobile-search">
-          <label for="mobile-search" class="sr-only">Search</label>
-          <input
-            type="search"
-            class="form-control"
-            name="mobile-search"
-            id="mobile-search"
-            placeholder="Search in..."
-            required
-          />
-          <button class="btn btn-primary" type="submit">
-            <i class="icon-search"></i>
-          </button>
-        </form> -->
-
-        <nav class="mobile-nav">
-          <ul class="mobile-menu">
-            <li class="active">
-              <a href="/admin/">Home</a>
-            </li>
-            <li>
-              <a href="">Categories</a>
-              <ul>
-                <li><a href="/admin/categorylist">Category Lists</a></li>
-                <li><a href="/admin/addcategory">Add New Category</a></li>
-              </ul>
-            </li>
-            <li>
-              <a href="" class="sf-with-ul">Products</a>
-              <ul>
-                <li><a href="/admin/productslist">Product Lists</a></li>
-                <li><a href="/admin/addproduct">Add New Product</a></li>
-              </ul>
-            </li>
-            <li>
-              <a href="/admin/userslist">Users</a>
-            </li>
-            <li>
-              <a href="/admin/orderslist">Orders</a>
-            </li>
-          </ul>
-        </nav>
-
-        <div class="social-icons">
-          <a href="#" class="social-icon" target="_blank" title="Facebook"
-            ><i class="icon-facebook-f"></i
-          ></a>
-          <a href="#" class="social-icon" target="_blank" title="Twitter"
-            ><i class="icon-twitter"></i
-          ></a>
-          <a href="#" class="social-icon" target="_blank" title="Instagram"
-            ><i class="icon-instagram"></i
-          ></a>
-          <a href="#" class="social-icon" target="_blank" title="Youtube"
-            ><i class="icon-youtube"></i
-          ></a>
-        </div>
-      </div>
-    </div>
-   
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/jquery.hoverIntent.min.js"></script>
-    <script src="assets/js/jquery.waypoints.min.js"></script>
-    <script src="assets/js/superfish.min.js"></script>
-    <script src="assets/js/owl.carousel.min.js"></script>
-    <script src="assets/js/main.js"></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
-      crossorigin="anonymous"
-    ></script>
-
-    <script src="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     
-  </body>
+    
+    
+    
+    <script>
+      function unblockCoupon(couponId){
+        console.log(couponId);
 
+
+        fetch('/admin/unblockcoupon',{
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json'
+          },
+          body:JSON.stringify({couponId})
+        }).then(response => response.json())
+        .then(data=>{
+          if(data.success){
+            const unblockButton = document.getElementById(`unblock-btn-${couponId}`);
+             const blockButton = document.getElementById(`block-btn-${couponId}`);
+      
+             unblockButton.disabled = true;
+            blockButton.disabled = false;
+    
+    
+    
+    }else{
+            alert(data.error)
+          }
+        })
+      
+      }
+
+      function blockCoupon(couponId){
+        console.log(couponId);
+
+        fetch('/admin/blockcoupon',{
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json'
+          },
+          body:JSON.stringify({couponId})
+        }).then(response => response.json())
+        .then(data=>{
+          if(data.success){
+            const blockButton = document.getElementById(`block-btn-${couponId}`);
+            const unblockButton = document.getElementById(`unblock-btn-${couponId}`);
+
+            blockButton.disabled = true;
+            unblockButton.disabled = false;
+    
+    }else{
+            alert(data.error)
+          }        })
+      }
+
+
+
+
+
+      $(document).ready(function() {
+        $('#myTable').DataTable();
+      });
+    </script>
+  </body>
 </html>

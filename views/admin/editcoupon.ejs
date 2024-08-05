@@ -162,7 +162,7 @@
         <div
           class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17"
           style="
-            background-image: url('');
+            background-image: url('assets/images/demos/demo-9/slider/slide-1.jpg');
           "
         >
           <div class="container">
@@ -178,7 +178,7 @@
                       role="tab"
                       aria-controls="signin-2"
                       aria-selected="false"
-                      >Add New Coupon</a
+                      >Edit Coupon</a
                     >
                   </li>
                 </ul>
@@ -190,7 +190,7 @@
                     aria-labelledby="signin-tab-2"
                   >
                     <form id="addCoupon">
-                      <% if(typeof message !== 'undefined'){ %>
+                       <% if(typeof message !== 'undefined'){ %>
                       <p style="color: red; text-align: center">
                         <%= message %>
                       </p>
@@ -202,23 +202,26 @@
                           class="form-control"
                           id="couponName"
                           name="couponName"
+                          value="<%= coupon.couponName %>"
                           required
                         />
                       </div>
                       <span id="couponName-error" style="color: red"></span>
                       <div class="form-group">
                         <label for="singin-email-2"
-                          >Discount Amount *</label
+                          >Discount *</label
                         >
                         <input
                           type="number"
                           class="form-control"
                           id="discount"
                           name="discount"
+                          value="<%= coupon.discount %>"
                           required
                         />
                       </div>
                       <span id="percentage-error" style="color: red"></span>
+                      <input type="hidden" name="id" id="couponid" value="<%= coupon._id %>">
 
                       <div class="form-group">
                         <label for="singin-email-2"
@@ -229,19 +232,22 @@
                           class="form-control"
                           id="minimumPur"
                           name="minimumPur"
+                          value="<%= coupon.minimumPurchase %>"
+
                           required
                         />
                       </div>
                       <span id="minimum-error" style="color: red"></span>
                       <div class="form-group">
                         <label for="singin-email-2"
-                          >Maximum  Applicable Persons*</label
+                          >Maximum Discount Per Person *</label
                         >
                         <input
                           type="number"
                           class="form-control"
                           id="maximum"
                           name="maximum"
+                          value="<%= coupon.limit %>"
                           required
                         />
                       </div>
@@ -254,6 +260,7 @@
                           class="form-control"
                           id="expiryDate"
                           name="expiryDate"
+                          value="<%= new Date(coupon.expiryDate).toISOString().substring(0, 10) %>"
                           required
                         />
                       </div>
@@ -512,6 +519,7 @@
     const minimumPur = document.getElementById('minimumPur').value;
     const maximum = document.getElementById('maximum').value;
     const expiryDate = document.getElementById('expiryDate').value;
+    const id = document.getElementById('couponid').value;
 
     let valid = true;
     if (!couponName) {
@@ -551,10 +559,10 @@
         discount,
         minimumPur,
         maximum,
-        expiryDate
+        expiryDate,id
       };
 
-      fetch('/admin/addcoupon', {
+      fetch('/admin/editcoupon', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -563,22 +571,22 @@
       })
       .then(response => response.json())
       .then(data => {
+        console.log(data);
         if (data.success) {
           Swal.fire({
-                title: "Coupon Successfully Added",
-                icon: "success",
-                timer: 2000,
-               timerProgressBar: true,
-               }).then(()=>{
-                 window.location.href="/admin/couponslist"
-                 }) 
+        title: "Coupon Successfully edited",
+        icon: "success",
+        timer: 2000,
+        timerProgressBar: true,
+      }).then(()=>{
+        window.location.href="/admin/couponslist"
+      }) 
         } else {
 
           Swal.fire({
-               title: `${data.message}`,
-              icon: "warning",
-              
-              })
+        title: `${data.message}`,
+        icon: "warining",
+      })
         }
       })
       .catch(error => {
