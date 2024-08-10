@@ -159,9 +159,8 @@
 
                             <div class="products mb-3">
                                 <div class="row justify-content-center">
-                                  
 
-                                    
+                                    <% if (products.length != 0) { %>                                    
 
                                     <% for (let i = 0; i < products.length; i++) { %>
                                         <% if (products[i].is_blocked==false) { %>
@@ -252,6 +251,8 @@
                                 </nav>
                                 <% } %>
 
+
+
                 		</div><!-- End .col-lg-9 -->
                 		<aside class="col-lg-3 order-lg-first">
                 			<div class="sidebar sidebar-shop">
@@ -308,6 +309,14 @@
         						
                 			</div><!-- End .sidebar sidebar-shop -->
                 		</aside><!-- End .col-lg-3 -->
+
+                        <% }else{ %>
+                            <div style="display:flex;text-align: end;justify-content: center;align-items: center;margin-top: 11em;margin-bottom: 11em;">
+                                <h5>No products available</h5>
+
+                            </div>
+                            
+                            <% } %>
                 	</div><!-- End .row -->
                 </div><!-- End .container -->
             </div><!-- End .page-content -->

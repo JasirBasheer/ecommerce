@@ -58,36 +58,38 @@
     <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.css" rel="stylesheet"/>
-  <style>
-    table {
-        border-collapse: collapse;
-    }
-    td, th {
-        border: .5px solid rgb(145, 143, 143);
-        padding: 10px;
-    }
-  </style>
-  <style>      
-    .dataTables_wrapper .sorting:after,
-    .dataTables_wrapper .sorting_asc:after,
-    .dataTables_wrapper .sorting_desc:after {
-      font-family: "Font Awesome 5 Free";
-      font-weight: 900;
-      font-size: 12px;
-      display: inline-block;
-      margin-left: 5px;
-      content: "\f0dc";
-    }
-  .dataTables_wrapper .sorting_asc:after {
-    content: "\f0de";
-  }
-  .dataTables_wrapper .sorting_desc:after {
-    content: "\f0dd";
-  }
-</style>
+    <link rel="stylesheet" href="custom-assets/css/app.min.css">
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="custom-assets/css/style.css">
+    <link rel="stylesheet" href="custom-assets/css/components.css">
+    <!-- Custom style CSS -->
+    <link rel="stylesheet" href="custom-assets/css/custom.css">
+
 
   </head>
+<style>
+  th{
+    text-align: center;
+  }
+  td{
+    text-align: center;
+  }
+  .nav-tabs .nav-item .nav-link {
+    color: #191e43;
+}
+.btn-outline-primary, .btn-outline-primary.disabled {
+    border-color: #CC9966;
+    color: #CC9966;
+}
+.btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active, .btn-outline-primary.disabled:hover, .btn-outline-primary.disabled:focus, .btn-outline-primary.disabled:active {
+    background-color: #CC9966 !important;
+    color: #fff;
+}
+.custom-swal-popup .swal2-html-container {
+    font-size: 17px;
+}
 
+</style>
   <body>
     <div class="page-wrapper">
       <header class="header">
@@ -188,93 +190,328 @@
       </header>
 
       <main class="main">
-        <div class="container">
-          <div class="table-responsive" id="no-more-tables">
-            <table class="table table-striped bg-white" id="myTable">
-              <thead class="bg-dark text-light">
-                <tr>
-                  <th style="font-size: 20px; text-align: center;" scope="col" class="sorting">Date</th>
-                  <th style="font-size: 20px; text-align: center;" scope="col" class="sorting">Order Id</th>
-                  <th style="font-size: 20px; text-align: center;" scope="col" class="sorting">Customer</th>
-                  <th style="font-size: 20px; text-align: center;" scope="col" class="sorting">Address</th>
-                  <th style="font-size: 20px; text-align: center;" scope="col" class="sorting">Total Amount</th>
-                  <th style="font-size: 20px; text-align: center; padding-inline: 30px;" scope="col" class="sorting">Order Status</th>
-                  <th style="font-size: 20px; text-align: center;" scope="col" class="sorting">Payment</th>
-                  <th style="font-size: 20px; text-align: center;" scope="col" class="sorting">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% if (orders.length > 0) { %>
-                  <% orders.forEach(order => { %>
-                    <tr style="font-size: medium; text-align: center;">
-                      <td data-title="Date">
-                        <%= new Date(order.orderDetails.createdAt).toLocaleString('en-US', { 
-                            weekday: 'short', 
-                            month: 'short', 
-                            day: 'numeric', 
-                            year: 'numeric', 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                        }) %>
-                    </td>                      <td data-title="OrderId"><%= order.orderDetails._id %></td>
-                      <td data-title="Customer"><%= order.name %></td>
 
-=                          <td data-title="Address">
-                            <%= order.orderDetails.addresss.fullName %>
-                            <br>
-                            <%= order.orderDetails.addresss.number %>
-                            <br>
-                            <%= order.orderDetails.addresss.house %>
-                            <br>
-                            <%= order.orderDetails.addresss.pincode %>
-                          </td>
-                      
-                      
+          
 
-                     
-                        <% if (order.orderDetails.totalPrice!==0 ) { %>
-                          <% if (order.orderDetails.orderStatus!=="Delivered" && order.orderDetails.orderStatus!=="Returned" ) { %>
-                          <td data-title="TotalPrice">₹ <%= order.orderDetails.totalPrice %></td>
-                          <td data-title="OrderStatuss">
-                          <p id="orderMainStatus<%= order.orderDetails._id %>"><%= order.orderDetails.orderStatus %></p>
-                          <select class="form-select form-select-lg" name="orderStatus" id="orderStatus<%= order.orderDetails._id %>" onchange="updateOrderStatus('<%= order.orderDetails._id %>')">
-                            <option value=""></option>
-                            <option value="Pending" <%= order.orderDetails.orderStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
-                            <option value="Processing" <%= order.orderDetails.orderStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
-                            <option value="Shipped" <%= order.orderDetails.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                            <option value="Delivered" <%= order.orderDetails.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                          </select>
-                          <% }else{ %>
-                            <td data-title="TotalPrice" >₹ <%= order.orderDetails.totalPrice %></td>
-                            <td data-title="OrderStatuss">
-                            <p >Delivered</p>
+
+
+
+
+
+
+
+          <div class=""style="padding: 3em 6em;">
+            <div class="col-12 ">
+              <div class="card">
+                <div class="card-header">
+                  <h4>ORDERS</h4>
+                </div>
+                <div class="card-body">
+                  <ul class="nav nav-tabs" id="myTab2" role="tablist">
+                    <li class="nav-item">
+                      <a class="nav-link active" id="home-tab2" data-toggle="tab" href="#home2" role="tab" aria-controls="home" aria-selected="true">Recent Orders</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" id="profile-tab2" data-toggle="tab" href="#profile2" role="tab" aria-controls="profile" aria-selected="false">All Orders</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" id="contact-tab2" data-toggle="tab" href="#contact2" role="tab" aria-controls="contact" aria-selected="false">Retrun</a>
+                    </li>
+                  </ul>
+
+                  <div class="tab-content tab-bordered" id="myTab3Content">
+                    <div class="tab-pane fade active show" id="home2" role="tabpanel" aria-labelledby="home-tab2">
+                      <div class="row">
+                        <div class="col-12">
                           
-                            <% } %>
-                        <% } else if(order.orderDetails.orderStatus== "Returned"){ %>
-       <td data-title="TotalPrice" style="color: rgba(150, 25, 112, 0.899);text-decoration: line-through;">₹ <%= order.orderDetails.totalPrice %></td>
+                                <table class="table table-striped">
+                                  <tbody>
+                                    <tr>
+                                    
+                                    <th>Customer</th>
+                                    <th>Address</th>
+                                    <th>Date</th>
+                                    <th>Total Amount</th>
+                                    <th>Order Status</th>
+                                    <th>Payment</th>
+                                    <th>Action</th>
+                                  </tr>
 
-                            <td data-title="OrderStatuss">
-                            <p style="color: rgba(150, 25, 112, 0.899)">Returned</p>
-                            <%}else{ %>
-                          <td data-title="TotalPrice" style="color: red;text-decoration: line-through;">₹ <%= order.orderDetails.totalPrice %></td>
-                          <td data-title="OrderStatuss">
-                          <p style="color: red;">Cancelled</p>
-                        <% } %>
-                        
-                      </td>
-                      <td data-title="Payment"><%= order.orderDetails.paymentMethod %></td>
-                      <td data-title="ViewOrders"><a href="/admin/orderview?id=<%= order.orderDetails._id %>">View Details</a></td>
-                    </tr>
-                  <% }) %>
-                <% } else { %>
-                  <tr>
-                    <td colspan="8" style="text-align: center;">Orders Not Found</td>
-                  </tr>
-                <% } %>
-              </tbody>
-            </table>
+                                  <% if (orders.length > 0) { %>
+                                    <% orders.forEach(order => { %>
+                                      <% if (order.orderStatus =="Placed") { %>
+                                       
+                          
+                                  <tr>
+                               
+
+                                   
+                                    <td><%=order.customer %></td>
+                                    <td class="text-truncate">
+                                      <%=order.addresss.fullName %>
+                                      <br>
+                                        <%=order.addresss.number %>
+                                       <br>
+                                      <%=order.addresss.city %>,
+                                      <%=order.addresss.state %>,
+                                      <br>
+                                      <%=order.addresss.pincode %>
+                                     
+                                    </td>
+                                    <td class="align-middle">
+                                      <%= new Date(order.createdAt).toLocaleString('en-US', { 
+                                        weekday: 'short', 
+                                        month: 'short', 
+                                        day: 'numeric', 
+                                        year: 'numeric', 
+                           
+                                    }) %>
+                                    </td>
+
+                                    <td> 
+                                      ₹ <%=order.totalPrice %>
+
+                                     
+                                  </td>
+                                    <td>
+                                      
+                                      <select class="form-select form-select-lg" name="orderStatus" id="orderStatus<%= order._id %>" onchange="updateOrderStatus('<%= order._id %>')">
+                                      <option value="Placed" <%= order.orderStatus === 'Placed' ? 'selected' : '' %>>Placed</option>
+                                      <option value="Processing" <%= order.orderStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
+                                      <option value="Shipped" <%= order.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                      <option value="Delivered" <%= order.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                    </select>
+                                  </td>
+                                    <td>
+                                      <% if (order.paymentMethod =="COD") { %>
+                                      <!-- <div class="badge bg-secondary">COD</div> -->
+                                       <p>COD</p>
+                                      <% }else if(order.paymentMethod =="online"){ %>
+                                       <p>ONLINE</p>
+                                      <% }else{ %>
+                                        <p>COD</p>
+                                        <% } %>
+
+                                    </td>
+                                    <td><a href="/admin/orderview?id=<%= order._id %>" class="btn btn-outline-primary">Detail</a></td>
+                                  </tr>
+                                  <% } %>
+                                  <% }) %>
+                                  <% } %>
+                                  
+                                </tbody></table>
+                              
+                        </div>
+                      </div>
+
+
+                    </div>
+                    <div class="tab-pane fade" id="profile2" role="tabpanel" aria-labelledby="profile-tab2">
+                      <div class="row">
+                        <div class="col-12">
+                          
+                                <table class="table table-striped">
+                                  <tbody>
+                                    <tr>
+                                    
+                                    <th>Customer</th>
+                                    <th>Address</th>
+                                    <th>Date</th>
+                                    <th>Total Amount</th>
+                                    <th>Order Status</th>
+                                    <th>Payment</th>
+                                    <th>Action</th>
+                                  </tr>
+
+                                  <% if (orders.length > 0) { %>
+                                    <% orders.forEach(order => { %>
+                                       
+                          
+                                  <tr>
+                               
+
+                                   
+                                    <td><%=order.customer %></td>
+                                    <td class="text-truncate">
+                                      <%=order.addresss.fullName %>
+                                      <br>
+                                        <%=order.addresss.number %>
+                                       <br>
+                                      <%=order.addresss.city %>,
+                                      <%=order.addresss.state %>,
+                                      <br>
+                                      <%=order.addresss.pincode %>
+                                     
+                                    </td>
+                                    <td class="align-middle">
+                                      <%= new Date(order.createdAt).toLocaleString('en-US', { 
+                                        weekday: 'short', 
+                                        month: 'short', 
+                                        day: 'numeric', 
+                                        year: 'numeric', 
+                           
+                                    }) %>
+                                    </td>
+
+                                    <td> 
+                                      <% if (order.orderStatus=="Returned" || order.orderStatus=="Cancelled") { %>
+                                       
+                                        <p style="text-decoration: line-through;">₹ <%=order.totalPrice %></p>
+                                      <% }else{ %>
+                                        <p >₹ <%=order.totalPrice %></p>
+                                        
+                                        <% } %>
+
+
+                                  </td>
+                                  <td>
+                                    <% if (order.orderStatus=="Delivered" || order.orderStatus=="Returned" || order.orderStatus=="Cancelled") { %>
+                                      <% if (order.orderStatus=="Delivered" ) { %>
+                                        <p style="color: green;"><%=order.orderStatus %></p>
+                                      <% }else{ %>
+                                        <p style="color: rgba(145, 14, 14, 0.756);text-decoration: line-through;"><%=order.orderStatus %></p>
+                                        <% } %>
+                                    <% }else{ %>
+
+                                      <select class="form-select form-select-lg" name="orderStatus" id="orderStatus<%= order._id %>" onchange="updateOrderStatus('<%= order._id %>')">
+                                        <option value="Placed" <%= order.orderStatus === 'Placed' ? 'selected' : '' %>>Placed</option>
+                                        <option value="Processing" <%= order.orderStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
+                                        <option value="Shipped" <%= order.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                        <option value="Delivered" <%= order.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                      </select>
+                                      <% } %>
+                                   
+                                </td>
+                                    <td>
+                                      <% if (order.paymentMethod =="COD") { %>
+                                      <!-- <div class="badge bg-secondary">COD</div> -->
+                                       <p>COD</p>
+                                      <% }else if(order.paymentMethod =="online"){ %>
+                                       <p>ONLINE</p>
+                                      <% }else{ %>
+                                        <p>COD</p>
+                                        <% } %>
+
+                                    </td>
+                                    <td><a href="/admin/orderview?id=<%= order._id %>" class="btn btn-outline-primary">Detail</a></td>
+                                  </tr>
+                                  <% }) %>
+                                  <% } %>
+                                  
+                                </tbody>
+                              </table>
+                              
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane fade" id="contact2" role="tabpanel" aria-labelledby="contact-tab2">
+                     
+                      <div class="row">
+                        <div class="col-12">
+                          
+                                <table class="table table-striped">
+                                  <tbody>
+                                    <tr>
+                                    
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Purchased Price</th>
+                                    <th>Refundable Amount</th>
+                                    <th>Action</th>
+                                  </tr>
+
+                                  <% if (returnProducts.length > 0) { %>
+                                    <% returnProducts.forEach(product => { %>  
+                                      <% product.items.forEach(item => { %>
+                                        <% if (item.orderStatus == "Return-Pending" || item.orderStatus == "Returned") { %>
+                                          <tr>
+                                            <td><%= product.customer %></td>
+                                            <td class="align-middle">
+                                              <%= new Date(product.createdAt).toLocaleString('en-US', { 
+                                                weekday: 'short', 
+                                                month: 'short', 
+                                                day: 'numeric', 
+                                                year: 'numeric' 
+                                              }) %>
+                                            </td>
+                                            <td class="text-truncate">
+                                              <%= item.productId %>         
+                                            </td>
+                                            <td>
+                                              <%= item.quantity %>         
+                                            </td>
+                                            <td>
+                                              ₹ <%= item.productPrice %>         
+                                            </td>
+                                            <td>
+                                              ₹ <%= item.productPrice * item.quantity %>         
+                                            </td>
+                                            <td>
+                                              <% if (item.orderStatus =="Returned") { %>
+                                                <div class="badge bg-danger"
+                                                style="cursor: pointer;">
+                                             Approved
+                                           </div>
+                                              <% }else{ %>
+                                              <div class="badge badge-success" 
+                                                   onclick="handleApproveReturn('<%= product._id %>','<%= item.productId %>')" 
+                                                   style="cursor: pointer;"
+                                                   id="approved"
+                                                   >
+                                                Approve
+                                              </div>
+                                              <% } %>
+
+                                            </td>
+                                          </tr>
+                                        <% } %>
+                                      <% }); %>
+                                    <% }) %>
+                                  <% } %>
+
+                                </tbody>
+                              </table>
+                              
+                        </div>
+                      </div>
+
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          <div class="table-responsive" id="no-more-tables">
+           
+          </div>
       </main>
 
       <!-- <footer class="footer">
@@ -517,6 +754,50 @@
 }
 
 
+
+
+
+
+function handleApproveReturn(orderId, productId) {
+    Swal.fire({
+        text: "Do you want Approve this.",
+        icon: "warning",
+        customClass: {
+            popup: 'custom-swal-popup'
+        },
+         showConfirmButton: true,
+        confirmButtonText: 'Approve',
+              confirmButtonColor: '#54CA68'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/admin/approvereturnproduct', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ orderId, productId }) 
+            })
+            .then(response => response.json()) 
+            .then(data => {
+               
+              if(data.success){
+                let approvedElement = document.getElementById('approved');
+                approvedElement.textContent = "Approved";
+                approvedElement.classList.add('badge', 'bg-danger');
+
+              }
+
+              })
+            .catch(error => {
+                console.error('Error:', error);
+
+              });
+        }
+    });
+}
+
+
+
     </script>
     
     <script src="assets/js/jquery.min.js"></script>
@@ -534,6 +815,16 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.16/dist/sweetalert2.all.min.js"></script>
 
     <script src="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.js"></script>
+      <!-- General JS Scripts -->
+  <script src="assets/js/app.min.js"></script>
+  <!-- JS Libraies -->
+  <script src="assets/bundles/apexcharts/apexcharts.min.js"></script>
+  <!-- Page Specific JS File -->
+  <script src="assets/js/page/index.js"></script>
+  <!-- Template JS File -->
+  <script src="assets/js/scripts.js"></script>
+  <!-- Custom JS File -->
+  <script src="assets/js/custom.js"></script>
   
     
   </body>

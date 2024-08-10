@@ -96,8 +96,8 @@ const loadWallet = async(req,res,next)=>{
 
         if(req.session){
             user = req.session.user_id
-            console.log(user);
 
+            
             const cart = await Cart.findOne({userId:user})
 
             if (cart) {
@@ -109,6 +109,7 @@ const loadWallet = async(req,res,next)=>{
         if(user ==0){
             res.redirect('/login')
         }
+        console.log(wallet);
 
         res.render('wallet',{wallet,cartCount})        
     } catch (error) {

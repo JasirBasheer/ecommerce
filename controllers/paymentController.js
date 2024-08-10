@@ -91,6 +91,9 @@ const verifyPayment = async (req, res) => {
                await coupon.save()
                }
 
+               let shippingChargeAmount = (grandTotal >= 2500 && grandTotal !== 0) ? 0 : 200;
+
+
                const expectedDeliveryDate = new Date();
         expectedDeliveryDate.setDate(expectedDeliveryDate.getDate() + 7);
 
@@ -103,6 +106,7 @@ const verifyPayment = async (req, res) => {
                 address: activeAddress._id,
                 items: cart.products,
                 totalPrice: grandTotal,
+                shippingCharge:shippingChargeAmount,
                 paymentMethod: 'online',
                 createdAt: Date.now(),
                 addresss: {

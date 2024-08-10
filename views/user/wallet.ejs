@@ -1,6 +1,16 @@
 
 <%- include('../layouts/user/header') -%>
 
+<link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link href="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="custom-assets/css/app.min.css">
+<!-- Template CSS -->
+<link rel="stylesheet" href="custom-assets/css/style.css">
+<link rel="stylesheet" href="custom-assets/css/components.css">
+<!-- Custom style CSS -->
+<link rel="stylesheet" href="custom-assets/css/custom.css">
+
 
 
     <div class="page-wrapper">
@@ -89,7 +99,7 @@
         <main class="main">
         	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
         		<div class="container">
-        			<h1 class="page-title">My Account<span>Shop</span></h1>
+        			<h1 class="page-title">My Wallet<span>Shop</span></h1>
         		</div><!-- End .container -->
         	</div><!-- End .page-header -->
             <nav aria-label="breadcrumb" class="breadcrumb-nav mb-3">
@@ -97,7 +107,7 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="index.html">Home</a></li>
                         <li class="breadcrumb-item"><a href="#">Shop</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">My Account</li>
+                        <li class="breadcrumb-item active" aria-current="page">My Wallet</li>
                     </ol>
                 </div><!-- End .container -->
             </nav><!-- End .breadcrumb-nav -->
@@ -132,16 +142,68 @@
 	                			<div class="tab-content">
                                     
 								    <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel" aria-labelledby="tab-dashboard-link">
-                
-                                        <div>
-                                            <h6>Wallet</h6>
-                                            <% if (wallet && typeof wallet.pendingAmount !== "undefined") { %>
-                                                <p>Balance: ₹ <%= wallet.pendingAmount %></p>
-                                            <% } else { %>
-                                                <p>No wallet information available.</p>
-                                            <% } %>
+                                        <div class="row mt-5">
+                                            <div class="col-lg-4 d-flex">
+                                                <div class="card flex-fill">
+                                                    <div class="card-body">
+                                                        <h4 >Pending</h4>
+                                                        <% if (wallet && typeof wallet.pendingAmount !== "undefined") { %>
+                                                            <p>Amount: <span style="color: #9d6c3a;"> ₹ <%= wallet.pendingAmount %></span></p>
+
+                                                        <% } else { %>
+                                                            <p>No wallet information available.</p>
+                                                        <% } %>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        
+                                            <div class="col-lg-4 d-flex">
+                                                <div class="card flex-fill">
+                                                    <div class="card-body">
+                                                        <h4>Balance</h4>
+                                                        <% if (wallet && typeof wallet.totalAmount !== "undefined") { %>
+                                                            <p>Balance: <span style="color: #609d3a;"> ₹ <%= wallet.totalAmount %></span></p>
+                                                        <% } else { %>
+                                                            <p>No wallet information available.</p>
+                                                        <% } %>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        
                                         </div>
                                         
+                             
+
+                                        
+
+                                        <div class="card mt-5">
+                                            <div class="card-header mt-2">
+                                              <h4>Transaction History <i class="fas fa-history"></i></h4>
+                                            </div>
+                                            <div class="card-body">
+                                              <table class="table">
+                                                <thead>
+                                                
+                                                </thead>
+                                                <tbody>
+                                                    <% for (let i = wallet.transactions.length - 1; i >= 0; i--) { %>
+                                                        <% let element = wallet.transactions[i]; %>
+                                                        <% if (element.status == "approved") { %>
+                                                            <% if (element.for == "Return") { %>
+                                                                <tr>
+                                                                    <td><span style="color: #609d3a;">₹ <%= element.amount %></span> added to your wallet for the Return of <span style="color: #9d6c3a;"><%= element.productName %></span></td>
+                                                                </tr>
+                                                            <% } else { %>
+                                                                <tr>
+                                                                    <td><span style="color: #609d3a;">₹ <%= element.amount %></span> added to your wallet for the Cancellation of <span style="color: #9d6c3a;"><%= element.productName %></span></td>
+                                                                </tr>
+                                                            <% } %>
+                                                        <% } %>
+                                                    <% } %>
+                                                </tbody>
+                                              </table>
+                                            </div>
+                                          </div>
                                                 
                                                 
                                            <!-- End .table table-wishlist -->
@@ -220,7 +282,7 @@
 
 	            		<div class="col-sm-6 col-lg-3">
 	            			<div class="widget">
-	            				<h4 class="widget-title">My Account</h4><!-- End .widget-title -->
+	            				<h4 class="widget-title">My Wallet</h4><!-- End .widget-title -->
 
 	            				<ul class="widget-list">
 	            					<li><a href="#">Sign In</a></li>
@@ -542,7 +604,24 @@
     <script src="assets/js/jquery.waypoints.min.js"></script>
     <script src="assets/js/superfish.min.js"></script>
     <script src="assets/js/owl.carousel.min.js"></script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.16/dist/sweetalert2.all.min.js"></script>
+
+    <script src="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.js"></script>
+      <!-- General JS Scripts -->
+  <script src="assets/js/app.min.js"></script>
+  <!-- JS Libraies -->
+  <script src="assets/bundles/apexcharts/apexcharts.min.js"></script>
+  <!-- Page Specific JS File -->
+  <script src="assets/js/page/index.js"></script>
+  <!-- Template JS File -->
+  <script src="assets/js/scripts.js"></script>
+  <!-- Custom JS File -->
+  <script src="assets/js/custom.js"></script>
+  
     <script>
+        
 
 function loadRecentOrders(){
     window.location.href ="/recentorders"

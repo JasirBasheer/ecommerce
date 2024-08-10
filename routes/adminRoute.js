@@ -56,10 +56,17 @@ admin_route.get('/editcategory',auth.isLogin,adminController.loadEditCategory)
 admin_route.get('/couponslist',auth.isLogin,adminController.loadCouponList)
 admin_route.get('/addcoupon',auth.isLogin,adminController.loadAddCoupon)
 admin_route.post('/addcoupon',auth.isLogin,adminController.AddCoupon)
-admin_route.get('/chart',adminController.loadChart);
-admin_route.get('/orderstatuschart',adminController.loadOrdersChart);
-admin_route.get('/dailysaleschart',adminController.loadDailySalesChart);
-admin_route.get('/weeklysaleschart',adminController.loadWeeklySalesChart);
+
+admin_route.get('/monthly-chart',adminController.loadMonthlyChart);
+admin_route.get('/weekly-chart',adminController.loadWeeklyChart);
+admin_route.get('/yearly-chart',adminController.loadYearlyChart);
+
+
+
+
+
+admin_route.get('/orderstatuschart',adminController.loadOrdersStatus);
+
 admin_route.get('/addproductoffer',adminController.loadAddSingleProductOffer);
 admin_route.post('/addproductoffer',adminController.AddSingleProductOffer);
 admin_route.post('/addcategoryoffer',adminController.AddCategoryOffer);
@@ -108,6 +115,7 @@ admin_route.post('/unblockcategory',auth.isLogin,adminController.unblockCategory
 admin_route.get('/deletecategory',auth.isLogin,adminController.deleteCategory)
 admin_route.post('/deleteProductImage',auth.isLogin,adminController.deleteProductImage)
 admin_route.post('/updateOrderStatus',auth.isLogin,adminController.updateOrderStatus)
+admin_route.post('/approvereturnproduct',auth.isLogin,adminController.approveReturn)
 
 
 

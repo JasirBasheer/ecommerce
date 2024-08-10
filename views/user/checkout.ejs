@@ -1,5 +1,14 @@
 <%- include('../layouts/user/header') -%>
 
+<script>
+    window.onload = function() {
+        if (!window.location.hash) {
+            window.location = window.location + '#loaded';
+            window.location.reload();
+        }
+    }
+</script>
+
     <div class="page-wrapper">
         <header class="header">
             
@@ -235,16 +244,16 @@
                                                 
 		                					
 		                						<tr class="summary-subtotal">
-		                							<td>Subtotal:</td>
+		                							<td>Subtotal :</td>
 		                							<td>₹<%=subTotal%></td>
 		                						</tr><!-- End .summary-subtotal -->
                                                 <tr>
-		                							<td>Coupon:</td>
-		                							<td id="couponprice">₹ -<%=coupon %></td>
+		                							<td>Coupon Discount:</td>
+		                							<td id="couponprice">₹ <%=coupon %></td>
 		                						</tr>
 		                						<tr>
 		                							<td>Shipping:</td>
-		                							<td>Free shipping</td>
+		                							<td>₹ <%=shippingCharge%></td>
 		                						</tr>
                                                 
 		                						<tr class="summary-total">
@@ -786,13 +795,21 @@ function handleClearCoupon(){
     <script>
      let paymentMethod;
 
-function handlePaymentMethod(method) {
-    paymentMethod = method;
+function handlePaymentMethod(method) { 
+        paymentMethod = method;
+  
 }
 
 async function handlePlaceOrder(event) {
     event.preventDefault();
     const addresscheck = document.getElementById('addresscheck').value;
+
+    let grandTotalText = document.getElementById('grandAmount').textContent;
+    let grandTotal = parseFloat(grandTotalText.replace('₹', '').trim());
+
+    let couponDiscountText = document.getElementById('couponprice').textContent;
+    let CouponDiscount = parseFloat(couponDiscountText.replace('₹', '').trim());
+
 
     if (addresscheck == 0) {
         Swal.fire({
@@ -812,6 +829,8 @@ async function handlePlaceOrder(event) {
         });
         return false;
     }
+   
+
 
     if (!paymentMethod) {
         document.getElementById('paymentMethodError').textContent = "Select a valid payment Method";
@@ -821,8 +840,20 @@ async function handlePlaceOrder(event) {
     console.log(paymentMethod);
 
     if (paymentMethod === 'cashondelivary') {
-        console.log('reached');
-        window.location.href = "/ordersuccess?method=COD";
+        console.log(grandTotal);
+        console.log(CouponDiscount);
+
+        if(grandTotal <= 1000){
+            console.log('reached');
+            window.location.href = "/ordersuccess?method=COD";
+            }else{
+        Swal.fire({
+        title: "Products with a total price under ₹1,000 are eligible for cash on delivery only ",
+        icon: "warning",
+        timer: 5000,
+      })
+    }
+      
     } else if(paymentMethod ==='razorpay') {
 
         const amount = parseFloat(document.getElementById('grandAmount').textContent.replace('₹', '').replace(',', '').trim());

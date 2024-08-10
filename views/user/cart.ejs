@@ -150,7 +150,7 @@
                                                         <% } %>
                                                     <% } %>
                                                 </td>
-                                                <td class="total-col" id="totalPrice<%= product.productId  %>">₹<%= product.totalPrice  %></td>
+                                                <td class="total-col" id="totalPrice<%= product.productId %>" >₹<%= product.totalPrice  %></td>
                                                 <td class="remove-col"><button class="btn-remove" onclick="handleRemoveCart('<%=product.productId%>')" ><i class="icon-close"></i></button></td>
                                             </tr>
                                             <% }) %>  
@@ -174,51 +174,25 @@
 
 	                				<table class="table table-summary">
 	                					<tbody>
-	                						<tr class="summary-subtotal">
-	                							<td>Subtotal:</td>
-                                                <td id="subtotal">₹<%= typeof subtotal !== 'undefined' ? subtotal : 0.0 %></td>
-	                						</tr>
-                                   
-                                            <!-- End .summary-subtotal -->
-	                						<tr class="summary-shipping">
-	                							<td>Shipping:</td>
-	                							<td>&nbsp;</td>
-	                						</tr>
 
-	                						<tr class="summary-shipping-row">
-	                							<td>
-													<div class="custom-control custom-radio">
-														<input type="radio" id="free-shipping" name="shipping" class="custom-control-input" checked>
-														<label class="custom-control-label" for="free-shipping">Free Shipping</label>
-													</div><!-- End .custom-control -->
-	                							</td>
-	                							<td>₹0.00</td>
-	                						</tr><!-- End .summary-shipping-row -->
+                                            <% if (products.length ===0) { %>
+                                                <tr>
+                                                    <td colspan="5">Your cart is empty</td>
+                                                  </tr>
+                                            <% }else{ %>
+                                                <% products.forEach(product => { %>
+                                                    <tr>
+                                                        <td><a ><%= product.productName%></a></td>
+                                                        <td>₹<%=product.productPrice %></td>
+                                                    </tr>
+                                                <% }) %>  
+                                            <% } %>
 
-	                						<tr class="summary-shipping-row">
-	                							<td>
-	                								<div class="custom-control custom-radio">
-														<input type="radio" id="standart-shipping" name="shipping" class="custom-control-input">
-														<label class="custom-control-label" for="standart-shipping">Standart:</label>
-													</div><!-- End .custom-control -->
-	                							</td>
-	                							<td>₹10.00</td>
-	                						</tr><!-- End .summary-shipping-row -->
+                                            <tr>
+                                                <td>Shipping:</td>
+                                                <td>₹ </td>
+                                            </tr>
 
-	                						<tr class="summary-shipping-row">
-	                							<td>
-	                								<div class="custom-control custom-radio">
-														<input type="radio" id="express-shipping" name="shipping" class="custom-control-input">
-														<label class="custom-control-label" for="express-shipping">Express:</label>
-													</div><!-- End .custom-control -->
-	                							</td>
-	                							<td>₹20.00</td>
-	                						</tr><!-- End .summary-shipping-row -->
-
-	                						<tr class="summary-shipping-estimate">
-	                							<td>Estimate for Your Country<br> <a href="dashboard.html">Change address</a></td>
-	                							<td>&nbsp;</td>
-	                						</tr><!-- End .summary-shipping-estimate -->
 
 	                						<tr class="summary-total">
 	                							<td>Total:</td>
@@ -663,10 +637,12 @@
                 .then(data => {
                     
                     console.log(data.count);
+                    console.log(data);
                     document.getElementById('cartcount').textContent = data.count 
                     document.getElementById('grandtotal').textContent = "₹"+ data.grandTotal
-                    document.getElementById('subtotal').textContent = "₹"+ data.grandTotal
-                    document.getElementById("totalPrice"+productId).textContent = "₹"+ data.totalPrice
+
+                    
+                    document.getElementById(`totalPrice${productId}`).textContent = "₹"+ data.totalPrice
 
 
 

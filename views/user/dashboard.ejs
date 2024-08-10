@@ -144,6 +144,12 @@
                                         <% } %>
 								    	<!-- .End .tab-pane -->
 
+                                        <div>
+                                            
+                                        </div>
+
+
+
                                         <% let checkCancelledOrder = 0 %>
 
                                             <h5>Recent Orders</h5>
@@ -185,8 +191,8 @@
                                                                         if (activeItems === 0) {
                                                                             status = "Cancelled";
                                                                             checkCancelledOrder++ ;
-                                                                        } else if (orders[i].items.some(item => item.orderStatus === "Pending")) {
-                                                                            status = "Pending";
+                                                                        } else if (orders[i].items.some(item => item.orderStatus === "Placed")) {
+                                                                            status = "Placed";
                                                                         } else if (orders[i].items.some(item => item.orderStatus === "Shipped")) {
                                                                             status = "Shipped";
                                                                         }

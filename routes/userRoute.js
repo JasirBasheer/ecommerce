@@ -109,6 +109,7 @@ user_route.post('/incquantity',auth.isLogin,cartController.incQuantity)
 user_route.post('/addtowishlist',auth.isLogin,wishlistController.addToWishlist)
 
 user_route.get('/editaddress',auth.isLogin,checkoutController.loadEditAddress)
+user_route.get('/genarateinvoice',auth.isLogin,checkoutController.generateInvoice)
 user_route.post('/editaddress',auth.isLogin,checkoutController.editAddress)
 user_route.post('/addtocart',auth.isLogin,cartController.addToCart)
 user_route.post('/cart/removefromcart',auth.isLogin,cartController.removeFromCart)

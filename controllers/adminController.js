@@ -8,6 +8,7 @@ const { default: mongoose } = require('mongoose');
 const Coupon = require('../models/couponModel');
 const moment = require('moment');
 const Offer = require('../models/offerModel')
+const Wallet = require('../models/walletModel')
 
 
 
@@ -23,8 +24,53 @@ const loadAdminLoginPage = async(req,res,next)=>{
 
 
 const loadAdminDashboard = async(req,res,next)=>{
-    try {
-        res.render('admindashboard')
+    try {      
+        
+        let totalNumberSales = 0;
+        const topSellingProducts = await Product.find({})
+        .sort({ salesCount: -1 }) 
+        .limit(10);
+
+        const topSellingCategories = await Product.aggregate([
+            {
+                $group: {
+                    _id: "$productCategory", 
+                    totalSales: { $sum: "$salesCount" } 
+                }
+            },
+            { $sort: { totalSales: -1 } }, 
+            { $limit: 10 }])
+
+
+            const userCount = await User.find({}).countDocuments()
+
+
+          let orders = await Order.find({
+                orderStatus: { $in: [ 'Delivered'] }
+              });
+            
+        
+      
+              orders.forEach(orderItem => {
+                if (orderItem.items && Array.isArray(orderItem.items) && orderItem.totalPrice != 0) {
+                  orderItem.items.forEach(item => {
+                    if (item.orderStatus === "Delivered") {
+                      totalNumberSales += item.quantity;
+                    }
+                  });
+                }
+              });
+        
+            const total = orders.reduce((acc, cur) => {
+                if (cur.orderStatus === "Delivered") {
+                    return acc + cur.totalPrice;
+                }
+                return acc;
+            }, 0);
+            
+ 
+
+        res.render('admindashboard',{topSellingProducts,userCount,total,totalNumberSales,topSellingCategories})
         
     } catch (error) {
         next(error);
@@ -83,48 +129,14 @@ const loadSalesReport = async (req, res, next) => {
 
 const loadOrderedList = async (req,res,next) => {
     try {
-        const pipeline = [
-            {
-              $lookup: {
-                from: "orders",
-                localField: "_id",
-                foreignField: "customerId",
-                as: "orderDetails"
-              }
-            },
-            {
-              $unwind: "$orderDetails"
-            },
-            {
-              $project: {
-                name: 1,
-                phone: 1,
-                "orderDetails.totalPrice": 1,
-                "orderDetails.orderStatus": 1,
-                "orderDetails.paymentMethod": 1,
-                "orderDetails.createdAt": 1,
-                "orderDetails._id": 1,
-                "orderDetails.addresss.fullName": 1,
-                "orderDetails.addresss.number": 1,
-                "orderDetails.addresss.house": 1,
-                "orderDetails.addresss.street": 1,
-                "orderDetails.addresss.landMark": 1,
-                "orderDetails.addresss.city": 1,
-                "orderDetails.addresss.state": 1,
-                "orderDetails.addresss.pincode": 1
-              }
-            },
-            {
-                $sort: { "orderDetails.createdAt": -1 }
-              }
-          ];
+     
+        const orders = await Order.find({}).sort({ createdAt: -1 });
+        const returnProducts = await Order.find({
+            'items.orderStatus': { $in: ['Return-Pending','Returned'] }
+          }).sort({ createdAt: -1 });
+        console.log(returnProducts);
 
-
-        const orders = await User.aggregate(pipeline);
-
-        console.log(orders);
-
-        res.render('orderslist', { orders })
+        res.render('orderslist', { orders,returnProducts })
         
     } catch (error) {
         next(error);
@@ -766,7 +778,7 @@ const loadOrderview = async(req,res,next)=>{
 }
 
 
-const updateOrderStatus = async(req,res,next)=>{
+const  updateOrderStatus = async(req,res,next)=>{
     try {
         const orderId = req.body.orderId
         const orderStatus = req.body.orderStatus
@@ -781,6 +793,12 @@ const updateOrderStatus = async(req,res,next)=>{
                 if (order.items[i].orderStatus !== "Cancelled") {
                     order.items[i].orderStatus = orderStatus;
                     itemsModified = true;
+                }
+                if (order.items[i].orderStatus == "Delivered") {
+                    const productId = order.items[i].productId; 
+                    await Product.findByIdAndUpdate(productId, {
+                        $inc: { salesCount: order.items[i].quantity } 
+                    });
                 }
             }
 
@@ -874,7 +892,41 @@ const AddCoupon = async(req,res,next)=>{
 
 
 
-const loadChart = async(req,res,next)=>{
+
+const loadOrdersStatus = async(req,res,next)=>{
+    try {
+      const startDate = new Date(new Date().getFullYear(),0,1);
+      const endDate = new Date(new Date().getFullYear(),11,31,23,59,59,999);
+      const pipeline = [
+        {
+          $match:{
+            createdAt:{
+              $gte:startDate,
+              $lte:endDate
+            }
+          }
+        },
+        {
+          $group:{
+            _id:'$orderStatus',
+            count: {$sum:1}
+          }
+        }
+      ];
+      const result = await Order.aggregate(pipeline);    
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+
+
+
+
+
+
+const loadMonthlyChart = async(req,res,next)=>{
     try {
       const startDate = new Date(new Date().getFullYear(),0,1);
       const endDate = new Date(new Date().getFullYear(),11,31,23,59,59,999);
@@ -907,90 +959,54 @@ const loadChart = async(req,res,next)=>{
 
 
 
-  const loadOrdersChart = async(req,res,next)=>{
+
+
+  const loadYearlyChart = async (req, res, next) => {
     try {
-      const startDate = new Date(new Date().getFullYear(),0,1);
-      const endDate = new Date(new Date().getFullYear(),11,31,23,59,59,999);
-      const pipeline = [
-        {
-          $match:{
-            createdAt:{
-              $gte:startDate,
-              $lte:endDate
-            }
-          }
-        },
-        {
-          $group:{
-            _id:'$orderStatus',
-            count: {$sum:1}
-          }
-        }
-      ];
-      const result = await Order.aggregate(pipeline);    
-      res.json(result);
-    } catch (error) {
-      next(error);
-    }
-  }
-
-
-
-  const loadDailySalesChart = async (req, res, next) => {
-    try {
-      const startDate = new Date();
-      startDate.setHours(0, 0, 0, 0);
-      const endDate = new Date();
-      endDate.setHours(23, 59, 59, 999);
-  
-      const dailySales = await Order.aggregate([
+      const yearlySales = await Order.aggregate([
         {
           $match: {
-            createdAt: { $gte: startDate, $lte: endDate },
             orderStatus: { $in: ['Shipped', 'Delivered'] }
           }
         },
         {
           $group: {
-            _id: {
-              day: { $dayOfMonth: { $toDate: "$createdAt" } },
-              month: { $month: { $toDate: "$createdAt" } },
-              year: { $year: { $toDate: "$createdAt" } }
-            },
+            _id: { year: { $year: { $toDate: "$createdAt" } } },
             totalSales: { $sum: "$totalPrice" },
             totalOrder: { $sum: 1 }
           }
         },
         {
-          $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 }
+          $sort: { '_id.year': 1 }
         }
       ]);
   
-      res.json(dailySales);
+      res.json(yearlySales);
     } catch (error) {
       next(error);
     }
   };
   
-  const loadWeeklySalesChart = async (req, res, next) => {
-    try {
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 7);
-      startDate.setHours(0, 0, 0, 0);
-      const endDate = new Date();
-      endDate.setHours(23, 59, 59, 999);
   
+
+  const loadWeeklyChart = async (req, res, next) => {
+    try {
+      const startDate = new Date(); // Current date
+      const firstDayOfMonth = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+      const lastDayOfMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59, 999); // End of the current month
+  
+      // Get the total sales per week for the current month
       const weeklySales = await Order.aggregate([
         {
           $match: {
-            createdAt: { $gte: startDate, $lte: endDate },
+            createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth },
             orderStatus: { $in: ['Shipped', 'Delivered'] }
           }
         },
         {
           $group: {
             _id: {
-              week: { $week: { $toDate: "$createdAt" } },
+              week: { $subtract: [ { $week: { $toDate: "$createdAt" } }, { $week: { $toDate: firstDayOfMonth } }] }, // Adjust to get week of the month
               year: { $year: { $toDate: "$createdAt" } }
             },
             totalSales: { $sum: "$totalPrice" },
@@ -1002,14 +1018,23 @@ const loadChart = async(req,res,next)=>{
         }
       ]);
   
-      res.json(weeklySales);
+      // Prepare response for the current month
+      const filledWeeklySales = Array.from({ length: 5 }, (_, i) => { // Expecting 5 weeks in a month
+        const weekNum = i; // Week numbers start from 0
+        const weekData = weeklySales.find(sale => sale._id.week === weekNum && sale._id.year === firstDayOfMonth.getFullYear());
+        return {
+          _id: { week: weekNum + 1, year: firstDayOfMonth.getFullYear() }, // Adjusting week number for display
+          totalSales: weekData ? weekData.totalSales : 0,
+        };
+      });
+  
+      res.json(filledWeeklySales);
     } catch (error) {
       next(error);
     }
   };
-
-
-
+  
+  
 
 
 
@@ -1104,7 +1129,7 @@ const activateProductoffer = async (req, res, next) => {
             await findProduct.save();
 
             console.log(findProduct);
-            return res.status(200).json({ message: "Product offer activated successfully" });
+            return res.status(200).json({ success:true,message: "Product offer activated successfully" });
         } else {
             return res.status(400).json({ message: "Product already has an active offer" });
         }
@@ -1133,7 +1158,7 @@ const deactivateProductoffer = async (req, res, next) => {
             await findProduct.save();
 
             console.log(findProduct);
-            return res.status(200).json({ message: "Product offer deactivated successfully" });
+            return res.status(200).json({ success:true, message: "Product offer deactivated successfully" });
         } else {
             return res.status(400).json({ message: "Product has no active offer to deactivate" });
         }
@@ -1247,7 +1272,7 @@ const deleteProductOffer = async (req, res, next) => {
 
 const activateCategoryOffer = async (req, res, next) => {
     try {
-        const offerId = req.body.categoryofferId; 
+        const offerId = req.body.categoryOfferId; 
         const offer = await Offer.CategoryOffer.findOne({_id:new mongoose.Types.ObjectId(offerId)}); 
 
         console.log(offer);
@@ -1283,7 +1308,7 @@ const activateCategoryOffer = async (req, res, next) => {
         offer.isActive = true;
         await offer.save();
 
-        return res.status(200).json({ message: "Category offer activated successfully" });
+        return res.status(200).json({ success: true,message: "Category offer activated successfully" });
     } catch (error) {
         next(error);
     }
@@ -1293,9 +1318,9 @@ const activateCategoryOffer = async (req, res, next) => {
 
 const deactivateCategoryOffer = async (req, res, next) => {
     try {
-        const offerId = req.body.categoryofferId;
+        const offerId = req.body.categoryOfferId;
         const offer = await Offer.CategoryOffer.findOne({_id:new mongoose.Types.ObjectId(offerId)}); 
-        console.log(offer);
+        console.log(offerId);
         const category = offer.categoryName; 
         const findProducts = await Product.find({ productCategory: category });
         console.log(findProducts);
@@ -1314,7 +1339,7 @@ const deactivateCategoryOffer = async (req, res, next) => {
         offer.isActive = false;
         await offer.save();
 
-        return res.status(200).json({ message: "Category offer deactivated successfully" });
+        return res.status(200).json({success: true, message: "Category offer deactivated successfully" });
     } catch (error) {
         next(error);
     }
@@ -1673,6 +1698,80 @@ const EditCategoryOffer = async (req, res, next) => {
 
 
 
+
+
+
+const approveReturn = async (req, res, next) => {
+    try {
+        const orderId = req.body.orderId;
+        const productId = req.body.productId;
+        const originalProduct = await Product.findOne({_id:new mongoose.Types.ObjectId(productId)})
+
+        const order = await Order.findOne({_id:orderId})
+        const wallet = await Wallet.findOne({userId:new mongoose.Types.ObjectId(order.customerId)})
+        
+        const findProduct = wallet.transactions.find((item) => {
+            return item.productId.toString() === productId.toString();
+        });
+
+
+        const transctionIndex = wallet.transactions.findIndex(p => p.productId.equals(productId) && p.status == "pending");
+        if (transctionIndex !== -1) {
+            console.log(transctionIndex);
+            console.log(findProduct);
+            const amount = wallet.transactions[transctionIndex].amount
+            console.log(wallet.transactions[transctionIndex].amount);
+            wallet.totalAmount+=amount;
+            wallet.pendingAmount-=amount;
+            order.markModified('transactions');
+            wallet.transactions[transctionIndex].status = "approved"
+            originalProduct.num_of_stocks += wallet.transactions[transctionIndex].quantity
+            originalProduct.salesCount -=1 
+            await originalProduct.save()
+            await wallet.save()     
+
+            const findIndex = order.items.findIndex(p=> p.productId.equals(productId))
+            if(findIndex !== -1){
+                order.items[findIndex].orderStatus = "Returned"
+            }
+
+            console.log(amount);
+
+            order.totalPrice -=amount
+            order.markModified('items');
+
+            await order.save() 
+
+
+
+            const allReturned = order.items.every(item => item.orderStatus === 'Returned');
+            if (allReturned) {
+                console.log('enetertd');
+              
+              order.orderStatus = 'Returned'; 
+            }
+            order.markModified('items');
+            
+            await order.save();
+    
+        }
+        
+
+
+        res.status(200).json({ success: "Product returned successfully", updatedOrder: order });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+
+
+
+
+
+
 module.exports ={
     loadAdminDashboard,
     loadAdminLoginPage,
@@ -1705,11 +1804,12 @@ module.exports ={
     loadCouponList,
     loadAddCoupon,
     AddCoupon,
-    loadChart,
-    loadOrdersChart,
-    loadDailySalesChart,
-    loadWeeklySalesChart,
+    loadOrdersStatus,
 
+    loadMonthlyChart,
+    loadYearlyChart,
+    loadWeeklyChart,
+    
 
 
     loadAddSingleProductOffer,AddSingleProductOffer,
@@ -1718,5 +1818,5 @@ module.exports ={
 
     loadOffersList,activateProductoffer,deactivateProductoffer,deactivateCategoryOffer,activateCategoryOffer,
     deleteCategoryOffer,deleteProductOffer,loadEditCoupon,editCoupon,blockCoupon,unBlockCoupon,loadEditproductOffer,editproductOffer,
-    loadEditCategoryOffer,EditCategoryOffer
+    loadEditCategoryOffer,EditCategoryOffer,approveReturn
 }

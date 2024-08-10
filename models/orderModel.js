@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const orderSchema = new mongoose.Schema({
   orderId: {
     type: Number,
-    required:true
+    default:0
   },
   customerId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -32,14 +32,14 @@ const orderSchema = new mongoose.Schema({
   },
   orderStatus: {
     type: String,
-    enum: ['Pending', 'Processing', 'Shipped', 'Delivered','Cancelled','Returned'],
-    default: 'Pending'
+    enum: ['Placed', 'Processing', 'Shipped', 'Delivered','Cancelled','Returned','Return-Pending'],
+    default: 'Placed'
   },
   paymentMethod:{
     type: String,
     default:'offline'
   }, 
-  shippingPrice:{
+  shippingCharge:{
     type:Number,
     default: 0
   },

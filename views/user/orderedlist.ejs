@@ -161,7 +161,7 @@
                                                                 <% } %>
                                                                 <% if (orders[i].items[j].orderStatus !== "Cancelled" && orders[i].items[j].orderStatus !== "Delivered" && orders[i].items[j].orderStatus !== "Returned") { %>
                                                                     <td class="remove-col">
-                                                                        <button class="btn-remove" onclick="confirmCancelOrder('<%= orders[i].items[j]._id %>', '<%= orders[i].items[j].productPrice * orders[i].items[j].quantity %>','<%= orders[i].totalPrice %>','<%= orders[i].applyedDiscount +  orders[i].totalPrice %>','<%= orders[i]._id %>','<%= orders[i].items[j].quantity %>','<%= orders[i].items[j].productId %>')"><i class="icon-close"></i></button>
+                                                                        <button class="btn-remove" onclick="confirmCancelOrder('<%= orders[i].items[j]._id %>', '<%= orders[i].items[j].productPrice * orders[i].items[j].quantity %>','<%= orders[i].totalPrice %>','<%= orders[i].applyedDiscount +  orders[i].totalPrice %>','<%= orders[i]._id %>','<%= orders[i].items[j].quantity %>','<%= orders[i].items[j].productId %>','<%= orders[i].items[j].productName %>')"><i class="icon-close"></i></button>
                                                                     </td>
                                                                 <% } %>
 
@@ -629,7 +629,7 @@ function handleCancelCoupon() {
   });
 }
 
-function confirmCancelOrder(productId, productPrice, totalPrice,subTotal,orderId,quantity,originalProductId) {
+function confirmCancelOrder(productId, productPrice, totalPrice,subTotal,orderId,quantity,originalProductId,productName) {
   const discountElement = document.getElementById('discount');
   const minimumPurElement = document.getElementById('minimumPur');
 
@@ -654,7 +654,7 @@ function confirmCancelOrder(productId, productPrice, totalPrice,subTotal,orderId
 
     handleAlert().then((confirmed) => {
       if (confirmed) {
-        handlecancelOrder(productId, productPrice,clearCoupon,orderId,quantity,originalProductId);
+        handlecancelOrder(productId, productPrice,clearCoupon,orderId,quantity,originalProductId,productName);
         console.log(quantity);
 
       }
@@ -664,7 +664,7 @@ function confirmCancelOrder(productId, productPrice, totalPrice,subTotal,orderId
 
     handleCancelCoupon().then((confirmed) => {
       if (confirmed) {
-        handlecancelOrder(productId, productPrice,clearCoupon,orderId,quantity,originalProductId);
+        handlecancelOrder(productId, productPrice,clearCoupon,orderId,quantity,originalProductId,productName);
         console.log(quantity);
 
       }
@@ -675,7 +675,7 @@ function confirmCancelOrder(productId, productPrice, totalPrice,subTotal,orderId
 
     
     
-    function handlecancelOrder(productId,productPrice,clearCoupon,orderId,quantity,originalProductId) {
+    function handlecancelOrder(productId,productPrice,clearCoupon,orderId,quantity,originalProductId,productName) {
         console.log(productPrice);
         console.log(quantity+"sucess");
         
@@ -684,7 +684,7 @@ function confirmCancelOrder(productId, productPrice, totalPrice,subTotal,orderId
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ productId,productPrice,clearCoupon,orderId,quantity,originalProductId})
+        body: JSON.stringify({ productId,productPrice,clearCoupon,orderId,quantity,originalProductId,productName})
       })
       .then(response => response.json())
       .then(data => {

@@ -6,6 +6,8 @@ const Product = require('../models/productModel');
 const Coupon = require('../models/couponModel');
 const Wallet = require('../models/walletModel')
 const moment = require('moment')
+const { jsPDF } = require("jspdf");
+var fs = require('fs');
 
 
 
@@ -17,9 +19,11 @@ const loadCheckout = async (req,res,next) => {
         const cart = await Cart.findOne({ userId });
         let cartCount = 0;
         const wallet = await Wallet.findOne({userId:userId})
+        
         const walletBalance = wallet.totalAmount
 
         let userDetails = null;
+        let shippingCharge=0
         let grandTotal = 0;
 
     
@@ -140,16 +144,45 @@ const loadCheckout = async (req,res,next) => {
                 break;
               }
             }
+
+                
+
+            shippingCharge = cart.shippingCharge
+            // grandTotal-=shippingCharge
+
+            cart.shippingCharge = 0
+
+            await cart.save()
+
+            if (cart.shippingCharge == 0 ) {
+
+                let shippingCharge = (subTotal >= 2500 && subTotal !== 0) ? 0 : 200;
+                console.log(shippingCharge);
+                console.log(grandTotal);
+
+                grandTotal+=shippingCharge
+                console.log(grandTotal);
+                
+
+                cart.shippingCharge=shippingCharge;
+                
+                await cart.save()
+                
+            }
+
+
+                  
               
     
                  if(outoffstock){
-                    console.log(returnProductId+"something");
-                     return res.render('cart', { products: findProducts ,cartCount,userId:user , grandTotal, returnProductId,walletBalance} );
+
+                    return res.render('cart', { products: findProducts ,cartCount,userId:user , grandTotal, returnProductId,walletBalance,shippingCharge} );
 
             
                  }
-            
-            res.render('checkout', { user, userDetails, products: findProducts , grandTotal,cartCount,subTotal,coupon,walletBalance});
+
+                
+            res.render('checkout', { user, userDetails, products: findProducts , grandTotal,cartCount,subTotal,coupon,walletBalance,shippingCharge});
 
         }
 
@@ -160,22 +193,19 @@ const loadCheckout = async (req,res,next) => {
 };
 
 
-function randomOrderID() {
-    return Math.floor(100000 + Math.random() * 900000);
-  }
-  
-
 
 
 const generateOrderID = async () => {
-    let orderid = randomOrderID();
-
-    const checkOrderId = await Order.findOne({orderId:orderid});
-    if (!checkOrderId) {
+    let orderid = 1 ;
+    
+    const checkOrderId = await Order.find().countDocuments()
+    if (checkOrderId) {
+        orderid= checkOrderId
+        orderid++
        return orderid
 
     }else{
-        generateOrderID();
+        return 1
 
     }
   };
@@ -242,6 +272,13 @@ const orderSuccess =  async(req,res,next)=>{
         
         grandTotal = totalPriceResult[0]?.grandTotal || 0;
 
+        let shippingChargeAmount = (grandTotal >= 2500 && grandTotal !== 0) ? 0 : 200;
+
+        grandTotal +=shippingChargeAmount
+
+
+        
+
         if(cart.Coupon!=0){
             const coupon = await Coupon.findOne({couponName:cart.applyedCoupon})
             const minimumPur = coupon.minimumPurchase
@@ -288,7 +325,7 @@ const orderSuccess =  async(req,res,next)=>{
                const expectedDeliveryDate = new Date();
               expectedDeliveryDate.setDate(expectedDeliveryDate.getDate() + 7);
 
-                    
+                        console.log(shippingChargeAmount);
 
                 if(activeAddress){
                     const newOrder = new Order({
@@ -299,6 +336,7 @@ const orderSuccess =  async(req,res,next)=>{
                         address:activeAddress._id,
                         items:cart.products,
                          totalPrice: grandTotal,
+                         shippingCharge:shippingChargeAmount,
                          paymentMethod:"COD",
                          createdAt:Date.now() ,
                          addresss:{
@@ -380,12 +418,16 @@ const loadOrderSuccess = async(req,res,next)=>{
     }
 }
 
+
+
+
 const cancelOrder = async (req,res,next) => {
     try {
       const userId = req.session.user_id._id;
       const productId = req.body.productId;
       const originalProductId = new mongoose.Types.ObjectId(req.body.originalProductId)
-      const productPrice = req.body.productPrice;
+      let productPrice = req.body.productPrice;
+      const productName = req.body.productName;
       const quantity =parseInt(req.body.quantity)
 
       const orderId = req.body.orderId
@@ -400,7 +442,7 @@ const cancelOrder = async (req,res,next) => {
 
         if(clearCoupon==1){
 
-            const productpricePlusDiscount = productPrice-findCoupon.discount
+            let productpricePlusDiscount = productPrice-findCoupon.discount
 
              await User.findOneAndUpdate({couponName:orders.applyedCoupon},{$inc:{limit:1}})
              orders.applyedCoupon =""
@@ -428,7 +470,29 @@ const cancelOrder = async (req,res,next) => {
                 { $inc: { num_of_stocks: quantity } },
                 { new: true }
               );
+              
+
       
+              const order = await Order.findOne({_id:orderId})
+    
+
+              const allCancelled = order.items.every(item => item.orderStatus === 'Cancelled');
+              if (allCancelled) {
+                
+                order.orderStatus = 'Cancelled'; 
+                
+              }
+              await order.save();
+           
+              
+              if(order.orderStatus =='Cancelled'){
+                console.log('alll product is calncellllledddddd from not euqal to 0');
+                order.totalPrice-=order.shippingCharge
+                await order.save()
+
+              }
+      
+
               
 
               if (!updatedOrder && !updateProduct) {
@@ -441,12 +505,34 @@ const cancelOrder = async (req,res,next) => {
               if(updatedOrder.paymentMethod == "online" ){
                 const findWallet = await Wallet.findOne({userId:userId}) 
 
-                findWallet.pendingAmount += parseInt(productpricePlusDiscount);
+            if(order.orderStatus =='Cancelled'){
+                productpricePlusDiscount+=order.shippingCharge
+                order.shippingCharge=0
+                await order.save()
+    
+              }
+           
+
+                findWallet.totalAmount += parseInt(productpricePlusDiscount);
+               
+                findWallet.transactions.push({
+                amount: Math.max(productpricePlusDiscount, 0),
+                for:"Cancelled",
+                status:"approved",
+                productId: productId,
+                orderId: orderId,
+                productName: productName,
+                createdAt: new Date()
+            });
+                findWallet.markModified('transactions')
+
                 await findWallet.save();
 
                 res.status(200).json({ online: 'Order item status canceled successfully.in Online' });
 
               }else{
+
+
                 console.log('Order item status updated successfully');
                 res.status(200).json({ offline: 'Order item status canceled successfully' });
               }
@@ -476,6 +562,21 @@ const cancelOrder = async (req,res,next) => {
                 { $inc: { num_of_stocks: quantity } },
                 { new: true }
               );
+
+              const order = await Order.findOne({_id:orderId})
+    
+
+              const allCancelled = order.items.every(item => item.orderStatus === 'Cancelled');
+              if (allCancelled) {
+                
+                order.orderStatus = 'Cancelled'; 
+              }
+              await order.save();
+
+         
+      
+
+      
       
               
 
@@ -487,13 +588,32 @@ const cancelOrder = async (req,res,next) => {
          
 
               if(updatedOrder.paymentMethod=="online" ){
+
+
                 const findWallet = await Wallet.findOne({userId:userId}) 
 
-                findWallet.pendingAmount += parseInt(productPrice);
+                findWallet.totalAmount += parseInt(productPrice);
+
+         
+           
+               
+                findWallet.transactions.push({
+                amount: Math.max(productPrice, 0),
+                productId: productId,
+                for:"Cancelled",
+                status:"approved",
+                orderId: orderId,
+                productName: productName,
+                createdAt: new Date()
+            });
+                findWallet.markModified('transactions')
+
                 await findWallet.save();
+
                 res.status(200).json({ online: 'Order item status canceled successfully.in Online' });
 
               }else{
+
                 console.log('Order item status updated successfully');
                 res.status(200).json({ offline: 'Order item status canceled successfully' });
               }
@@ -525,6 +645,18 @@ const cancelOrder = async (req,res,next) => {
             { $inc: { num_of_stocks: quantity } },
             { new: true }
           );
+
+      
+          const order = await Order.findOne({_id:orderId})
+    
+
+          const allCancelled = order.items.every(item => item.orderStatus === 'Cancelled');
+          if (allCancelled) {
+            
+            order.orderStatus = 'Cancelled'; 
+          }
+          await order.save();
+  
   
               
 
@@ -534,16 +666,50 @@ const cancelOrder = async (req,res,next) => {
             
           }
       
+                    
+          if(order.orderStatus == 'Cancelled'){
+            console.log('alll product is calncellllledddddd from not 1');
+            order.totalPrice-=order.shippingCharge
+            await order.save()
+
+          }
+  
 
     
           if(updatedOrder.paymentMethod == "online" ){
+           
+
             const findWallet = await Wallet.findOne({userId:userId}) 
 
-            findWallet.pendingAmount += parseInt(productPrice);
+            
+            if(order.orderStatus =='Cancelled'){
+                productPrice = parseInt(productPrice); 
+                productPrice += parseInt(order.shippingCharge);
+
+                order.shippingCharge = 0;
+                await order.save();
+                
+            }
+            findWallet.totalAmount += parseInt(productPrice);
+           
+            findWallet.transactions.push({
+            amount: Math.max(productPrice, 0),
+            productId: productId,
+            for:"Cancelled",
+            status:"approved",
+            orderId: orderId,
+            productName: productName,
+            createdAt: new Date()
+        });
+            findWallet.markModified('transactions')
+
             await findWallet.save();
+
+
             res.status(200).json({ online: 'Order item status canceled successfully.in Online' });
 
           }else{
+ 
             console.log('Order item status updated successfully');
             res.status(200).json({ offline: 'Order item status canceled successfully' });
           }
@@ -1088,6 +1254,12 @@ const returnProduct = async (req, res, next) => {
         const orderId = req.body.orderId;
         const productId = req.body.productId;
 
+        const product = await Product.findOne({_id:new mongoose.Types.ObjectId(productId)})
+        console.log('soem tihng');
+        console.log(product);
+
+
+
         const order = await Order.findOne({ _id: orderId });
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
@@ -1101,29 +1273,79 @@ const returnProduct = async (req, res, next) => {
         const itemToReturn = order.items[itemIndex];
         const totalItemPrice = itemToReturn.productPrice * itemToReturn.quantity;
         const discountAmount = (totalItemPrice * itemToReturn.offerPercentage) / 100;
+
+        console.log(discountAmount);
        
         const adjustedPrice = totalItemPrice - discountAmount;
 
         const newTotalPrice = order.totalPrice - adjustedPrice;
+        const wallet = await Wallet.findOne({userId:new mongoose.Types.ObjectId(req.session.user_id._id)})
+        console.log("wallet");
+        console.log(wallet);
 
         
 
         if (order.applyedCoupon) {
-            const couponValue = order.applyedDiscount;
-            const discountPerProduct = couponValue / order.items.length;
-            const finalTotalPrice = newTotalPrice - discountPerProduct;
+            const coupon = await Coupon.findOne({couponName:order.applyedCoupon})
+            console.log("coupon");
+            console.log(coupon);
 
-            order.totalPrice = Math.max(finalTotalPrice, 0); 
+            if(coupon.minimumPurchase>order.totalPrice-itemToReturn.productPrice){
+                const couponValue = order.applyedDiscount;
+                const discountPerProduct = couponValue / order.items.length;
+                const finalTotalPrice = newTotalPrice - discountPerProduct;
+                wallet.pendingAmount += Math.max(totalItemPrice- discountPerProduct,0); 
+
+                wallet.transactions.push({
+                    amount: Math.max(totalItemPrice - discountPerProduct, 0),
+                    productId: productId,
+                    orderId: orderId,
+                    productName: product.productName,
+                    createdAt: new Date() ,
+                    quantity:itemToReturn.quantity
+                });
+                
+            }else{
+                wallet.pendingAmount += Math.max(totalItemPrice,0); 
+               wallet.transactions.push({
+        amount: Math.max(totalItemPrice, 0),
+        productId: productId,
+        orderId: orderId,
+        productName: product.productName,
+        createdAt: new Date() ,
+        quantity:itemToReturn.quantity
+
+    });
+
+            }
+           
+
+            
         } else {
-            order.totalPrice = Math.max(newTotalPrice, 0); 
+            wallet.pendingAmount += Math.max(totalItemPrice, 0);
+            wallet.transactions.push({
+                amount: Math.max(totalItemPrice, 0),
+                productId: productId,
+                orderId: orderId,
+                productName: product.productName,
+                createdAt: new Date(),
+                quantity:itemToReturn.quantity
+
+            });
+            
         }
 
-        itemToReturn.orderStatus = 'Returned';
+       await wallet.save()
+   
+
+
+
+        itemToReturn.orderStatus = 'Return-Pending';
 
         order.markModified('items');
         await order.save();
 
-        const allReturned = order.items.every(item => item.orderStatus === 'Returned');
+        const allReturned = order.items.every(item => item.orderStatus === 'Return-Pending');
         if (allReturned) {
             order.orderStatus = 'Returned'; 
         }
@@ -1136,6 +1358,93 @@ const returnProduct = async (req, res, next) => {
     }
 };
 
+
+
+const generateInvoice = async (req, res, next) => {
+    try {
+      const userId = req.session.user_id._id; // Assuming user_id is directly the user's ID
+      const order = await Order.findOne({ customerId: userId });
+      console.log(userId);
+      console.log(order);
+  
+      if (!order) {
+        throw new Error('Order not found');
+      }
+  
+      // Calculate subtotal, discount, and total
+      const discount = order.applyedDiscount || 0;
+      const subtotal = order.totalPrice + discount;
+      const total = subtotal - discount;
+  
+      // Initialize jsPDF
+      const doc = new jsPDF();
+  
+      // Add title
+      doc.setFontSize(20);
+      doc.text("Invoice", 105, 20, null, null, "center");
+  
+      // Add sender and client information
+      doc.setFontSize(12);
+      doc.text("Sender:", 20, 40);
+      doc.text("Your Company Name", 20, 45);
+      doc.text("Your Company Address", 20, 50);
+      doc.text("ZIP: Your Company ZIP", 20, 55);
+      doc.text("City: Your Company City", 20, 60);
+      doc.text("Country: Your Company Country", 20, 65);
+  
+      doc.text("Client:", 120, 40);
+      doc.text(order.customer, 120, 45);
+      doc.text(`${order.addresss.house}, ${order.addresss.street}`, 120, 50);
+      doc.text(`ZIP: ${order.addresss.pincode}`, 120, 55);
+      doc.text(`City: ${order.addresss.city}`, 120, 60);
+      doc.text(`Country: ${order.addresss.state}`, 120, 65);
+  
+      // Add invoice information
+      doc.text(`Invoice Number: INV-${order.orderId}`, 20, 80);
+      doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 20, 85);
+      doc.text(`Due Date: ${new Date(order.expectedDeliveryDate).toLocaleDateString()}`, 20, 90);
+  
+      // Add product table headers
+      doc.setFontSize(12);
+      doc.setFont("courier", "bold");
+      doc.text("Product", 20, 110);
+      doc.text("Qty", 120, 110);
+      doc.text("Price (INR)", 150, 110);
+  
+
+      
+      // Add products
+      let y = 120;
+      order.items.forEach(item => {
+        doc.text(item.productName, 20, y);
+        doc.text(item.quantity.toString(), 120, y);
+        doc.text(item.productPrice.toString(), 150, y);
+        y += 10;
+      });
+  
+     
+  
+      // Add subtotal, discount, and total
+      y += 10;
+      doc.text(`Applied Coupon: INR ${discount}`, 20, y);
+      y += 10;
+      doc.text(`Shipping Charge: INR ${order.shippingCharge}`, 20, y);
+      y += 10;
+      doc.text(`Total: INR ${total}`, 20, y);
+  
+      // Save the PDF
+      const pdfBuffer = doc.output('arraybuffer');
+  
+      // Sending the generated PDF as a response
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=invoice.pdf');
+      res.send(Buffer.from(pdfBuffer));
+  
+    } catch (error) {
+      next(error);
+    }
+  };
+  
 
 
 module.exports ={
@@ -1152,7 +1461,8 @@ module.exports ={
     applyCoupon,clearCoupon,
     loadOrderList,
     returnProduct,
-    loadOrderSuccess
+    loadOrderSuccess,
+    generateInvoice
 
 
 

@@ -29,27 +29,18 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
     integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link href="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.css" rel="stylesheet" />
-  <style>
-    .dataTables_wrapper .sorting:after,
-    .dataTables_wrapper .sorting_asc:after,
-    .dataTables_wrapper .sorting_desc:after {
-      font-family: "Font Awesome 5 Free";
-      font-weight: 900;
-      font-size: 12px;
-      display: inline-block;
-      margin-left: 5px;
-      content: "\f0dc";
-    }
-
-    .dataTables_wrapper .sorting_asc:after {
-      content: "\f0de";
-    }
-
-    .dataTables_wrapper .sorting_desc:after {
-      content: "\f0dd";
-    }
-  </style>
+    <link href="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="custom-assets/css/app.min.css">
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="custom-assets/css/style.css">
+    <link rel="stylesheet" href="custom-assets/css/components.css">
+    <!-- Custom style CSS -->
+    <link rel="stylesheet" href="custom-assets/css/custom.css">
+    <style>
+      .nav-tabs .nav-item .nav-link {
+      color: #16110c;
+  }
+    </style>
 </head>
 
 <body>
@@ -161,114 +152,158 @@
 
     <main class="main mt-5">
       <div class="container">
-        <h1>Product offers</h1>
-        <div class="table-responsive" id="no-more-tables">
-          <table class="table table-striped bg-white" id="myTable">
-            <thead class="bg-dark text-light">
-              <tr>
-                <th style="font-size: 20px;" scope="col" class="sorting" data-sort="name">Offer Name</th>
-                <th style="font-size: 20px;" scope="col"></th>
-                <th style="font-size: 20px;" scope="col">Discount</th>
-                <th style="font-size: 20px;" scope="col">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% if (typeof productOffers != "undefined") { %>
-                <% for (let i = 0; i < productOffers.length; i++) { %>
-                  <tr style="font-size: medium;" id="product<%= productOffers[i]._id %>">
-                    <td data-title="Name">
-                      <%= productOffers[i].offerName %>
-                    </td>
-                    <td data-title="Name">
-                      <%= productOffers[i].productName %>
-                    </td>
-                    <td data-title="Name">%<%= productOffers[i].offerPercentage %></td>
-                    <td data-title="Actions">
-                      <button type="button" class="btn btn-success"
-                              onclick="active('<%= productOffers[i]._id %>')" 
-                              <%= productOffers[i].isActive ? 'disabled' : '' %>>Active</button>
-                      <button type="button" class="btn btn-danger"
-                              onclick="deactivate('<%= productOffers[i]._id %>')" 
-                              <%= !productOffers[i].isActive ? 'disabled' : '' %>>Deactivate</button>
-                      <a href="/admin/editproductoffer?id=<%= productOffers[i]._id %>"
-                         style="margin-right: 15px; margin-left: 15px; text-decoration: none;">
-                        <span><i class="fa-sharp fa-solid fa-file-pen"></i></span>
-                      </a>
-                      <button type="submit" onclick="deleteProductOffer('<%= productOffers[i]._id %>')"
-                              class="btn-danger ps-2 mx-md-5">
-                        <i class="fa-sharp fa-solid fa-trash"></i>
-                      </button>
-                    </td>
-                  </tr>
-                <% } %>
-              <% } else { %>
-                <tr>
-                  <td colspan="5">Coupons Not Found</td>
-                </tr>
-              <% } %>
-            </tbody>
-          </table>
+
+
+
+
+        <div class="col-12 col-lg-12">
+          <div class="card">
+            <div class="card-header">
+              <h4>Offers</h4>
+            </div>
+            <div class="card-body">
+              <ul class="nav nav-tabs" id="myTab2" role="tablist">
+                <li class="nav-item">
+                  <a class="nav-link active" id="home-tab2" data-toggle="tab" href="#home2" role="tab" aria-controls="home" aria-selected="true">Product Offers</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="profile-tab2" data-toggle="tab" href="#profile2" role="tab" aria-controls="profile" aria-selected="false">Category Offers</a>
+                </li>
+              </ul>
+              <div class="tab-content tab-bordered" id="myTab3Content">
+                <div class="tab-pane fade active show" id="home2" role="tabpanel" aria-labelledby="home-tab2">
+                  
+                  
+                  <div class="col-12">
+                    <div class="card">
+                      
+                      <div class="card-body p-0">
+                        <div class="table-responsive">
+                          <table class="table table-striped">
+                            <tbody>
+                              <tr>
+                              <th class="text-center">
+                                
+                              </th>
+                              <th>Offer Name</th>
+                              <th>Product</th>
+                              <th>Discount</th>
+                              <th>Action</th>
+                            </tr>
+                            <% if (typeof productOffers != "undefined") { %>
+                              <% productOffers.forEach(product => { %>
+                               
+        
+
+                            <tr id="product<%= product._id %>">
+                              <td class="p-0 text-center">
+                       
+                              </td>
+                              <td><%=product.offerName%></td>
+                              <td class="text-truncate">
+                                <%=product.productName%>
+                              </td>
+                              <td class="align-middle">
+                                <%=product.offerPercentage%>
+                              </td>
+                              <td>
+
+                                <button type="button" 
+                                class="btn <%= product.isActive ? 'btn-danger' : 'btn-success' %> toggle-btn" 
+                                onclick="toggleActivation('<%= product._id %>', <%= product.isActive %>)">
+                                <%= product.isActive ? 'Deactivate' : 'Activate' %>
+                                 </button>
+                        
+                        
+
+                                <a href="/admin/editproductoffer?id=<%= product._id %>"
+                                  style="margin-right: 1hhhh5px; margin-left: 15px; text-decoration: none;margin-right: 11px;">
+                                 <span><i class="fa-sharp fa-solid fa-file-pen"></i></span>
+                               </a>
+                             <a onclick="deleteProductOffer('<%= product._id %>')" style="cursor: pointer;"><i class="fa-sharp fa-solid fa-trash" style="color: red;"></i>
+                                       </a>   </td>
+
+                              
+                            </tr>
+                            <% }) %>
+                            <% } %>
+                          </tbody></table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  
+
+
+
+                </div>
+                <div class="tab-pane fade" id="profile2" role="tabpanel" aria-labelledby="profile-tab2">
+                 
+                  
+
+
+                  <div class="col-12">
+                    <div class="card">
+                      
+                      <div class="card-body p-0">
+                        <div class="table-responsive">
+                          <table class="table table-striped">
+                            <tbody>
+                              <tr>
+                                <th class="text-center"></th>
+                                <th>Offer Name</th>
+                                <th>Category</th>
+                                <th>Discount</th>
+                                <th>Action</th>
+                              </tr>
+                              <% if (typeof categoryOffers != "undefined") { %>
+                                <% categoryOffers.forEach(category => { %>
+                                  <tr id="category<%= category._id %>">
+                                    <td class="p-0 text-center"></td>
+                                    <td><%= category.offerName %></td>
+                                    <td class="text-truncate"><%= category.categoryName %></td>
+                                    <td class="align-middle"><%= category.offerPercentage %></td>
+                                    <td>
+                                      <button type="button" 
+                                        class="btn <%= category.isActive ? 'btn-danger' : 'btn-success' %> toggle-btn" 
+                                        onclick="toggleCategoryActivation('<%= category._id %>', <%= category.isActive %>)">
+                                        <%= category.isActive ? 'Deactivate' : 'Activate' %>
+                                      </button>
+                                      <a href="/admin/editcategoryoffer?id=<%= category._id %>" 
+                                        style="margin-right: 15px; margin-left: 15px; text-decoration: none;">
+                                        <span><i class="fa-sharp fa-solid fa-file-pen"></i></span>
+                                      </a>
+                                      <a onclick="deleteCategoryOffer('<%= category._id %>')" style="cursor: pointer;">
+                                        <i class="fa-sharp fa-solid fa-trash" style="color: red;"></i>
+                                      </a>
+                                    </td>
+                                  </tr>
+                                <% }) %>
+                              <% } %>
+                            </tbody>
+                          </table>
+                          
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+
+
+
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+
+
       </div>
     </main>
     
 
-
-    <% if (categoryOffers.length != 0) { %>
-      <main class="main mt-9">
-        <div class="container">
-          <h1>Category offers</h1>
-          <div class="table-responsive" id="no-more-tables">
-            <table class="table table-striped bg-white" id="myTable">
-              <thead class="bg-dark text-light">
-                <tr>
-                  <th style="font-size: 20px;" scope="col" class="sorting" data-sort="name">Offer Name</th>
-                  <th style="font-size: 20px;" scope="col"></th>
-                  <th style="font-size: 20px;" scope="col">Discount</th>
-                  <th style="font-size: 20px;" scope="col">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% if (typeof categoryOffers != "undefined") { %>
-                  <% for (let i = 0; i < categoryOffers.length; i++) { %>
-                    <tr style="font-size: medium;" id="category<%= categoryOffers[i]._id %>">
-                      <td data-title="Name">
-                        <%= categoryOffers[i].offerName %>
-                      </td>
-                      <td data-title="Name">
-                        <%= categoryOffers[i].categoryName %>
-                      </td>
-                      <td data-title="Name">%<%= categoryOffers[i].offerPercentage %></td>
-                      <td data-title="Actions">
-                        <button type="button" class="btn btn-success" 
-                                onclick="activeCategoryOffer('<%= categoryOffers[i]._id %>')" 
-                                <%= categoryOffers[i].isActive ? 'disabled' : '' %>>Active</button>
-                        <button type="button" class="btn btn-danger" 
-                                onclick="deactivateCategoryOffer('<%= categoryOffers[i]._id %>')" 
-                                <%= !categoryOffers[i].isActive ? 'disabled' : '' %>>Deactivate</button>
-                        <a href="/admin/editcategoryoffer?id=<%= categoryOffers[i]._id %>" 
-                           style="margin-right: 15px; margin-left: 15px; text-decoration: none;">
-                          <span><i class="fa-sharp fa-solid fa-file-pen"></i></span>
-                        </a>
-                        <button type="submit" onclick="deleteCategoryOffer('<%= categoryOffers[i]._id %>')" 
-                                class="btn-danger ps-2 mx-md-5">
-                          <i class="fa-sharp fa-solid fa-trash"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  <% } %>
-                <% } else { %>
-                  <tr>
-                    <td colspan="5">Coupons Not Found</td>
-                  </tr>
-                <% } %>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </main>
-    <% } %>
-    
     
         <footer class="footer">
           <!-- <div class="footer-middle">
@@ -470,8 +505,11 @@
     </div>
   </div>
   <script>
-  function active(productOfferId) {
-  fetch('/admin/activateproductoffer', {
+    
+    function toggleActivation(productOfferId, isActive) {
+  const url = isActive ? '/admin/deactivateproductoffer' : '/admin/activateproductoffer';
+  
+  fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -479,61 +517,66 @@
     body: JSON.stringify({ productOfferId })
   }).then(response => response.json())
     .then(data => {
-      if (data) {
-        document.querySelector(`#product${productOfferId} .btn-success`).disabled = true;
-        document.querySelector(`#product${productOfferId} .btn-danger`).disabled = false;
+      if (data.success) {
+        console.log(data);
+        const button = document.querySelector(`#product${productOfferId} .toggle-btn`);
+        
+        if (button) {
+
+          if (isActive) {
+            button.classList.remove('btn-danger');
+            button.classList.add('btn-success');
+            button.innerText = 'Activate';
+            button.onclick = () => toggleActivation(productOfferId, false);
+          } else {
+            button.classList.remove('btn-success');
+            button.classList.add('btn-danger');
+            button.innerText = 'Deactivate';
+            button.onclick = () => toggleActivation(productOfferId, true);
+          }
+        }
       }
+    })
+    .catch(error => {
+      console.error('Error:', error);
     });
 }
 
-function deactivate(productOfferId) {
-  fetch('/admin/deactivateproductoffer', {
+
+function toggleCategoryActivation(categoryOfferId, isActive) {
+  const url = isActive ? '/admin/deactivatecategoryoffer' : '/admin/activatecategoryoffer';
+  
+  fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ productOfferId })
+    body: JSON.stringify({ categoryOfferId })
   }).then(response => response.json())
     .then(data => {
-      if (data) {
-        document.querySelector(`#product${productOfferId} .btn-success`).disabled = false;
-        document.querySelector(`#product${productOfferId} .btn-danger`).disabled = true;
+      if (data.success) {
+        const button = document.querySelector(`#category${categoryOfferId} .toggle-btn`);
+        
+        if (button) {
+          if (isActive) {
+            button.classList.remove('btn-danger');
+            button.classList.add('btn-success');
+            button.innerText = 'Activate';
+            button.onclick = () => toggleCategoryActivation(categoryOfferId, false);
+          } else {
+            button.classList.remove('btn-success');
+            button.classList.add('btn-danger');
+            button.innerText = 'Deactivate';
+            button.onclick = () => toggleCategoryActivation(categoryOfferId, true);
+          }
+        }
       }
+    })
+    .catch(error => {
+      console.error('Error:', error);
     });
 }
 
-
-    function activeCategoryOffer(categoryofferId) {
-  fetch('/admin/activatecategoryoffer', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ categoryofferId })
-  }).then(response => response.json())
-    .then(data => {
-      if (data) {
-        document.querySelector(`#category${categoryofferId} .btn-success`).disabled = true;
-        document.querySelector(`#category${categoryofferId} .btn-danger`).disabled = false;
-      }
-    });
-}
-
-function deactivateCategoryOffer(categoryofferId) {
-  fetch('/admin/deactivatecategoryoffer', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ categoryofferId })
-  }).then(response => response.json())
-    .then(data => {
-      if (data) {
-        document.querySelector(`#category${categoryofferId} .btn-success`).disabled = false;
-        document.querySelector(`#category${categoryofferId} .btn-danger`).disabled = true;
-      }
-    });
-}
 
 
     function deleteCategoryOffer(categoryofferId) {
@@ -589,8 +632,17 @@ function deactivateCategoryOffer(categoryofferId) {
     integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
     crossorigin="anonymous"></script>
 
-  <script src="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.js"></script>
-
+    <script src="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.js"></script>
+    <!-- General JS Scripts -->
+    <script src="assets/js/app.min.js"></script>
+    <!-- JS Libraies -->
+    <script src="assets/bundles/apexcharts/apexcharts.min.js"></script>
+    <!-- Page Specific JS File -->
+    <script src="assets/js/page/index.js"></script>
+    <!-- Template JS File -->
+    <script src="assets/js/scripts.js"></script>
+    <!-- Custom JS File -->
+    <script src="assets/js/custom.js"></script>
 </body>
 
 </html>
