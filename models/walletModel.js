@@ -18,8 +18,9 @@ const walletSchema = new mongoose.Schema({
         {
             amount: { type: Number, required: true }, 
             orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
-            productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
-            productName: { type:String,required:true },
+            productId: {       type: mongoose.Schema.Types.Mixed, },
+            productName: {      type: mongoose.Schema.Types.Mixed },
+            reffrealUserName: {      type: mongoose.Schema.Types.Mixed },
             for:{
                 type:String,
                 default:"Return"
@@ -36,7 +37,12 @@ const walletSchema = new mongoose.Schema({
                 default: Date.now 
             }
         }
-    ]
+    ],
+    referralCode:{
+        type:String,
+        default:""
+    }
+    
 });
 
 module.exports= mongoose.model('Wallet',walletSchema)

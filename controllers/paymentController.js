@@ -36,23 +36,22 @@ const createOrder = async (req, res) => {
     }
 };
 
-function randomOrderID() {
-    return Math.floor(100000 + Math.random() * 900000);
-  }
-
 const generateOrderID = async () => {
-    let orderid = randomOrderID();
-
-    const checkOrderId = await Order.findOne({orderId:orderid});
-    if (!checkOrderId) {
+    let orderid = 1 ;
+    
+    const checkOrderId = await Order.find().countDocuments()
+    if (checkOrderId) {
+        orderid= checkOrderId
+        orderid++
        return orderid
 
     }else{
-        generateOrderID();
+        return 1
 
     }
   };
   
+
 
 
 
@@ -96,10 +95,15 @@ const verifyPayment = async (req, res) => {
 
                const expectedDeliveryDate = new Date();
         expectedDeliveryDate.setDate(expectedDeliveryDate.getDate() + 7);
+               
+        const Orderid = await generateOrderID()
+
+        const appliedReffreal = cart.appliedReffreal
+
 
 
             const newOrder = new Order({
-                orderId: await generateOrderID(),
+                orderId: Orderid,
                 customerId: user._id,
                 customer: user.name,
                 phone: activeAddress.number,
@@ -108,7 +112,6 @@ const verifyPayment = async (req, res) => {
                 totalPrice: grandTotal,
                 shippingCharge:shippingChargeAmount,
                 paymentMethod: 'online',
-                createdAt: Date.now(),
                 addresss: {
                     fullName: activeAddress.fullName,
                     number: activeAddress.number,
@@ -121,6 +124,7 @@ const verifyPayment = async (req, res) => {
                 },
                 applyedCoupon: cart.applyedCoupon,
                 applyedDiscount: cart.applyedDiscount,
+                appliedReffreal:appliedReffreal,
                 onlineTransactionId:razorpayOrderId,
                 expectedDeliveryDate: expectedDeliveryDate,
 

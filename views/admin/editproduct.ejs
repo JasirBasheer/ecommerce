@@ -1,458 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>Wood Street - Bring The Good Cart To Life.</title>
-    <meta name="keywords" content="HTML5 Template" />
-    <meta name="description" content=" - Bootstrap  " />
-    <meta name="author" content="p-themes" />
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="assets/images/icons/apple-touch-icon.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="32x32"
-      href="assets/images/icons/favicon-32x32.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="16x16"
-      href="assets/images/icons/favicon-16x16.png"
-    />
-    <link rel="manifest" href="assets/images/icons/site.html" />
-    <link
-      rel="mask-icon"
-      href="assets/images/icons/safari-pinned-tab.svg"
-      color="#666666"
-    />
-    <link rel="shortcut icon" href="assets/images/icons/favicon.ico" />
-    <meta name="apple-mobile-web-app-title" content="spy" />
-    <meta name="application-name" content="spy" />
-    <meta name="msapplication-TileColor" content="#cc9966" />
-    <meta
-      name="msapplication-config"
-      content="assets/images/icons/browserconfig.xml"
-    />
-    <meta name="theme-color" content="#ffffff" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/icons/favicon-16x16.png" />
     <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
-    <link
-      rel="stylesheet"
-      href="assets/css/plugins/owl-carousel/owl.carousel.css"
-    />
     <link rel="stylesheet" href="assets/css/style.css" />
-  </head>
+    <!-- Include Cropper CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+</head>
 
-  <body>
+<body>
     <div class="page-wrapper">
-      <header class="header">
-        <div class="header-top">
-          <div class="container">
-            <div class="header-left">
-              
-            </div>
+        <header class="header">
+            <!-- Header Content Here -->
+        </header>
 
-            <div class="header-right">
-              <div class="header-dropdown">
-                <a href="#"><i class="icon-user"></i>My Account</a>
-                <div class="header-menu">
-                  <ul>
-                    <li><a href="#">Settings</a></li>
-                    <li><a href="/admin/logout">Logout</a></li>
-                  </ul>
+        <main class="main">
+            <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17">
+                <div class="container">
+                    <div class="form-box">
+                        <div class="form-tab">
+                            <ul class="nav nav-pills nav-fill" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="signin-tab-2" data-toggle="tab" href="#signin-2" role="tab" aria-controls="signin-2" aria-selected="false">Edit Product</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="signin-2" role="tabpanel" aria-labelledby="signin-tab-2">
+                                    <form id="editProductForm" onsubmit="return validateForm()">
+                                        <div class="form-group">
+                                            <label for="productName">Name of the Product *</label>
+                                            <input type="text" class="form-control" id="productName" name="productName" value="<%= product.productName %>" required />
+                                            <input type="hidden" name="id" value="<%= product._id %>" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="productCategory">Category *</label>
+                                            <select name="productCategory" id="productCategory" class="form-control" required>
+                                                <option value="<%= product.productCategory %>"><%= product.productCategory %></option>
+                                                <% categories.forEach((category) => { %>
+                                                <option value="<%= category.categoryName %>"><%= category.categoryName %></option>
+                                                <% }); %>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="productPhoto">Photo *</label>
+                                            <input type="file" class="form-control" id="productPhoto" name="productImages" accept="image/*" multiple onchange="viewImage(event)" />
+                                        </div>
+                                        <div class="images d-flex" id="imagePreviewContainer" style="flex-wrap: wrap;">
+                                            <% for (let i = 0; i < product.images.length; i++) { %>
+                                            <img class="ml-2 mb-2" src="<%= product.images[i] %>" alt="Product Image" style="width: 100px; height: 100px;" />
+                                            <% } %>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="productPrice">Price *</label>
+                                            <input type="text" id="productPrice" class="form-control" value="<%= product.productPrice %>" name="productPrice" placeholder="Enter price" pattern="^\d+(\.\d{1,2})?$" title="Please enter a valid price (e.g., 123.45)" required />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="productStocks">No. of Stocks *</label>
+                                            <input type="number" class="form-control" id="productStocks" name="productStocks" value="<%= product.num_of_stocks %>" required />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="productDescription">Description *</label>
+                                            <input type="text" class="form-control" id="productDescription" name="productDescription" value="<%= product.productDescription %>" required />
+                                        </div>
+                                        <% if (typeof message !== "undefined") { %>
+                                        <p style="color:green;"><%= message %></p>
+                                        <% } %>
+                                        <button type="submit" class="btn btn-outline-primary-2">
+                                            <span>Edit Product</span>
+                                            <i class="icon-long-arrow-right"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
-        </div>
-
-        <div class="header-middle sticky-header">
-          <div class="container">
-            <div class="header-left">
-              <button class="mobile-menu-toggler">
-                <span class="sr-only">Toggle mobile menu</span>
-                <i class="icon-bars"></i>
-              </button>
-
-              <a href="/admin" class="logo">
-                <img src="assets/images/logo.png" alt="Wood Street Logo" width="105" height="25">
-            </a>
-
-              <nav class="main-nav">
-                <ul class="menu sf-arrows">
-                  <li class="megamenu-container">
-                    <a href="/admin/">Home</a>
-                  </li>
-                  <li>
-                    <a href="/admin/categorylist" class="sf-with-ul">Categories</a>
-                    <ul>
-                      <li><a href="/admin/categorylist">Category Lists</a></li>
-                      <li><a href="/admin/addcategory">Add New Category</a></li>
-                    </ul>
-                  </li>
-                  <li>
-                    <a href="/admin/productslist" class="sf-with-ul">Products</a>
-                    <ul>
-                      <li>
-                        <a href="/admin/productslist">Product Lists</a>
-                      </li>
-                      <li>
-                        <a href="/admin/addproduct">Add New Product</a>
-                      </li>
-                    </ul>
-                  </li>
-                  
-                  <li><a href="/admin/userslist">Users</a></li>
-                  <li><a href="/admin/orderslist">Orders</a></li>
-                </ul>
-              </nav>
-            </div>
-
-            <div class="header-right">
-              <div class="header-search">
-                <a href="#" class="search-toggle" role="button" title="Search"
-                  ><i class="icon-search"></i
-                ></a>
-                <form action="#" method="get">
-                  <div class="header-search-wrapper">
-                    <label for="q" class="sr-only">Search</label>
-                    <input
-                      type="search"
-                      class="form-control"
-                      name="q"
-                      id="q"
-                      placeholder="Search in..."
-                      required
-                    />
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main class="main">
-        <div
-          class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17"
-          style="
-          background-image: url('');
-        "
-      >
-      <!-- background-image: url('assets/images/demos/demo-9/slider/slide-1.jpg'); -->
-          <div class="container">
-            <div class="form-box">
-              <div class="form-tab">
-                <ul class="nav nav-pills nav-fill" role="tablist">
-                  <li class="nav-item">
-                    <a
-                      class="nav-link active"
-                      id="signin-tab-2"
-                      data-toggle="tab"
-                      href="#signin-2"
-                      role="tab"
-                      aria-controls="signin-2"
-                      aria-selected="false"
-                      >Edit Product</a
-                    >
-                  </li>
-                </ul>
-                <div class="tab-content">
-                  <div
-                    class="tab-pane fade show active"
-                    id="signin-2"
-                    role="tabpanel"
-                    aria-labelledby="signin-tab-2"
-                  >
-                  <form action="/admin/editproduct" method="post" enctype="multipart/form-data">                       
-                    <div class="form-group">
-                        <label for="productName">Name of the Product *</label>
-                        <input type="text" class="form-control" id="productName" name="productName" value="<%= product.productName %>" required>
-                        <input type="hidden" name="id" value="<%= product._id %>">
-                    </div>
-                    <div class="form-group">
-                        <label for="productCategory">Category *</label>
-                        <select name="productCategory" id="productCategory" class="form-control" required>
-                            <option value="<%= product.productCategory %>"><%= product.productCategory %></option>
-                            <% categories.forEach(category => { %>
-                                <option value="<%= category.categoryName %>"><%= category.categoryName %></option>
-                            <% }); %>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="productPhoto">Photo *</label>
-                        <img src="<%= product.images[0] %>" alt="Product Image" style="width: 100px;height: 100px;" id="imgView">
-                        <input type="file" class="form-control" id="productPhoto" name="productImages" accept="image/*" multiple onchange="viewImage(event)">
-                    </div>
-                    <div class="form-group">
-                        <label for="productPrice">Price *</label>
-                        <input type="text" id="productPrice" class="form-control" value="<%= product.productPrice %>" name="productPrice" placeholder="Enter price" pattern="^\d+(\.\d{1,2})?$" title="Please enter a valid price (e.g., 123.45)" required>
-
-                    </div>
-                    <div class="form-group">
-                        <label for="productStocks">No. of Stocks *</label>
-                        <input type="number" class="form-control" id="productStocks" name="productStocks" value="<%= product.num_of_stocks %>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="productDescription">Description *</label>
-                        <input type="text" class="form-control" id="productDescription" name="productDescription" value="<%= product.productDescription %>" required>
-                    </div>
-                    <% if(typeof message !== 'undefined'){ %>
-                      <p style="text-align: center; color: red">
-                        <%= message %>
-                      </p>
-                      <% } %>
-
-
-                    <div class="form-footer">
-                        <button type="submit" class="btn btn-outline-primary-2" id="updateButton">
-                            <span>Update</span>
-                            <i class="icon-long-arrow-right"></i>
-                        </button>
-                    </div>
-                </form>
-                
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <footer class="footer">
-        <!-- <div class="footer-middle">
-          <div class="container">
-            <div class="row">
-              <div class="col-sm-6 col-lg-3">
-                <div class="widget widget-about">
-                 
-                  <p>
-                    Praesent dapibus, neque id cursus ucibus, tortor neque
-                    egestas augue, eu vulputate magna eros eu erat.
-                  </p>
-
-                  <div class="social-icons">
-                    <a
-                      href="#"
-                      class="social-icon"
-                      target="_blank"
-                      title="Facebook"
-                      ><i class="icon-facebook-f"></i
-                    ></a>
-                    <a
-                      href="#"
-                      class="social-icon"
-                      target="_blank"
-                      title="Twitter"
-                      ><i class="icon-twitter"></i
-                    ></a>
-                    <a
-                      href="#"
-                      class="social-icon"
-                      target="_blank"
-                      title="Instagram"
-                      ><i class="icon-instagram"></i
-                    ></a>
-                    <a
-                      href="#"
-                      class="social-icon"
-                      target="_blank"
-                      title="Youtube"
-                      ><i class="icon-youtube"></i
-                    ></a>
-                    <a
-                      href="#"
-                      class="social-icon"
-                      target="_blank"
-                      title="Pinterest"
-                      ><i class="icon-pinterest"></i
-                    ></a>
-                  </div>
-                  
-                </div>
-                
-              </div>
-              
-
-              <div class="col-sm-6 col-lg-3">
-                <div class="widget">
-                  <h4 class="widget-title">Useful Links</h4>
-                  
-
-                  <ul class="widget-list">
-                    <li><a href="about.html">About </a></li>
-                    <li><a href="#">How to shop on </a></li>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="contact.html">Contact us</a></li>
-                    <li><a href="login.html">Log in</a></li>
-                  </ul>
-                  
-                </div>
-                
-              </div>
-              
-
-              <div class="col-sm-6 col-lg-3">
-                <div class="widget">
-                  <h4 class="widget-title">Customer Service</h4>
-                  
-
-                  <ul class="widget-list">
-                    <li><a href="#">Payment Methods</a></li>
-                    <li><a href="#">Money-back guarantee!</a></li>
-                    <li><a href="#">Returns</a></li>
-                    <li><a href="#">Shipping</a></li>
-                    <li><a href="#">Terms and conditions</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                  </ul>
-                  
-                </div>
-                
-              </div>
-              
-
-              <div class="col-sm-6 col-lg-3">
-                <div class="widget">
-                  <h4 class="widget-title">My Account</h4>
-                  
-
-                  <ul class="widget-list">
-                    <li><a href="#">Sign In</a></li>
-                    <li><a href="cart.html">View Cart</a></li>
-                    <li><a href="#">My Wishlist</a></li>
-                    <li><a href="#">Track My Order</a></li>
-                    <li><a href="#">Help</a></li>
-                  </ul>
-                  
-                </div>
-                
-              </div>
-              
-            </div>
-            
-          </div>
-          
-        </div> -->
-        
-
-        <div class="footer-bottom">
-          <div class="container">
-            <p class="footer-copyright">
-              Copyright © <script>document.write(new Date().getFullYear());</script> Wood Street Store. All Rights Reserved.
-            </p>
-            
-            <!-- <figure class="footer-payments">
-              <img
-                src="assets/images/payments.png"
-                alt="Payment methods"
-                width="272"
-                height="20"
-              />
-            </figure> -->
-            
-          </div>
-          
-        </div>
-        
-      </footer>
-    </div>
-    <button id="scroll-top" style="border-radius: 50%;background-color: rgba(255, 255, 255, 0.294);" title="Back to Top">
-      <i class="icon-arrow-up"></i>
-    </button>
-
-    <div class="mobile-menu-overlay"></div>
-
-    <div class="mobile-menu-container">
-      <div class="mobile-menu-wrapper">
-        <span class="mobile-menu-close"><i class="icon-close"></i></span>
-
-        <form action="#" method="get" class="mobile-search">
-          <label for="mobile-search" class="sr-only">Search</label>
-          <input
-            type="search"
-            class="form-control"
-            name="mobile-search"
-            id="mobile-search"
-            placeholder="Search in..."
-            required
-          />
-          <button class="btn btn-primary" type="submit">
-            <i class="icon-search"></i>
-          </button>
-        </form>
-
-        <nav class="mobile-nav">
-          <ul class="mobile-menu">
-            <li class="active">
-              <a href="/admin/">Home</a>
-            </li>
-            <li>
-              <a href="">Categories</a>
-              <ul>
-                <li><a href="/admin/categorylist">Category Lists</a></li>
-                <li><a href="/admin/addcategory">Add New Category</a></li>
-              </ul>
-            </li>
-            <li>
-              <a href="" class="sf-with-ul">Products</a>
-              <ul>
-                <li><a href="/admin/productslist">Product Lists</a></li>
-                <li><a href="/admin/addproduct">Add New Product</a></li>
-              </ul>
-            </li>
-           
-            <li>
-              <a href="/admin/userslist">Users</a>
-            </li>
-            <li>
-              <a href="/admin/orderslist">Orders</a>
-            </li>
-          </ul>
-        </nav>
-
-        <div class="social-icons">
-          <a href="#" class="social-icon" target="_blank" title="Facebook"
-            ><i class="icon-facebook-f"></i
-          ></a>
-          <a href="#" class="social-icon" target="_blank" title="Twitter"
-            ><i class="icon-twitter"></i
-          ></a>
-          <a href="#" class="social-icon" target="_blank" title="Instagram"
-            ><i class="icon-instagram"></i
-          ></a>
-          <a href="#" class="social-icon" target="_blank" title="Youtube"
-            ><i class="icon-youtube"></i
-          ></a>
-        </div>
-      </div>
+        </main>
     </div>
 
-   
+    <!-- Cropper Modal -->
+    <div class="modal fade" id="cropperModal" tabindex="-1" role="dialog" aria-labelledby="cropperModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cropperModalLabel">Crop Image</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img id="imageToCrop" style="max-width: 100%;" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="cropButton">Crop</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.3/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        let cropper;
+        let currentFileIndex = null;
+        let processedImages = [];
+
+        function viewImage(event) {
+            const files = event.target.files;
+            const container = document.getElementById('imagePreviewContainer');
+            container.innerHTML = '';
+
+            Array.from(files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.classList.add('ml-2', 'mb-2');
+                    img.style.width = '100px';
+                    img.style.height = '100px';
+                    img.onclick = () => openCropperModal(e.target.result, index);
+                    container.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function openCropperModal(imageSrc, index) {
+            currentFileIndex = index;
+            document.getElementById('imageToCrop').src = imageSrc;
+            $('#cropperModal').modal('show');
+
+            if (cropper) {
+                cropper.destroy();
+            }
+            const imageElement = document.getElementById('imageToCrop');
+            cropper = new Cropper(imageElement, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 1
+            });
+        }
+
+        document.getElementById('cropButton').addEventListener('click', () => {
+            const canvas = cropper.getCroppedCanvas();
+            canvas.toBlob((blob) => {
+                const fileInput = document.getElementById('productPhoto');
+                const croppedFile = new File(
+                    [blob],
+                    fileInput.files[currentFileIndex].name,
+                    { type: 'image/jpeg' }
+                );
 
 
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/jquery.hoverIntent.min.js"></script>
-    <script src="assets/js/jquery.waypoints.min.js"></script>
-    <script src="assets/js/superfish.min.js"></script>
-    <script src="assets/js/owl.carousel.min.js"></script>
-    <script src="assets/js/main.js"></script>
+                processedImages[currentFileIndex] = croppedFile;
 
-    
-  </body>
-  <script>
-    function viewImage(event){
-      document.getElementById('imgView').src = URL.createObjectURL(event.target.files[0]);
-    }
-  </script>
 
+                const croppedImageUrl = URL.createObjectURL(blob);
+                const imgContainer = document.getElementById('imagePreviewContainer').children[currentFileIndex];
+                imgContainer.src = croppedImageUrl;
+
+
+                $('#cropperModal').modal('hide');
+                cropper.destroy();
+            });
+        });
+
+        function validateForm() {
+            const formData = new FormData();
+            const fileInput = document.getElementById('productPhoto');
+            for (let i = 0; i < fileInput.files.length; i++) {
+                if (processedImages[i]) {
+                    formData.append('productImages', processedImages[i]);
+                } else {
+                    formData.append('productImages', fileInput.files[i]);
+                }
+            }
+
+            formData.append('productName', document.getElementById('productName').value);
+            formData.append('productCategory', document.getElementById('productCategory').value);
+            formData.append('productPrice', document.getElementById('productPrice').value);
+            formData.append('productStocks', document.getElementById('productStocks').value);
+            formData.append('productDescription', document.getElementById('productDescription').value);
+            formData.append('id', document.querySelector('input[name="id"]').value);
+
+            fetch('/admin/editproduct', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+              .then(data => {
+                  console.log('Success:', data);
+                  if (data.success) {
+                    Swal.fire({
+              title: 'Success!',
+              text: 'Product updated successfully.',
+              icon: 'success',
+              confirmButtonText: 'OK'
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  window.location.href = "/admin/productslist";
+              }
+          });
+
+                  }else if(data.message){
+                    Swal.fire({
+        text: data.message, 
+        icon: 'warning',
+        confirmButtonText: 'OK'
+    });
+
+                  }
+              }).catch(error => {
+                  console.error('Error:', error);
+              });
+
+
+              return false;
+        }
+    </script>
+</body>
 </html>

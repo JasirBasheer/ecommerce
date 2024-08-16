@@ -636,9 +636,20 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('OTP resent successfully');
+
+                    Swal.fire({
+              text: "OTP resent successfully",
+              icon: 'warning',
+              confirmButtonText: 'OK'
+          });
                 } else {
-                    alert('Failed to resend OTP');
+
+                    Swal.fire({
+              title: 'Error!',
+              text: "Failed to resend OTP",
+              icon: 'warning',
+              confirmButtonText: 'OK'
+          });
                 }
             })
             .catch(error => {

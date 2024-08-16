@@ -151,7 +151,7 @@
                                                             <p>Amount: <span style="color: #9d6c3a;"> ₹ <%= wallet.pendingAmount %></span></p>
 
                                                         <% } else { %>
-                                                            <p>No wallet information available.</p>
+                                                            <p>₹ 0</p>
                                                         <% } %>
                                                     </div>
                                                 </div>
@@ -164,7 +164,7 @@
                                                         <% if (wallet && typeof wallet.totalAmount !== "undefined") { %>
                                                             <p>Balance: <span style="color: #609d3a;"> ₹ <%= wallet.totalAmount %></span></p>
                                                         <% } else { %>
-                                                            <p>No wallet information available.</p>
+                                                            <p>₹ 0</p>
                                                         <% } %>
                                                     </div>
                                                 </div>
@@ -193,9 +193,21 @@
                                                                 <tr>
                                                                     <td><span style="color: #609d3a;">₹ <%= element.amount %></span> added to your wallet for the Return of <span style="color: #9d6c3a;"><%= element.productName %></span></td>
                                                                 </tr>
-                                                            <% } else { %>
+                                                            <% } else if(element.for =="purchase"){ %>
+                                                                <tr>
+                                                                    <% if (element.productName.length>=2) { %>
+                                                                    <td><span style="color: #9d583a;">₹ <%= element.amount %></span> creadited from wallet for the purchase of <span style="color: #8b9d3a;"><%= element.productName[0] %>,..</span></td>
+                                                                     
+                                                                    <% }else{ %>
+                                                                    <td><span style="color: #9d583a;">₹ <%= element.amount %></span> creadited from wallet for the purchase of <span style="color: #8b9d3a;"><%= element.productName[0] %></span></td>
+
+                                                                    <% } %>
+
+                                                                </tr>
+                                                            <% }else{ %>
                                                                 <tr>
                                                                     <td><span style="color: #609d3a;">₹ <%= element.amount %></span> added to your wallet for the Cancellation of <span style="color: #9d6c3a;"><%= element.productName %></span></td>
+
                                                                 </tr>
                                                             <% } %>
                                                         <% } %>

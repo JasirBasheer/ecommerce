@@ -195,15 +195,15 @@
                         </div>
                       </div>
                     </td>
-                    <td class="text-center">₹ <%= order.productDetails.productPrice %></td>
                     <% for( let j = 0; j < order.orderDetails.items.length; j++ ) { %>
                       
                       <% if (order.productDetails._id.toString() == order.orderDetails.items[j].productId.toString()) { %>
+                        <td class="text-center">₹ <%= order.orderDetails.items[j].productPrice %></td>
 
                         <td class="text-center"><%= order.orderDetails.items[j].quantity %></td>
                         <% if (order.orderDetails.items[j].orderStatus!="Cancelled") { %>
                           <td class="text-center"> <%= order.orderDetails.items[j].orderStatus %></td>
-                          <td class="text-center">₹ <%= order.productDetails.productPrice %></td>
+                          <td class="text-center">₹ <%= order.orderDetails.items[j].quantity * order.orderDetails.items[j].productPrice %></td>
     
                          
                         <% }else{ %>

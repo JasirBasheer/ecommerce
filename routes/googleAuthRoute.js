@@ -46,10 +46,20 @@ passport.use(
             });
             const userData = await user.save();
             if(userData){
+              const firstFive = profile.displayName.slice(0, 2);
+                    
+              const lastFive = userData._id.toString().slice(-5);
+  
+              const referralCode = `${firstFive}@Reffreal${lastFive}`
+              
+  
               const wallet = new Wallet({
-                userId:userData._id,
-            })
-            await wallet.save()
+                  userId:userData._id,
+                  referralCode:referralCode
+  
+              })
+  
+          await wallet.save()
             done(null, user);
             }
         } else if (user.is_blocked === 0) {

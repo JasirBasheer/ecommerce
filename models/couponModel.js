@@ -21,15 +21,13 @@ const couponSchema = new mongoose.Schema({
         type: Date,
         required:true  
     },
-    createdAt:{
-        type:Date,
-        required:true
-    },
     isActive:{
         type:Boolean,
         default:true
     }
 
+},{
+        timestamps: true   
 })
 
 module.exports = mongoose.model('Coupon',couponSchema)

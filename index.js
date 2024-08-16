@@ -26,6 +26,14 @@ app.use('/admin',adminRoute)
 
 
 
+app.set('view engine','ejs')
+app.set('views','./views/user')
+
+app.all('*', (req, res) => {
+    res.render('404')
+});
+
+
 
 app.listen(port,()=>{
     console.log(`http://localhost:${port}`);

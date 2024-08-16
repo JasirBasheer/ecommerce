@@ -196,8 +196,15 @@ const verifySignUp =  async(req,res,next)=>{
             if(userData){
                 req.session.user_id=userData;
 
+                const firstFive = userdetails.userName.slice(0, 5);
+                    
+                const lastFive = userData._id.toString().slice(-5);
+                console.log(lastFive);
+                const referralCode = `${firstFive}@Reffreal${lastFive}`
+
                 const wallet = new Wallet({
                     userId:userData._id,
+                    referralCode:referralCode
 
                 })
 
@@ -340,17 +347,21 @@ const loadUser = async (req,res,next) => {
     try {
         const user = req.session.user_id;
 
+
         let orders = [];
         const cart = await Cart.findOne({userId:user})
 
         let cartCount = 0;
+        let carttotal = 0;
         if (cart) {
             cartCount = cart.products.reduce((total, item) => total + item.quantity, 0);
+            carttotal = cart.products.reduce((total,item)=> total + item.quantity*item.productPrice,0)
         }
 
         if (user) {
             const userId = new mongoose.Types.ObjectId(user._id);
             var userDetails = await User.findById(user._id);
+
 
 
             const pipeline = [
@@ -421,7 +432,7 @@ const loadUser = async (req,res,next) => {
 
 
         
-        res.render('dashboard', { user, userDetails, orders, cartCount,coupons });
+        res.render('dashboard', { user, userDetails, orders, cartCount,coupons, cart,carttotal });
     } catch (error) {
         next(error);
         

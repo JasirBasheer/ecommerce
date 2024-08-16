@@ -119,7 +119,7 @@
                                         <% if (typeof products !="undefined") { %>
                                          
                                        
-                                        <% if (products.length === 0) { %>
+                                        <% if (typeof products=="undefined" || products.length === 0) { %>
                                             <tr>
                                                 <td colspan="5">Your cart is empty</td>
                                               </tr>
@@ -174,25 +174,6 @@
 
 	                				<table class="table table-summary">
 	                					<tbody>
-
-                                            <% if (products.length ===0) { %>
-                                                <tr>
-                                                    <td colspan="5">Your cart is empty</td>
-                                                  </tr>
-                                            <% }else{ %>
-                                                <% products.forEach(product => { %>
-                                                    <tr>
-                                                        <td><a ><%= product.productName%></a></td>
-                                                        <td>₹<%=product.productPrice %></td>
-                                                    </tr>
-                                                <% }) %>  
-                                            <% } %>
-
-                                            <tr>
-                                                <td>Shipping:</td>
-                                                <td>₹ </td>
-                                            </tr>
-
 
 	                						<tr class="summary-total">
 	                							<td>Total:</td>

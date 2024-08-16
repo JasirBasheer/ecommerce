@@ -125,4 +125,6 @@ user_route.post('/verifyPayment', paymentController.verifyPayment);
 
 
 
+
+
 module.exports = user_route

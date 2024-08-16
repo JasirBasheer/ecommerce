@@ -261,12 +261,20 @@
               icon: "warining",
               })
               } else {
-                alert('Failed to update category offer');
+                Swal.fire({
+              title: "Failed to update category offer",
+              icon: "warining",
+              })
+                
               }
             })
             .catch((error) => {
               console.error('Error:', error);
-              alert('An error occurred while updating the category offer');
+
+              Swal.fire({
+              title: "An error occurred while updating the category offer",
+              icon: "warining",
+              })
             });
         }
       }

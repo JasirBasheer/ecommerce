@@ -185,7 +185,6 @@
             <table class="table table-striped bg-white" id="myTable">
               <thead class="bg-dark text-light">
                 <tr>
-                  <th style="font-size: 20px;" scope="col" class="sorting" >Id</th>
                   <th style="font-size: 20px;" scope="col" class="sorting" >Name</th>
                   <th style="font-size: 20px;" scope="col" class="sorting" >Email</th>
                   <th style="font-size: 20px;" scope="col" class="sorting" >Mobile</th>
@@ -199,7 +198,6 @@
 
                   <% for( let i = users.length-1; i >=0; i-- ) { %>
                     <tr style="font-size: medium;">
-                      <td data-title="id"><%= users[i]._id %></td>
                       <td data-title="Name"><%= users[i].name %></td>
                       <td data-title="Email"><%= users[i].email %></td>     
                                    

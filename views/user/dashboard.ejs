@@ -148,6 +148,52 @@
                                             
                                         </div>
 
+                                        <% if (cart && cart.products.length > 0) { %>
+                                            <h5 class="mt-4">oops you forgot to order something in your cart</h5>
+
+                                            <table class="table table-cart table-mobile">
+                                                <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Products</th>
+                                                        <th>Status</th>
+                                                        <th>Total</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                        <tr>
+                                                            <td class="product-col">
+                                                                <div class="product-images" >
+                                                                        <figure class="product-media" style="margin: 0;">
+                                                                            <a href="/orderedlist?id=">
+                                                                                
+                                                                                    <img src="https://i.ibb.co/SQvs3PQ/download.jpg">
+                                                                            </a>
+                                                                        </figure>
+                                                                
+                                                                </div>
+                                                            </td>
+                                                            <td class="quantity-col"><%=cartCount  %></td>
+                                                            <td class="status-col">
+                                                                Pending
+                                                            </td>
+                                                            <td class="total-col">₹ <%= carttotal %></td>
+                                                            <td class="remove-col">
+                                                                <button  class="btn-remove" >
+                                                                    <a href="/cart">
+                                                                    <i   class="icon-long-arrow-right"></i>
+                                                                </a>
+                                                                </button>
+                                                        </td>
+                                                         
+                                                        </tr>
+                                                </tbody>
+                                            </table>
+
+                                            <% } %>
+                                            
+                                        
 
 
                                         <% let checkCancelledOrder = 0 %>
@@ -184,22 +230,21 @@
                                                                 <td class="quantity-col"><%= orders[i].items.length %></td>
                                                                 <td class="date-col"><%= new Date(orders[i].createdAt).toDateString() %></td>
                                                                 <td class="status-col">
-                                                                    <% 
-                                                                        let status = "Delivered";
-                                                                        let activeItems = orders[i].items.filter(item => item.orderStatus != "Cancelled").length;
-                                                                
-                                                                        if (activeItems === 0) {
-                                                                            status = "Cancelled";
-                                                                            checkCancelledOrder++ ;
-                                                                        } else if (orders[i].items.some(item => item.orderStatus === "Placed")) {
-                                                                            status = "Placed";
-                                                                        } else if (orders[i].items.some(item => item.orderStatus === "Shipped")) {
-                                                                            status = "Shipped";
-                                                                        }
-                                                                    %>
-                                                                    <%= status %>
+                                                                    <% if (orders[i].orderStatus=="Returned") { %>
+                                                                        <p style="color: chocolate;"><%=orders[i].orderStatus %></p>
+                                                                     
+                                                                    <% }else if(orders[i].orderStatus!="Returned"&& orders[i].totalPrice==0){ %>
+                                                                        <p style="color: red;text-decoration: line-through;">Cancelled</p>
+                                                                    <%}else{ %>
+                                                                        <p><%=orders[i].orderStatus  %></p>
+                                                                        <% } %>
+
+                                                                    
                                                                 </td>
-                                                                <td class="total-col">₹<%= orders[i].totalPrice %></td>
+                                                                <% if (orders[i].orderStatus!="Returned" && orders[i].orderStatus!="Cancelled") { %>
+                                                                    <td class="total-col">₹<%= orders[i].totalPrice %></td>
+
+                                                                <% } %>
                                                                 <td class="remove-col">
                                                                         <button  class="btn-remove" >
                                                                             <a href="/orderedlist?id=<%= orders[i]._id %>">

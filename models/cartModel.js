@@ -15,6 +15,10 @@ const cartSchema = new mongoose.Schema({
       type:String,
       default:""
     },
+    appliedReffreal:{
+      type:String,
+      default:""
+    },
     applyedDiscount:{
       type:Number,
       default:0

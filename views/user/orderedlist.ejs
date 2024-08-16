@@ -159,7 +159,7 @@
                                                                 <% } else { %>
                                                                     <td class="status-col"><%= orders[i].items[j].orderStatus %></td>
                                                                 <% } %>
-                                                                <% if (orders[i].items[j].orderStatus !== "Cancelled" && orders[i].items[j].orderStatus !== "Delivered" && orders[i].items[j].orderStatus !== "Returned") { %>
+                                                                <% if (orders[i].items[j].orderStatus !== "Cancelled" && orders[i].items[j].orderStatus !== "Delivered" && orders[i].items[j].orderStatus !== "Returned" && orders[i].items[j].orderStatus !== "Return-Pending" ) { %>
                                                                     <td class="remove-col">
                                                                         <button class="btn-remove" onclick="confirmCancelOrder('<%= orders[i].items[j]._id %>', '<%= orders[i].items[j].productPrice * orders[i].items[j].quantity %>','<%= orders[i].totalPrice %>','<%= orders[i].applyedDiscount +  orders[i].totalPrice %>','<%= orders[i]._id %>','<%= orders[i].items[j].quantity %>','<%= orders[i].items[j].productId %>','<%= orders[i].items[j].productName %>')"><i class="icon-close"></i></button>
                                                                     </td>
@@ -175,6 +175,7 @@
                                     </div>
                                     <input type="hidden" name="" id="discount" value="<%= discount  %>">
                                     <input type="hidden" name="" id="minimumPur" value="<%= minimumPur %>">
+                                    <input type="hidden" name="" id="isreffrealApplied" value="<%= isrefferealApplied %>">
                                     <div class="col-md-3 col-lg-3 p-5" style="background-color: #cc996600;margin-bottom: 22px;margin-let: 12px;height: 33em;box-shadow: 0px 0px 12px 1px rgba(0, 0, 0, 0.045);">
                                         <h6 class="mt-3 mb-2" >ORDER SUMMARY</h6>
                                         <div class="order-summary-append mb-2">
@@ -185,7 +186,7 @@
                                             <p>Phone : <%= orders[i].addresss.number%></p>
                                             <p>Place : <%= orders[i].addresss.city%>,<%= orders[i].addresss.state%>,<%= orders[i].addresss.pincode%></p>
                                             <p>Ordered At : <%= new Date(orders[i].createdAt).toDateString() %></p>
-                                            <p style="font-weight: 300;">Shipping Fee: ₹0</p>
+                                            <p style="font-weight: 300;">Shipping Fee: ₹<%= orders[i].shippingCharge%></p>
                                             <p style="font-weight: 300;">Subtotal: ₹<%= orders[i].applyedDiscount +  orders[i].totalPrice %></p>
                                             <p style="font-weight: 410;">Coupon discount: ₹<%= orders[i].applyedDiscount %></p>
                                             <p style="color: chocolate;font-weight: 500;">Total: ₹<%= orders[i].totalPrice %></p>
@@ -630,15 +631,31 @@ function handleCancelCoupon() {
 }
 
 function confirmCancelOrder(productId, productPrice, totalPrice,subTotal,orderId,quantity,originalProductId,productName) {
-  const discountElement = document.getElementById('discount');
+  
+    let discount ;
+    let minimumPur;
+    const isrefferealApplied =document.getElementById('isreffrealApplied').value
+    
+    
+    if(isrefferealApplied == "1"){        
+        discount = 200
+        minimumPur=200
+
+
+    }else{
+
+        const discountElement = document.getElementById('discount');
   const minimumPurElement = document.getElementById('minimumPur');
 
   console.log(quantity);
 
 
-  const discount = discountElement.value;
-  const minimumPur = minimumPurElement.value;
+  discount = discountElement.value;
+  minimumPur = minimumPurElement.value;
 
+
+    }
+  
   const discountAmount = parseInt(discount, 10);
   const minimumPurAmount = parseInt(minimumPur, 10);
   const totalPriceAmount = parseInt(totalPrice, 10);
@@ -650,7 +667,10 @@ function confirmCancelOrder(productId, productPrice, totalPrice,subTotal,orderId
 
   if (minimumPurAmount <= newTotal) {
 
-    const clearCoupon =0
+    let clearCoupon =0
+    if (isrefferealApplied=="1") {
+     clearCoupon =1  
+    }
 
     handleAlert().then((confirmed) => {
       if (confirmed) {

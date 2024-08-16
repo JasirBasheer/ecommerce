@@ -175,8 +175,12 @@
 
       <main class="main">
         <div class="container mt-5">
+          <a href="/admin/salesreport">ALL</a>
+          <a href="/admin/salesreport?daily=daily">Daily</a>
+          <a href="/admin/salesreport?monthly=monthly">Monthly</a>
+          <a href="/admin/salesreport?yearly=yearly">Yearly</a>
           <div class="d-flex justify-content-center my-4 h3">
-            <form action="/admin/salesreport" method="get">
+            <form action="/salesreport" method="get">
               <label for="startDate" class="h4 mx-3">Start Date:</label>
               <input type="date" id="startDate" name="startDate" />
               <label for="endDate" class="h4 mx-3">End Date:</label>
@@ -300,6 +304,9 @@
                         <% total += orders[i].totalPrice; %>
                         <td data-title="Payment"><%= (orders[i].paymentMethod === 'COD' || orders[i].paymentMethod === 'wallet') ? orders[i].paymentMethod : 'Online' %></td>
                         <td data-title="CouponDiscount"><%= orders[i].applyedDiscount === 0  ? "Nill" : orders[i].applyedDiscount %></td>
+
+
+                        
                       <%let perc = 0,totalAmount = 0,orginalAmount = 0;
                       orders[i].items.forEach(item=>{
                         if (item.orderStatus =="Delivered") {
@@ -309,7 +316,8 @@
                             
                       }
                       })
-                      perc=100- (totalAmount*100)/orginalAmount%>
+                      console.log(perc,totalAmount,orginalAmount);
+                      perc=100 - (totalAmount*100)/orginalAmount%>
                         <td><%=perc.toFixed(1)%>%</td>
                       </tr>
                     <% } %>

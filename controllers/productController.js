@@ -28,9 +28,16 @@ const loadSinglePage = async(req,res,next)=>{
         const id = req.query.id
         const userId = req.session.user_id
         const product = await Product.findOne({_id:id})
+        if(!product){
+            return res.render('productNotFound')
+        }
+
+
         const relatedProducts = await Product.find({productCategory:product.productCategory})
         const cart = await Cart.findOne({userId:userId})
         const wishlist = await Wishlist.findOne({userId:userId})
+
+        
 
           product.viewCount +=1;
           await product.save()

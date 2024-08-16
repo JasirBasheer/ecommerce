@@ -4,11 +4,13 @@ const Category = require('../models/categoryModel');
 const Product = require('../models/productModel');
 const {addProductImages,addCategoryImage, editCategoryImage, editproductImages} = require('../helpers/sharp')
 const Order = require('../models/orderModel');
-const { default: mongoose } = require('mongoose');
 const Coupon = require('../models/couponModel');
 const moment = require('moment');
 const Offer = require('../models/offerModel')
 const Wallet = require('../models/walletModel')
+
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 
 
 
@@ -83,8 +85,56 @@ const loadSalesReport = async (req, res, next) => {
     try {
       let orders;
       let totalNumberSales = 0;
-  
-      if (req.query.startDate && req.query.endDate) {
+
+      if(req.query.daily){
+        const startOfDay = new Date();
+        startOfDay.setUTCHours(0, 0, 0, 0);
+        
+        const endOfDay = new Date();
+        endOfDay.setUTCHours(23, 59, 59, 999);
+        
+         orders = await Order.find({
+          createdAt: { $gte: startOfDay, $lt: endOfDay },
+          orderStatus: { $in: ['Delivered'] }
+        });
+        
+
+      }else if(req.query.monthly){
+        const startOfMonth = new Date()
+        startOfMonth.setUTCDate(1)
+        startOfMonth.setUTCHours(0,0,0,0)
+
+        const endOfMonth = new Date()
+        endOfMonth.setUTCMonth(endOfMonth.getUTCMonth()+1)
+        endOfMonth.setUTCDate(1)
+        endOfMonth.setUTCHours(0,0,0,0)
+        endOfMonth.setUTCMilliseconds(-1)
+
+         orders= await Order.find({
+            createdAt:{$gte:startOfMonth , $lt:endOfMonth},
+            orderStatus:{$in:['Delivered']}
+        })
+
+        
+
+      }else if(req.query.yearly){
+        const startOfYear = new Date();
+        startOfYear.setUTCMonth(0, 1); 
+        startOfYear.setUTCHours(0, 0, 0, 0); 
+    
+        const endOfYear = new Date();
+        endOfYear.setUTCFullYear(endOfYear.getUTCFullYear() + 1); 
+        endOfYear.setUTCMonth(0, 1); 
+        endOfYear.setUTCHours(0, 0, 0, 0); 
+        endOfYear.setUTCMilliseconds(-1);
+    
+         orders = await Order.find({
+            createdAt: { $gte: startOfYear, $lt: endOfYear },
+            orderStatus: { $in: ['Delivered'] }
+        });
+    
+
+      }else if (req.query.startDate && req.query.endDate) {
 
         const startDate = new Date(req.query.startDate);
         const endDate = new Date(req.query.endDate);
@@ -231,14 +281,19 @@ const editProduct = async (req,res,next) => {
        
         const existingProduct = await Product.findById(productId);
         if (req.body.productName.trim() === "") {
-            return res.render('editproduct', { product, categories, message: 'Enter a valid name' });
+            // return res.render('editproduct', { product, categories,  });
+            return res.status(200).json({message: 'Enter a valid name'})
         }
         if (req.body.productDescription.trim() === "") {
-            return res.render('editproduct', { product, categories, message: 'Enter a valid Description' });
+            // return res.render('editproduct', { product, categories, message: 'Enter a valid Description' });
+            return res.status(200).json({message: 'Enter a valid Description'})
+            
         }
         
         if (req.files.length>0&& req.files.length<3) {
-            return res.render('editproduct',{product,categories,message:'required 3 images minimum '});
+            // return res.render('editproduct',{product,categories,message:'required 3 images minimum '});
+            return res.status(200).json({message: 'required 3 images minimum'})
+
         }    
         
         const checkDuplicate = await Product.findOne({
@@ -248,7 +303,9 @@ const editProduct = async (req,res,next) => {
         
         
         if(checkDuplicate && checkDuplicate.id.toString() !== productId){
-            return res.render('editproduct', { product, categories, message: 'Product already exists' });
+            // return res.render('editproduct', { product, categories, message: 'Product already exists' });
+            return res.status(200).json({message: 'Product already exists'})
+            
 
         }
 
@@ -301,8 +358,8 @@ if (newProductPrice === existingProduct.originalAmount) {
         const updatedProduct = await existingProduct.save();
         if (updatedProduct) {
           
-            req.flash("success","Product successfuly edited")
-            res.redirect('/admin/productslist')
+            return res.status(200).json({success: 'Product already exists'})
+
         } else {
             res.status(500).send('Failed to update product.');
         }
@@ -746,13 +803,13 @@ const loadOrderview = async(req,res,next)=>{
             "orderDetails.orderStatus": 1,
             "orderDetails.items.productId": 1,
             "orderDetails.items.quantity": 1,
+            "orderDetails.items.productPrice": 1,
+            "orderDetails.items.productName": 1,
             "orderDetails.items.orderStatus": 1,
             "orderDetails.paymentMethod": 1,
             "orderDetails.createdAt": 1,
             "orderDetails._id": 1,
-            "productDetails.productName": 1,
             "productDetails._id": 1,
-            "productDetails.productPrice": 1,
             "productDetails.productCategory": 1,
             "productDetails.productDescription": 1,
             "productDetails.images": 1
@@ -785,8 +842,12 @@ const  updateOrderStatus = async(req,res,next)=>{
 
         const order = await Order.findOne({_id:orderId})
 
+
         if (order) {
             order.orderStatus = orderStatus;
+            
+            
+           
 
             let itemsModified = false;
             for (let i = 0; i < order.items.length; i++) {
@@ -810,6 +871,28 @@ const  updateOrderStatus = async(req,res,next)=>{
             const result = await order.save();
 
            if(result){
+            if(result.orderStatus === "Delivered"){
+                console.log(orderStatus);
+                
+                if(order.appliedReffreal!=""){
+                    console.log(order.appliedReffreal);
+
+                    const userWallet = await Wallet.findOne({referralCode:order.appliedReffreal})
+                    userWallet.totalAmount+=200
+
+                    userWallet.transactions.push({
+                        amount: 200,
+                        for:"Reffreal",
+                        status:"approved",
+                        reffrealUserName:order.customer,
+                        createdAt: new Date()
+                    });
+                    await userWallet.save()
+
+                    
+                }
+
+            }
             console.log("saved successfully");
             return res.status(200).json({orderstatus:"orderstatuschanged successfully"})
            }
@@ -873,7 +956,6 @@ const AddCoupon = async(req,res,next)=>{
             minimumPurchase:minimumPur,
             limit:maximum,
             expiryDate:expiryDate,
-            createdAt:Date.now()
 
         })
         const createCoupon = await coupon.save()
@@ -991,11 +1073,12 @@ const loadMonthlyChart = async(req,res,next)=>{
 
   const loadWeeklyChart = async (req, res, next) => {
     try {
-      const startDate = new Date(); // Current date
+      const startDate = new Date(); 
+      
       const firstDayOfMonth = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
-      const lastDayOfMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59, 999); // End of the current month
+      const lastDayOfMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59, 999);
   
-      // Get the total sales per week for the current month
+
       const weeklySales = await Order.aggregate([
         {
           $match: {
@@ -1006,7 +1089,7 @@ const loadMonthlyChart = async(req,res,next)=>{
         {
           $group: {
             _id: {
-              week: { $subtract: [ { $week: { $toDate: "$createdAt" } }, { $week: { $toDate: firstDayOfMonth } }] }, // Adjust to get week of the month
+              week: { $subtract: [ { $week: { $toDate: "$createdAt" } }, { $week: { $toDate: firstDayOfMonth } }] },
               year: { $year: { $toDate: "$createdAt" } }
             },
             totalSales: { $sum: "$totalPrice" },
@@ -1018,12 +1101,13 @@ const loadMonthlyChart = async(req,res,next)=>{
         }
       ]);
   
-      // Prepare response for the current month
-      const filledWeeklySales = Array.from({ length: 5 }, (_, i) => { // Expecting 5 weeks in a month
-        const weekNum = i; // Week numbers start from 0
+
+      const filledWeeklySales = Array.from({ length: 5 }, (_, i) => { 
+        
+        const weekNum = i; 
         const weekData = weeklySales.find(sale => sale._id.week === weekNum && sale._id.year === firstDayOfMonth.getFullYear());
         return {
-          _id: { week: weekNum + 1, year: firstDayOfMonth.getFullYear() }, // Adjusting week number for display
+          _id: { week: weekNum + 1, year: firstDayOfMonth.getFullYear() }, 
           totalSales: weekData ? weekData.totalSales : 0,
         };
       });
@@ -1699,71 +1783,85 @@ const EditCategoryOffer = async (req, res, next) => {
 
 
 
-
-
 const approveReturn = async (req, res, next) => {
     try {
         const orderId = req.body.orderId;
         const productId = req.body.productId;
-        const originalProduct = await Product.findOne({_id:new mongoose.Types.ObjectId(productId)})
+        const originalProduct = await Product.findOne({ _id: new mongoose.Types.ObjectId(productId) });
 
-        const order = await Order.findOne({_id:orderId})
-        const wallet = await Wallet.findOne({userId:new mongoose.Types.ObjectId(order.customerId)})
+        const order = await Order.findOne({ _id: orderId });
+        const wallet = await Wallet.findOne({ userId: new mongoose.Types.ObjectId(order.customerId) });
+
+        const transctionIndex = wallet.transactions.findIndex(p => 
+            ObjectId.isValid(p.productId) && ObjectId.isValid(productId) && 
+            new ObjectId(p.productId).equals(new ObjectId(productId)) && 
+            p.status === "pending"
+        );
         
-        const findProduct = wallet.transactions.find((item) => {
-            return item.productId.toString() === productId.toString();
-        });
-
-
-        const transctionIndex = wallet.transactions.findIndex(p => p.productId.equals(productId) && p.status == "pending");
         if (transctionIndex !== -1) {
-            console.log(transctionIndex);
-            console.log(findProduct);
-            const amount = wallet.transactions[transctionIndex].amount
-            console.log(wallet.transactions[transctionIndex].amount);
-            wallet.totalAmount+=amount;
-            wallet.pendingAmount-=amount;
-            order.markModified('transactions');
-            wallet.transactions[transctionIndex].status = "approved"
-            originalProduct.num_of_stocks += wallet.transactions[transctionIndex].quantity
-            originalProduct.salesCount -=1 
-            await originalProduct.save()
-            await wallet.save()     
+            const amount = wallet.transactions[transctionIndex].amount;
 
-            const findIndex = order.items.findIndex(p=> p.productId.equals(productId))
-            if(findIndex !== -1){
-                order.items[findIndex].orderStatus = "Returned"
+
+            wallet.totalAmount += amount;
+
+            wallet.pendingAmount = parseFloat((wallet.pendingAmount - amount).toFixed(2));
+            
+
+            if (Math.abs(wallet.pendingAmount) < 1e-10) {
+                wallet.pendingAmount = 0;
             }
 
-            console.log(amount);
+            wallet.transactions[transctionIndex].status = "approved";
+            originalProduct.num_of_stocks += wallet.transactions[transctionIndex].quantity;
+            originalProduct.salesCount -= 1;
+            await originalProduct.save();
+            await wallet.save();
 
-            order.totalPrice -=amount
+            const findIndex = order.items.findIndex(p => p.productId.equals(productId));
+            if (findIndex !== -1) {
+                order.items[findIndex].orderStatus = "Returned";
+            }
+
+
+            order.totalPrice = parseFloat(((order.totalPrice - order.shippingCharge) - amount).toFixed(2));
+            order.totalPrice -= amount
+            order.shippingCharge = 0;
+
+
+            if (Math.abs(order.totalPrice) < 1e-10) {
+                order.totalPrice = 0;
+            }
+
             order.markModified('items');
-
-            await order.save() 
-
-
+            await order.save();
 
             const allReturned = order.items.every(item => item.orderStatus === 'Returned');
-            if (allReturned) {
-                console.log('enetertd');
-              
-              order.orderStatus = 'Returned'; 
-            }
-            order.markModified('items');
-            
-            await order.save();
-    
-        }
-        
+            const allReturnedOrCancelled = order.items.every(item => 
+                item.orderStatus === 'Returned' || item.orderStatus === 'Cancelled'
+            );
 
+            if (allReturned) {
+                order.orderStatus = 'Returned';
+                order.applyedDiscount = 0
+                order.applyedCoupon=""
+                order.appliedReffreal=""
+            } else if (allReturnedOrCancelled) {
+                order.orderStatus = 'Cancelled';
+                order.applyedDiscount=0
+                order.applyedCoupon=""
+                order.appliedReffreal=""
+            }
+
+            order.totalPrice = Math.max(0, order.totalPrice);
+            order.markModified('items');
+            await order.save();
+        }
 
         res.status(200).json({ success: "Product returned successfully", updatedOrder: order });
     } catch (error) {
         next(error);
     }
 };
-
 
 
 

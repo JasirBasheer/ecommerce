@@ -43,10 +43,6 @@ const orderSchema = new mongoose.Schema({
     type:Number,
     default: 0
   },
-  createdAt: {
-    type: Date,
-    required:true     
-  },
   addresss: {
     fullName:{type:String,required:true},
     number:{type:Number,required:true},
@@ -65,6 +61,10 @@ const orderSchema = new mongoose.Schema({
     type:Number,
     default:0
   },
+  appliedReffreal:{
+    type:String,
+    default:""
+  },
   onlineTransactionId:{
     type:String,
     default:""
@@ -73,6 +73,8 @@ const orderSchema = new mongoose.Schema({
     type:Date,
     required:true
   }
+}, {
+  timestamps: true 
 });
 
 module.exports= mongoose.model('Order',orderSchema);

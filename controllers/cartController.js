@@ -352,6 +352,7 @@ const incQuantity = async (req,res,next)=>{
                 if (minimumPurchase  > grandTotal) {
                     cart.Coupon = 0;
                     cart.applyedCoupon = "";
+                    cart.appliedReffreal = ""
                     cart.applyedDiscount =0;
                     await cart.save();
                     console.log("need at least purchase");
@@ -463,7 +464,8 @@ const removeFromCart = async(req,res,next)=>{
             if (minimumPur>grandTotal) {
             console.log("reached here");
                 cart.Coupon=0
-                cart.applyedCoupon="",
+                cart.applyedCoupon=""
+                cart.appliedReffreal = ""
                 cart.applyedDiscount=0
                 await cart.save()
                 console.log("need at least purcase ");

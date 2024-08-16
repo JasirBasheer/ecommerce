@@ -114,14 +114,14 @@
                             <div class="cart-discount">
                                 <form id="applyCoupon">
                                     <div class="input-group">
-                                        <input type="text" name="couponinp" id="couponinp" class="form-control" required placeholder="coupon code">
+                                        <input type="text" name="couponinp" id="couponinp" class="form-control" required placeholder="Coupon Code or Refferal">
                                         <div class="input-group-append" style="height: 2.9em;">
                                             <button class="btn btn-outline-primary-2" type="submit"><i class="icon-long-arrow-right"></i></button>
                                         </div><!-- .End .input-group-append -->
                                     </div><!-- End .input-group -->
                                 </form>
                                 <p id="couponName-error" style="color: red;"></p>
-                                <p style="color: #CC9966;font-size: 0.8em;text-decoration: underline;cursor: pointer;" onclick="handleClearCoupon()">Clear Coupon..</p>
+                                <p style="color: #CC9966;font-size: 0.8em;text-decoration: underline;cursor: pointer;" onclick="handleClearCoupon()">Clear..</p>
 
                             </div><!-- End .cart-discount -->
 
@@ -229,7 +229,7 @@
 
 
 		                						
-                                                <% if (products.length ===0) { %>
+                                                <% if (typeof products=="undefined" && products.length ===0) { %>
                                                     <tr>
                                                         <td colspan="5">Your cart is empty</td>
                                                       </tr>
@@ -906,8 +906,14 @@ async function handlePlaceOrder(event) {
                     console.log("reachsdredd");
                     window.location.href = "/ordersuccesss";
                 } else {
-                    alert('Payment Verification Failed');
-                }
+                    Swal.fire({
+              title: 'Error!',
+              text: "Payment Verification Failed",
+              icon: 'warning',
+              confirmButtonText: 'OK'
+          });
+
+        }
             },
             prefill: {
 
@@ -928,10 +934,11 @@ async function handlePlaceOrder(event) {
 
         if(grandTotal>wallet){
             document.getElementById('paymentMethodError').textContent = "Select a valid payment Method";
-        console.log('somethingnggg');
-
             return;
         }else{
+            window.location.href = "/ordersuccess?method=wallet";
+            console.log('wallet something');
+
 
 
         }
@@ -958,7 +965,13 @@ async function handlePlaceOrder(event) {
             }
 
             if (valid) {
-                const formData = { couponinp };
+                let isreffreal = false
+
+                if (couponinp.includes("@Reffreal")) {
+                    isreffreal = true
+                    console.log("Coupon input includes '@Reffreal'");
+                    } 
+                const formData = { couponinp,isreffreal };
 
 
                 fetch("/applycoupon",{
@@ -981,7 +994,7 @@ async function handlePlaceOrder(event) {
       })
 
                     }else if(data.alreadyapplyed){
-                        Swal.fire("This Coupon is Applyed!");
+                        Swal.fire("Discount Already Applied!");
 
                     }else if(data.couponIsNotActive){
                         Swal.fire("This Coupon is not active any more!");
@@ -991,6 +1004,23 @@ async function handlePlaceOrder(event) {
                         Swal.fire("This Coupon is Expired!");
                     }else if(data.couponNotExists){
                         Swal.fire("Coupon not exists!");
+
+                    }else if(data.notApplicable){
+                        Swal.fire("Coupon is not applicable!");
+
+                    }else if(data.notAValidReffreal){
+                        Swal.fire("Enter a valid reffreal!");
+
+                    }else if(data.needTobeAnotherUser){
+                        Swal.fire("You can't use your reffreal!");
+
+                    }else if(data.reffrealSuccess){
+                        Swal.fire("Reffreal successfully Applied!").then(()=>{
+        window.location.reload()
+      })
+
+                    }else if(data.onlyApplicableForFirstOrder){
+                        Swal.fire("The reffreals are only applicable for your first orders!");
 
                     }
                 })

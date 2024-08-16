@@ -458,7 +458,7 @@
                                               <div class="badge badge-success" 
                                                    onclick="handleApproveReturn('<%= product._id %>','<%= item.productId %>')" 
                                                    style="cursor: pointer;"
-                                                   id="approved"
+                                                   id="approved<%=item.productId %>"
                                                    >
                                                 Approve
                                               </div>
@@ -723,9 +723,7 @@
     </div>
 
     <script>
-          $(document).ready(function () {
-        $("#myTable").DataTable();
-      });
+     
       
       function updateOrderStatus(orderId) {
   const selectElement = document.getElementById('orderStatus' + orderId);
@@ -781,7 +779,7 @@ function handleApproveReturn(orderId, productId) {
             .then(data => {
                
               if(data.success){
-                let approvedElement = document.getElementById('approved');
+                let approvedElement = document.getElementById('approved'+productId);
                 approvedElement.textContent = "Approved";
                 approvedElement.classList.add('badge', 'bg-danger');
 
