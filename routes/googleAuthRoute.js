@@ -28,7 +28,7 @@ passport.use(
     new GoogleStrategy({
     clientID: process.env.GOOGLE_AUTH_CLIENT_ID,
     clientSecret: process.env.GOOGLE_AUTH_CLIENT_SECRET,
-    callbackURL: "https://www.jasirbasheer.online/auth/google/callback",
+    callbackURL: "https://jasirbasheer.online/auth/google/callback",
   },
 
   async (accessToken, refreshToken, profile, done) => {
