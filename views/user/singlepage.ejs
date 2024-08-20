@@ -826,13 +826,13 @@
             }else{
             let quantity = parseInt(document.getElementById('qty').value)
             let num_of_stocks = parseInt(document.getElementById('num_of_stocks').value)
-            console.log(quantity);
+            
                 if(quantity>num_of_stocks){
                     const quantityerror = document.getElementById('quantityerror')
                     quantityerror.textContent =`Product stock left is only ${num_of_stocks}`
 
                 }else{
-                    console.log(quantity);
+                    
             fetch('/addtocart',{
                 method:'POST',
                 headers:{
@@ -882,8 +882,8 @@ if (response.redirected) {
 
             function handleSingleProductAddToCart(productId){
         const user = document.getElementById('checkuserId').value
-        console.log(user);
-        console.log(user);
+       
+       
 
 
         if(user ==""){
@@ -971,7 +971,7 @@ if (response.redirected) {
 
     function handleAddToWishlist(productId){
         const user = document.getElementById('checkuserId').value
-            console.log(user);
+          
 
 
             if(user ==""){
@@ -1012,19 +1012,18 @@ if (response.redirected) {
             window.location.href = '/wishlist'; 
         }
     })
-    console.log(data);
-    console.log(data.success);
+   
 
-    console.log("count");
+   
     const wishlistCounts = data.wishlistCount
-    console.log(wishlistCounts);
+    
 
 
             const wishlistCount = document.getElementById('wishlistcount');
             if (wishlistCount) {
                 
                 wishlistCount.textContent = data.wishlistCount;
-                console.log(data.wishlistCount);
+                
             }
         
 

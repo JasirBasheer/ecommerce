@@ -481,8 +481,8 @@
 
 <script>
   async function handleUnblock(userId){
-    console.log(userId)
-     fetch('/admin/unblockuser',{
+
+    fetch('/admin/unblockuser',{
       method:"POST",
       headers:{
         "Content-Type": "application/json",
@@ -496,8 +496,8 @@
 }
 
 async function handleblock(userId){
-    console.log(userId)
-    fetch('/admin/blockuser',{
+
+  fetch('/admin/blockuser',{
       method:"POST",
       headers:{
         "Content-Type": "application/json",

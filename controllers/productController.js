@@ -67,7 +67,7 @@ const loadSinglePage = async(req,res,next)=>{
 const filterCategory = async(req,res,next) => {
     try {
         const categoryName = req.query.id;
-        console.log(categoryName);
+
         const categories = await Category.find({}); 
         const recentProducts = await Product.find({});
         const userId = req.session.user_id
@@ -85,7 +85,7 @@ const filterCategory = async(req,res,next) => {
             products = await Product.find({}); 
 
         }
-        console.log(products);
+
         res.render('index', { categories, products, categoryName ,recentProducts,cartCount,userId,search:""});
     } catch (error) {
         next(error);
@@ -102,8 +102,8 @@ const filterProdcutByCategory = async(req,res,next)=>{
         const limit = 11;
 
         const category = req.query.id
-        console.log(category);
 
+        
         const categories = await Category.find({})
        
 
@@ -187,7 +187,7 @@ const searchProducts = async (req, res, next) => {
 
         if (userId) {
             try {
-                const cart = await Cart.findOne({ userId: mongoose.Types.ObjectId(userId) }); 
+                const cart = await Cart.findOne({ userId: new mongoose.Types.ObjectId(userId) }); 
                 if (cart) {
                     cartCount = cart.products.reduce((total, item) => total + item.quantity, 0);
                 }
@@ -218,8 +218,7 @@ const addreview = async(req,res,next)=>{
 
         const product = await Product.findOne({ _id: new mongoose.Types.ObjectId(productId) });
 
-        console.log("product");
-        console.log(product);
+        
         
         let ratings =0
 

@@ -748,7 +748,6 @@ if (response.redirected) {
                 
                 data.data.address.forEach(element => {
                     let activeAndInactive = document.getElementById(element._id);
-                    console.log(element._id);
                     if (element.isActive) {
                         activeAndInactive.textContent = 'Active address';
                         activeAndInactive.className = 'text-success';
@@ -785,7 +784,6 @@ if (response.redirected) {
     return response.json()
 }
 })            .then(data =>{
-                console.log(data);
                 const deleteAddress = document.getElementById(`delete${addressId}`);
                 if (deleteAddress) {
                     deleteAddress.remove()
@@ -881,14 +879,11 @@ async function handlePlaceOrder(event) {
         return;
     }
 
-    console.log(paymentMethod);
 
     if (paymentMethod === 'cashondelivary') {
-        console.log(grandTotal);
-        console.log(CouponDiscount);
+   
 
         if(grandTotal <= 1000){
-            console.log('reached');
             window.location.href = "/ordersuccess?method=COD";
             }else{
         Swal.fire({
@@ -901,8 +896,8 @@ async function handlePlaceOrder(event) {
     } else if(paymentMethod ==='razorpay') {
 
         const amount = parseFloat(document.getElementById('grandAmount').textContent.replace('₹', '').replace(',', '').trim());
-        console.log(amount);
-       const currency = 'INR';
+
+        const currency = 'INR';
 
 
        const orderResponse = await fetch('/createOrder', {
@@ -947,7 +942,7 @@ async function handlePlaceOrder(event) {
                 const verificationResult = await verificationResponse.json();
                 if (verificationResult.success) {
                     
-                    console.log("reachsdredd");
+
                     window.location.href = "/ordersuccesss";
                 } else {
                     Swal.fire({
@@ -981,8 +976,8 @@ async function handlePlaceOrder(event) {
             return;
         }else{
             window.location.href = "/ordersuccess?method=wallet";
-            console.log('wallet something');
 
+            
 
 
         }
@@ -1001,7 +996,7 @@ async function handlePlaceOrder(event) {
             let valid = true;
 
             if (!couponinp.trim()) {
-                console.log('something');
+
                 valid = false;
                 Swal.fire("Enter a valid Coupon!");
             } else {
@@ -1013,18 +1008,12 @@ async function handlePlaceOrder(event) {
 
                 if (couponinp.includes("@Reffreal")) {
                     const subTotall = parseInt(document.getElementById('subTotall').value)
-                    console.log(subTotall);
-                    console.log(typeof subTotall);
-                    console.log("Coupon input includes '@Reffreal'");
-
-                    console.log("reeday to check")
+                    
                     
                     if(subTotall>400){
                         isreffreal = true
-                    console.log(" reffreal true")
 
                     }else{
-                    console.log(" reffreal fasle")
 
                          Swal.fire("Minimun Purchase for Reffreal is ₹400!");
                          
@@ -1051,7 +1040,7 @@ if (response.redirected) {
     return response.json()
 }
 })                .then(data=>{
-                    console.log(data);
+               
                     if(data.success){
                         Swal.fire({
         title: "Coupon Successfully added",

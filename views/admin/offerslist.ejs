@@ -518,7 +518,7 @@
   }).then(response => response.json())
     .then(data => {
       if (data.success) {
-        console.log(data);
+
         const button = document.querySelector(`#product${productOfferId} .toggle-btn`);
         
         if (button) {
@@ -580,9 +580,18 @@ function toggleCategoryActivation(categoryOfferId, isActive) {
 
 
     function deleteCategoryOffer(categoryofferId) {
+      
+      Swal.fire({
+    title: "Are you sure?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#CC9966",
+    cancelButtonColor: "#969696",
+    confirmButtonText: "Yes, Delete it!"
+  }).then((result) => {
+    if (result.isConfirmed) {
 
-      console.log(categoryofferId)
-
+      
       fetch('/admin/deletecategoryoffer', {
         method: 'POST',
         headers: {
@@ -595,15 +604,23 @@ function toggleCategoryActivation(categoryOfferId, isActive) {
             document.getElementById('category' + categoryofferId).remove()
 
           }
-        })
+        })}
+      })
 
     }
 
 
 
     function deleteProductOffer(productOfferId) {
-
-
+      Swal.fire({
+    title: "Are you sure?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#CC9966",
+    cancelButtonColor: "#969696",
+    confirmButtonText: "Yes, Delete it!"
+  }).then((result) => {
+    if (result.isConfirmed) {
       fetch('/admin/deleteproductoffer', {
         method: 'POST',
         headers: {
@@ -617,6 +634,11 @@ function toggleCategoryActivation(categoryOfferId, isActive) {
 
           }
         })
+    }
+
+
+     
+      })
 
     }
   </script>
@@ -628,6 +650,8 @@ function toggleCategoryActivation(categoryOfferId, isActive) {
   <script src="assets/js/superfish.min.js"></script>
   <script src="assets/js/owl.carousel.min.js"></script>
   <script src="assets/js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.16/dist/sweetalert2.all.min.js"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
     crossorigin="anonymous"></script>

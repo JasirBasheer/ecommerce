@@ -132,13 +132,13 @@ const loadCheckout = async (req,res,next) => {
                 limit: { $ne: 0 }, 
                 expiryDate: { $gt: currentDate } 
             });
-            console.log("Acoupons");
+
             
 
 
             let outoffstock = false;
             let returnProductId;
-            console.log("before");
+
             let grandTotal = subTotal - cart.applyedDiscount
             let coupon = cart.applyedDiscount
         
@@ -146,7 +146,7 @@ const loadCheckout = async (req,res,next) => {
               const checkQuantity = await Product.findOne({ _id: cart.products[i].productId });
               if (checkQuantity && checkQuantity.num_of_stocks == 0|| checkQuantity && checkQuantity.num_of_stocks < cart.products[i].quantity) {
                 outoffstock = true;
-                console.log("hereree");
+
                 returnProductId = new mongoose.Types.ObjectId(cart.products[i].productId);
                 
                 break;
@@ -165,11 +165,10 @@ const loadCheckout = async (req,res,next) => {
             if (cart.shippingCharge == 0 ) {
 
                 let shippingCharge = (subTotal >= 2500 && subTotal !== 0) ? 0 : 200;
-                console.log(shippingCharge);
-                console.log(grandTotal);
+                
 
                 grandTotal+=shippingCharge
-                console.log(grandTotal);
+
                 
 
                 cart.shippingCharge=shippingCharge;
@@ -295,7 +294,7 @@ const orderSuccess =  async(req,res,next)=>{
                     cart.Coupon=0
                     cart.applyedCoupon=""
                     await cart.save()
-                    console.log("need at least purcase ");
+
                     
                 }
                  Total = grandTotal
@@ -328,8 +327,8 @@ const orderSuccess =  async(req,res,next)=>{
             if(user){
                 const activeAddress = user.address.find(addr => addr.isActive);
                 const orderedUserDetails = await User.findOne({"address._id":activeAddress._id})
-                console.log(orderedUserDetails);
 
+                
                 
                const Orderid = await generateOrderID()
 
@@ -346,8 +345,8 @@ const orderSuccess =  async(req,res,next)=>{
                const expectedDeliveryDate = new Date();
               expectedDeliveryDate.setDate(expectedDeliveryDate.getDate() + 7);
 
-                        console.log(shippingChargeAmount);
 
+              
                 if(activeAddress){
                     const newOrder = new Order({
                         orderId:Orderid,
@@ -408,7 +407,7 @@ const orderSuccess =  async(req,res,next)=>{
                 }
 
             }else{
-                console.log('reached here');
+
                 return res.render('checkout',{message:"Select a valid address to continue"})
 
             }
@@ -425,8 +424,8 @@ const orderSuccess =  async(req,res,next)=>{
             if(user){
                 const activeAddress = user.address.find(addr => addr.isActive);
                 const orderedUserDetails = await User.findOne({"address._id":activeAddress._id})
-                console.log(orderedUserDetails);
 
+                
                 
                const Orderid = await generateOrderID()
 
@@ -448,8 +447,8 @@ const orderSuccess =  async(req,res,next)=>{
                 if(activeAddress){
                     const wallet = await Wallet.findOne({userId:userId})
 
-                    console.log(wallet);
 
+                    
                     if(wallet.totalAmount<grandTotal){
                         console.log("insufirant abount");
 
@@ -539,7 +538,7 @@ const orderSuccess =  async(req,res,next)=>{
                 }
 
             }else{
-                console.log('reached here');
+
                 return res.render('checkout',{message:"Select a valid address to continue"})
 
             }
@@ -560,7 +559,7 @@ const orderSuccess =  async(req,res,next)=>{
 
 const loadOrderSuccess = async(req,res,next)=>{
     try {
-        console.log('sp');
+
         res.render('ordersuccess')
 
     } catch (error) {
@@ -593,8 +592,8 @@ const cancelOrder = async (req,res,next) => {
         
 
         if(clearCoupon==1){
-            console.log(findCoupon);
-            console.log("findCoupon");
+  
+            
             
 
 
@@ -602,8 +601,8 @@ const cancelOrder = async (req,res,next) => {
                 
    
 
-            console.log('clearCoupon 1');
 
+                
             let productpricePlusDiscount = productPrice-findCoupon.discount
 
              await User.findOneAndUpdate({couponName:orders.applyedCoupon},{$inc:{limit:1}})
@@ -649,7 +648,7 @@ const cancelOrder = async (req,res,next) => {
               
 
               if (!updatedOrder && !updateProduct) {
-                console.log('Order not found');
+
                 return res.status(404).json({ message: 'Order not found' });
               }
 
@@ -690,13 +689,13 @@ const cancelOrder = async (req,res,next) => {
                 await order.save()
 
 
-                console.log('Order item status updated successfully');
+
                 res.status(200).json({ offline: 'Order item status canceled successfully' });
               }
             }else{
 
-                console.log('Orders:', orders);
 
+                
                 let itemsCount =0
                 if (orders && orders.items) {
                     itemsCount = orders.items.reduce((acc, item) => {
@@ -706,11 +705,9 @@ const cancelOrder = async (req,res,next) => {
                         }
                         return acc;
                     }, 0);
-                    console.log(itemsCount);
+
                 } 
 
-                console.log("itemsCount");
-                console.log(itemsCount);
                 
                 
 
@@ -743,9 +740,7 @@ const cancelOrder = async (req,res,next) => {
 
      
              const order = await Order.findOne({_id:orderId})
-             console.log("order");
-             console.log(order);
-             
+           
    
 
              const allCancelled = order.items.every(item => item.orderStatus === 'Cancelled');
@@ -762,8 +757,8 @@ const cancelOrder = async (req,res,next) => {
              
 
              if (!updatedOrder && !updateProduct) {
-               console.log('Order not found');
-               return res.status(404).json({ message: 'Order not found' });
+
+                return res.status(404).json({ message: 'Order not found' });
              }
 
              if(order.orderStatus =='Cancelled'){
@@ -777,13 +772,7 @@ const cancelOrder = async (req,res,next) => {
 
              if(updatedOrder.paymentMethod != "COD" ){
                const findWallet = await Wallet.findOne({userId:userId}) 
-               console.log(productpricePlusDiscount);
-               console.log(order.shippingCharge+"oder charge");
                
-
-          
-
-             console.log(productpricePlusDiscount);
 
           
 
@@ -811,16 +800,16 @@ const cancelOrder = async (req,res,next) => {
                 await order.save()
 
 
-               console.log('Order item status updated successfully');
-               res.status(200).json({ offline: 'Order item status canceled successfully' });
+
+                res.status(200).json({ offline: 'Order item status canceled successfully' });
              }
 
 
 
                 }else{
 
-                    console.log('clearCoupon from refferal 0');
 
+                    
                     const updatedOrder = await Order.findOneAndUpdate(
                         {
                           customerId: new mongoose.Types.ObjectId(userId),
@@ -861,7 +850,7 @@ const cancelOrder = async (req,res,next) => {
                       
         
                       if (!updatedOrder && !updateProduct) {
-                        console.log('Order not found');
+
                         return res.status(404).json({ message: 'Order not found' });
                       }
                   
@@ -894,7 +883,7 @@ const cancelOrder = async (req,res,next) => {
         
                       }else{
         
-                        console.log('Order item status updated successfully');
+
                         res.status(200).json({ offline: 'Order item status canceled successfully' });
                       }
                 }
@@ -911,8 +900,8 @@ const cancelOrder = async (req,res,next) => {
 
 
         }else{
-            console.log('clearCoupon not reffeal 0');
 
+            
             const updatedOrder = await Order.findOneAndUpdate(
                 {
                   customerId: new mongoose.Types.ObjectId(userId),
@@ -953,7 +942,7 @@ const cancelOrder = async (req,res,next) => {
               
 
               if (!updatedOrder && !updateProduct) {
-                console.log('Order not found');
+
                 return res.status(404).json({ message: 'Order not found' });
               }
           
@@ -986,7 +975,7 @@ const cancelOrder = async (req,res,next) => {
 
               }else{
 
-                console.log('Order item status updated successfully');
+
                 res.status(200).json({ offline: 'Order item status canceled successfully' });
               }
         }
@@ -1010,8 +999,8 @@ const cancelOrder = async (req,res,next) => {
             },
             { new: true } 
           );
-          console.log(updatedOrder);
-      
+
+          
 
           const updateProduct = await Product.findOneAndUpdate(
             { _id: originalProductId },
@@ -1034,14 +1023,14 @@ const cancelOrder = async (req,res,next) => {
               
 
           if (!updatedOrder && !updateProduct) {
-            console.log('Order not found');
+
             return res.status(404).json({ message: 'Order not found' });
             
           }
       
                     
           if(order.orderStatus == 'Cancelled'){
-            console.log('alll product is calncellllledddddd from not 1');
+
             order.totalPrice-=order.shippingCharge
             await order.save()
 
@@ -1086,8 +1075,8 @@ const cancelOrder = async (req,res,next) => {
             order.shippingCharge = 0;
                 await order.save();
  
-            console.log('Order item status updated successfully');
-            res.status(200).json({ offline: 'Order item status canceled successfully' });
+
+                res.status(200).json({ offline: 'Order item status canceled successfully' });
           }
 
 
@@ -1212,7 +1201,7 @@ const addNewAddress = async(req,res,next)=>{
                     pincode,
                     isActive:true
                 };
-                console.log("address not found");
+
                 user.address.push(newAddress);
 
 
@@ -1234,7 +1223,7 @@ const addNewAddress = async(req,res,next)=>{
 
 
             const savedUser = await user.save();
-            console.log('Updated User:', savedUser);
+
             if(!page){
                 res.redirect('/user')
             }else{
@@ -1318,7 +1307,7 @@ const editAddress = async(req,res,next)=>{
         if(user){
 
             const addressIndex = user.address.findIndex(addr => addr._id.toString() === addressId);
-            console.log(addressIndex);
+
             if(addressIndex  !== -1){
                 user.address[addressIndex].fullName = fullName;
                 user.address[addressIndex].number = number;
@@ -1386,12 +1375,12 @@ const loadQuickView = async (req,res,next)=>{
 const applyCoupon = async (req,res,next)=>{
     try {
         const coupon = req.body.couponinp
-        console.log(req.body);
+
         const userId = new mongoose.Types.ObjectId(req.session.user_id._id)
         const cart = await Cart.findOne({ userId: userId });
         const isreffreal = req.body.isreffreal
-        console.log(isreffreal);
-        console.log("carttttt"+cart);
+      
+        
       
 
         if(cart){
@@ -1407,8 +1396,8 @@ const applyCoupon = async (req,res,next)=>{
                     if (findCoupon.expiryDate > now && findCoupon.limit!==0) {
     
     
-                        console.log(findCoupon);
-                   
+
+                        
                         const pipeline = [
                             {
                               $match: { userId: userId }
@@ -1653,8 +1642,8 @@ const loadOrderList = async (req, res, next) => {
             if (orders[0].applyedDiscount != 0 && orders[0].applyedCoupon) {
                 const applyCoupon = orders[0].applyedCoupon;
                 const coupon = await Coupon.findOne({ couponName: applyCoupon });
-                console.log(coupon);
-        
+
+                
                 if (coupon) {
                     discount = coupon.discount;
                     minimumPur = coupon.minimumPurchase;
@@ -1670,11 +1659,11 @@ const loadOrderList = async (req, res, next) => {
 
             }
 
-            console.log(orders[0]);
 
+            
             res.render('orderedlist', { orders, discount, minimumPur,moment,isrefferealApplied});
         } else {
-            console.log('No orders found or orders array is empty.');
+
             res.render('orderedlist', { orders: [], discount: 0, minimumPur: 0 });
         }
     } catch (error) {
@@ -1707,8 +1696,8 @@ const returnProduct = async (req, res, next) => {
         const discountAmount = itemToReturn.applyedDiscount || 0;
 
 
-        console.log(`Total Item Price: ${totalItemPrice}`);
-        console.log(`Discount Amount: ${discountAmount}`);
+       
+        
 
         const totalProductPrices = order.items.reduce((sum, item) => {
             if (item.orderStatus !== 'Cancelled') {
@@ -1749,7 +1738,7 @@ const returnProduct = async (req, res, next) => {
         const wallet = await Wallet.findOne({ userId: new mongoose.Types.ObjectId(req.session.user_id._id) });
         
 
-        console.log(`Current Wallet Pending Amount: ${wallet.pendingAmount}`);
+
         
         wallet.pendingAmount = Math.round(wallet.pendingAmount + refundAmount);
         wallet.transactions.push({
@@ -1785,8 +1774,8 @@ const generateInvoice = async (req, res, next) => {
     try {
       const userId = req.session.user_id._id; 
       const order = await Order.findOne({ customerId: userId }).sort({ createdAt: -1 });
-      console.log(userId);
-      console.log(order);
+      
+      
   
       if (!order) {
         throw new Error('Order not found');

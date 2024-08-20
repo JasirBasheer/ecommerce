@@ -719,7 +719,7 @@
 <script>
     function handleAddToWishlist(productId){
         const user = document.getElementById('checkuserId').value
-            console.log(user);
+            
 
 
             if(user ==""){
@@ -765,7 +765,7 @@ if (response.redirected) {
             if (wishlistCount) {
                 
                 wishlistCount.textContent = data.wishlistCount;
-                console.log(data.wishlistCount);
+                
             }
         
 
@@ -799,7 +799,7 @@ if (response.redirected) {
 
         function handleAddToCart(productId){
             const user = document.getElementById('checkuserId').value
-            console.log(user);
+           
 
 
             if(user ==""){
@@ -907,7 +907,7 @@ if (response.redirected) {
                 
                 const selectedValue = checkbox.value;
                 window.location.href=`/filterprodcutbycategory?id=${selectedValue}`
-                console.log('Selected category:', selectedValue);
+               
                 
             });
         });
@@ -919,12 +919,12 @@ if (response.redirected) {
 
         sortbySelect.addEventListener('change', () => {
             const selectedValue = sortbySelect.value;
-            console.log('Selected sort option:', selectedValue);
+            
 
            const markedCategory = document.getElementById('markedCategory').value
-           console.log(markedCategory);
+           
       
-           console.log(markedCategory);
+           
 
                 window.location.href =`/filter?category=${markedCategory}&sort=${selectedValue}`
             

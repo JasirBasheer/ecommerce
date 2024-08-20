@@ -1033,7 +1033,7 @@
 
 function handleAddToWishlist(productId){
         const user = document.getElementById('checkuserId').value
-            console.log(user);
+            
 
 
             if(user ==""){
@@ -1079,7 +1079,7 @@ if (response.redirected) {
             if (wishlistCount) {
                 
                 wishlistCount.textContent = data.wishlistCount;
-                console.log(data.wishlistCount);
+                
             }
         
 
@@ -1121,8 +1121,7 @@ if (response.redirected) {
 
     function handleAddToCart(productId){
         const user = document.getElementById('checkuserId').value
-        console.log(user);
-        console.log(user);
+        
 
 
         if(user ==""){
@@ -1231,7 +1230,7 @@ if (response.redirected) {
         e.preventDefault();
 
         const email = document.getElementById('newsLetterMail').value
-        console.log(email);
+       
 
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email)) {

@@ -151,8 +151,8 @@ const addToCart = async(req,res,next)=>{
         const cart = await Cart.findOne({userId:userId})
         const checkCart = await Cart.findOne({userId:userId,"products.productId":productId})
         const page =req.query.page
-        console.log(checkCart);
 
+        
         if(page=="wishlist" && product.num_of_stocks!=0){
             wishlist.products = wishlist.products.filter((product) => !product.productId.equals(productId));
             await wishlist.save();
@@ -355,7 +355,7 @@ const incQuantity = async (req,res,next)=>{
                     cart.appliedReffreal = ""
                     cart.applyedDiscount =0;
                     await cart.save();
-                    console.log("need at least purchase");
+
                 } 
             }
         }
@@ -382,7 +382,7 @@ const removeFromCart = async(req,res,next)=>{
     try {
         const user = req.session.user_id
         const productId =req.body.productId
-        console.log(productId);
+
         
         const userId = new mongoose.Types.ObjectId(user._id);
         const cart = await Cart.findOne({ userId });
@@ -448,11 +448,11 @@ const removeFromCart = async(req,res,next)=>{
         
     
 
-        console.log("userId ====" +userId +" productID ====="+productId);
+
         if(cart){
             cart.products = cart.products.filter(product => !product.productId.equals(productId));
             const data = await cart.save()
-            console.log(data);
+
             const totalPriceResult = await Cart.aggregate(TotalPricePipeline);
 
         let grandTotal = totalPriceResult[0]?.grandTotal || 0; 
@@ -462,21 +462,21 @@ const removeFromCart = async(req,res,next)=>{
             const minimumPur = coupon.minimumPurchase
 
             if (minimumPur>grandTotal) {
-            console.log("reached here");
+
                 cart.Coupon=0
                 cart.applyedCoupon=""
                 cart.appliedReffreal = ""
                 cart.applyedDiscount=0
                 await cart.save()
-                console.log("need at least purcase ");
+
                 
             }
             
         }
 
 
-        console.log(grandTotal);
-            const count= cart.products.reduce((total, item) => total + item.quantity, 0);
+
+        const count= cart.products.reduce((total, item) => total + item.quantity, 0);
 
             res.status(200).json({data,count,grandTotal})
 

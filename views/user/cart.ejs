@@ -593,12 +593,9 @@ if (response.redirected) {
     return response.json()
 }
 })        .then(data =>{
-            console.log(data);
             const cartProduct = document.getElementById(productId)
-            console.log(cartProduct);
             if (cartProduct) {
                 cartProduct.remove()
-                    console.log(data.count+"this data");
                         document.getElementById('cartcount').textContent = data.count   
                         document.getElementById('grandtotal').textContent = "₹"+ data.grandTotal
                     document.getElementById('subtotal').textContent = "₹"+ data.grandTotal
@@ -613,8 +610,7 @@ if (response.redirected) {
 
             function handleQuantity(productId){
                 const quantity = document.getElementById(`quantity${productId}`).value;
-                console.log(quantity +"quatitiy");
-                console.log(productId +"productid");
+                
                 
                 fetch('/incquantity',{
                     method:'POST',
@@ -634,8 +630,6 @@ if (response.redirected) {
 }
 })                .then(data => {
                     
-                    console.log(data.count);
-                    console.log(data);
                     document.getElementById('cartcount').textContent = data.count 
                     document.getElementById('grandtotal').textContent = "₹"+ data.grandTotal
 

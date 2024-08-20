@@ -90,7 +90,7 @@ const addToWishlist = async(req,res,next)=>{
 
                 await saveToWishlist.save()
                 const wishlistCount = saveToWishlist.products.length
-                console.log(saveToWishlist);
+
                 return res.status(200).json({success:"Product added to cart",wishlistCount})
 
 

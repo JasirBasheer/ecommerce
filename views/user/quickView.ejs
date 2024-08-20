@@ -863,13 +863,13 @@
             }else{
             let quantity = parseInt(document.getElementById('qty').value)
             let num_of_stocks = parseInt(document.getElementById('num_of_stocks').value)
-            console.log(quantity);
+           
                 if(quantity>num_of_stocks){
                     const quantityerror = document.getElementById('quantityerror')
                     quantityerror.textContent =`Product stock left is only ${num_of_stocks}`
 
                 }else{
-                    console.log(quantity);
+                    
             fetch('/addtocart',{
                 method:'POST',
                 headers:{
@@ -972,8 +972,7 @@ if (response.redirected) {
             }
         })
 
-    console.log('Order ID:', orderId);
-    console.log('Product ID:', productId);
+    
     
     }
 });

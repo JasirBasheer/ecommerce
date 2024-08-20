@@ -934,11 +934,7 @@ const AddCoupon = async(req,res,next)=>{
         const maximum = req.body.maximum.trim()
         const expiryDate = req.body.expiryDate.trim()
 
-        console.log('Coupon Name:', couponName);
-        console.log('Discount Percentage:', discount);
-        console.log('Minimum Purchase:', minimumPur);
-        console.log('Maximum Discount:', maximum);
-        console.log('Expiry Date:', expiryDate);
+        
 
         const randomNumber = createRandomNumber(3);
 
@@ -1133,9 +1129,7 @@ const loadMonthlyChart = async(req,res,next)=>{
   const AddSingleProductOffer = async(req,res,next)=>{
     try {
         const {offerName,product,discount}=req.body
-        console.log(product);
         const productId = new mongoose.Types.ObjectId(req.body.product)
-        console.log(productId);
         const findprodcut = await Product.findOne({_id:productId})
         const productName =findprodcut.productName
 
@@ -1151,7 +1145,6 @@ const loadMonthlyChart = async(req,res,next)=>{
         if(saveOffer){
             const findProduct = await Product.findById(product)
             
-            console.log(findProduct);
 
             const offeredPrice = findProduct.originalAmount - (findProduct.originalAmount * discount/100)
 
@@ -1175,7 +1168,6 @@ const loadMonthlyChart = async(req,res,next)=>{
 
   const loadAddCategoryOffer = async(req,res,next)=>{
     try {
-        console.log('sdfas');
         const category = await Category.find({is_blocked:false})
         res.render('addcategoryoffer',{category})
         
@@ -1207,7 +1199,6 @@ const activateProductoffer = async (req, res, next) => {
 
             await findProduct.save();
 
-            console.log(findProduct);
             return res.status(200).json({ success:true,message: "Product offer activated successfully" });
         } else {
             return res.status(400).json({ message: "Product already has an active offer" });
@@ -1235,7 +1226,6 @@ const deactivateProductoffer = async (req, res, next) => {
 
             await findProduct.save();
 
-            console.log(findProduct);
             return res.status(200).json({ success:true, message: "Product offer deactivated successfully" });
         } else {
             return res.status(400).json({ message: "Product has no active offer to deactivate" });
@@ -1252,7 +1242,7 @@ const deactivateProductoffer = async (req, res, next) => {
 const deleteProductOffer = async (req, res, next) => {
     try {
         const offerId = req.body.productOfferId;
-        console.log(offerId);
+
         const offer = await Offer.SingleProductOffer.findOne({_id:new mongoose.Types.ObjectId(offerId)});
         const findProduct = await Product.findById(offer.productId);
 
@@ -1289,7 +1279,6 @@ const deleteProductOffer = async (req, res, next) => {
         const offerName = req.body.offerName.trim();
         const category = req.body.product.trim();
         const discount = parseFloat(req.body.discount.trim()); 
-        console.log(category, offerName, discount);
 
         
         const offer = new Offer.CategoryOffer({
@@ -1311,7 +1300,6 @@ const deleteProductOffer = async (req, res, next) => {
 
         const findProducts = await Product.find({ productCategory: category});
 
-        console.log(findProducts);
 
             if (!Array.isArray(findProducts)) {
             return res.status(200).json({ error: "Error retrieving products" });
@@ -1329,7 +1317,6 @@ const deleteProductOffer = async (req, res, next) => {
 
 
             const offeredPrice = product.originalAmount - (product.originalAmount * (discount / 100));
-            console.log(offeredPrice);
 
             product.productPrice = Math.round(offeredPrice);
             product.offerPercentage = discount;
@@ -1353,7 +1340,6 @@ const activateCategoryOffer = async (req, res, next) => {
         const offerId = req.body.categoryOfferId; 
         const offer = await Offer.CategoryOffer.findOne({_id:new mongoose.Types.ObjectId(offerId)}); 
 
-        console.log(offer);
       
 
         const category = offer.categoryName; 
@@ -1398,10 +1384,8 @@ const deactivateCategoryOffer = async (req, res, next) => {
     try {
         const offerId = req.body.categoryOfferId;
         const offer = await Offer.CategoryOffer.findOne({_id:new mongoose.Types.ObjectId(offerId)}); 
-        console.log(offerId);
         const category = offer.categoryName; 
         const findProducts = await Product.find({ productCategory: category });
-        console.log(findProducts);
 
         const savePromises = findProducts.map(async (product) => {
             if (product.offerPercentage !== 0) {
@@ -1428,11 +1412,9 @@ const deleteCategoryOffer = async (req, res, next) => {
     try {
         const offerId = req.body.categoryofferId;
         const offer = await Offer.CategoryOffer.findOne({_id:new mongoose.Types.ObjectId(offerId)}); 
-        console.log(offer);
         const category = offer.categoryName; 
         const update = await Category.findOneAndUpdate({ categoryName: category },{ $set:{ categoryOfferPercentage: 0 } },{ new: true });     
          const findProducts = await Product.find({ productCategory: category });
-        console.log(findProducts);
 
         const savePromises = findProducts.map(async (product) => {
             if (product.offerPercentage !== 0) {                
@@ -1481,7 +1463,6 @@ const loadEditCoupon = async(req, res, next)=>{
         const couponId = req.query.id
 
         const coupon = await Coupon.findOne({_id:new mongoose.Types.ObjectId(couponId)})
-        console.log(coupon);
         res.render('editcoupon',{coupon})
         
     } catch (error) {
@@ -1530,7 +1511,6 @@ const blockCoupon = async (req,res,next)=>{
     try {
         const couponId = req.body.couponId;
         const coupon = await Coupon.findOne({_id:couponId})
-        console.log(coupon);
 
         if(coupon){
             coupon.isActive=false
@@ -1552,7 +1532,6 @@ const unBlockCoupon = async (req,res,next)=>{
     try {
         const couponId = req.body.couponId;
         const coupon = await Coupon.findOne({_id:couponId})
-        console.log(coupon);
 
         if(coupon){
             coupon.isActive=true
@@ -1595,13 +1574,11 @@ const editproductOffer = async (req,res,next)=>{
         const id = req.body.id
         const offerid = req.body.offerid
         const productId = req.body.product
-        console.log(productId)
-        console.log(id)
+ 
 
         const offer = await Offer.SingleProductOffer.findOne({_id:offerid})
         const product = await Product.findOne({_id:productId})
         const oldProduct = await Product.findOne({_id:id})
-        console.log(offer);
 
 
         oldProduct.offerPercentage = 0
@@ -1628,8 +1605,7 @@ const editproductOffer = async (req,res,next)=>{
             const updateOffer = await offer.save()
 
             const findProduct =await Product.findOne({_id:updateOffer.productId})
-            console.log(updateOffer);
-            console.log(findProduct);
+      
 
 
               const offeredPrice = findProduct.originalAmount - (findProduct.originalAmount * offer.offerPercentage / 100);
@@ -1673,7 +1649,6 @@ const loadEditCategoryOffer = async (req,res,next)=>{
         const offer = await Offer.CategoryOffer.findOne({_id:id})
         const category = await Category.find()
 
-        console.log(id);
         res.render('editcategoryoffer',{category,offer,id:offer.categoryName})
 
         
@@ -1691,7 +1666,6 @@ const loadEditCategoryOffer = async (req,res,next)=>{
 const EditCategoryOffer = async (req, res, next) => {
     try {
         const { id, offerid, offerName, category, discount } = req.body;
-        console.log(req.body);
 
 
         const oldOffer = await Offer.CategoryOffer.findOne({ categoryName: id });

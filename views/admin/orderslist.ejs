@@ -728,8 +728,8 @@
       function updateOrderStatus(orderId) {
   const selectElement = document.getElementById('orderStatus' + orderId);
   const selectedStatus = selectElement.value;
-  console.log(selectedStatus);
 
+  
   fetch('/admin/updateOrderStatus', {
     method: 'POST',
     headers: {

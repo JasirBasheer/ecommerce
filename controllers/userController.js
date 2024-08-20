@@ -104,13 +104,13 @@ const loadWallet = async(req,res,next)=>{
                 cartCount = cart.products.reduce((total, item) => total + item.quantity, 0);
             }
             wallet = await Wallet.findOne({userId:user})
-            console.log(wallet);
+
         }
         if(user ==0){
             res.redirect('/login')
         }
-        console.log(wallet);
 
+        
         res.render('wallet',{wallet,cartCount})        
     } catch (error) {
         next(error)
@@ -145,7 +145,7 @@ transporter.sendMail(mailOptions,(error,info)=>{
         return false
 
     }else{
-        console.log("Email has been send", info.response);
+
         return true
     }
 
@@ -199,7 +199,7 @@ const verifySignUp =  async(req,res,next)=>{
                 const firstFive = userdetails.userName.slice(0, 5);
                     
                 const lastFive = userData._id.toString().slice(-5);
-                console.log(lastFive);
+
                 const referralCode = `${firstFive}@Reffreal${lastFive}`
 
                 const wallet = new Wallet({
@@ -477,7 +477,7 @@ const loadShop = async(req, res, next) => {
 
 const verifyOtp = async(req,res,next)=>{
     try {
-        console.log();
+
         res.render('verifyOtp')
         
     } catch (error) {
@@ -652,10 +652,10 @@ const editUser = async (req,res,next) => {
                 { new: true } 
             );
 
-            console.log(req.body.userName);
 
+            
             if (updatedUser) {
-                console.log("User details changed");
+
                 return res.redirect('/accountdetails');
             } else {
 
@@ -679,8 +679,8 @@ const loadUpdateUserPassword = async(req,res,next)=>{
         if (cart) {
             cartCount = cart.products.reduce((total, item) => total + item.quantity, 0);
         }
-        console.log(user);
 
+        
         res.render('changepasswordwitholdpass',{user,cartCount})
         
     } catch (error) {
@@ -708,8 +708,8 @@ const updateUserPassword = async (req,res,next) => {
 
         const passwordMatch = await bcrypt.compare(oldPassword, user.password);
         if (passwordMatch) {
-            console.log("Password matched");
 
+            
 
             const spassword = await securePassword(newPassword);
             user.password = spassword;
@@ -802,8 +802,7 @@ const resetPassword = async(req,res,next)=>{
 const subscribeToNewsletter = async(req,res,next)=>{
     try {
         const email =req.body.email
-        console.log("email");
-        console.log(email);
+      
         
         
     } catch (error) {

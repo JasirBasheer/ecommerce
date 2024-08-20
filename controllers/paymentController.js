@@ -57,8 +57,8 @@ const generateOrderID = async () => {
 
 const verifyPayment = async (req, res) => {
     const { razorpayOrderId, razorpayPaymentId, razorpaySignature, userId, cart, grandTotal,usersId,cartId } = req.body;
-    console.log("asdfsdfasdfasdfasdfasdfsdfassdsd");
-    console.log(razorpayOrderId);
+   
+    
 
 
     if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
@@ -78,7 +78,7 @@ const verifyPayment = async (req, res) => {
             const user = await User.findById(usersId);
             const cart = await Cart.findOne({_id:cartId})
 
-            console.log(user,cart);
+
             const activeAddress = user.address.find(addr => addr.isActive);
 
               const applyCoupon = cart.applyedCoupon

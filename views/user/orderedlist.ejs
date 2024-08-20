@@ -146,12 +146,11 @@
                                                                             </a>
                                                                         </figure>
                                                                         <h3 class="product-title">
-                                                                            <a href="#"><%= orders[i].items[j].productName %></a>
+                                                                            <a href="/quickview?id=<%= orders[i].items[j].productId%>&orderId=<%= orders[i]._id%>"><%= orders[i].items[j].productName %></a>
                                                                         </h3>
                                                                     </div>
                                                                 </td>
-                                                                <input type="hidden" name="" id="order_id" value="<%=orders[i]._id %>">
-                                                                <input type="hidden" name="" id="product_Id" value="<%=orders[i].items[j].productId %>">
+                                                             
 
                                                                 <td class="price-col" >₹<%= orders[i].items[j].productPrice * orders[i].items[j].quantity%></td>
                                                                 <td class="quantity-col"><%= orders[i].items[j].quantity %></td>
@@ -179,7 +178,7 @@
                                                                         if (currentDate <= threeDaysBeforeExpected) { 
                                                                     %>
                                                                         <td class="remove-col">
-                                                                            <button class="btn-remove" title="Return Order" onclick="handleReturnProduct()">
+                                                                            <button class="btn-remove" title="Return Order" onclick="handleReturnProduct('<%=orders[i]._id %>','<%=orders[i].items[j].productId %>')">
                                                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                                                                                     <path d="M48.5 224L40 224c-13.3 0-24-10.7-24-24L16 72c0-9.7 5.8-18.5 14.8-22.2s19.3-1.7 26.2 5.2L98.6 96.6c87.6-86.5 228.7-86.2 315.8 1c87.5 87.5 87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3c-62.2-62.2-162.7-62.5-225.3-1L185 183c6.9 6.9 8.9 17.2 5.2 26.2s-12.5 14.8-22.2 14.8L48.5 224z"/>
                                                                                 </svg>
@@ -670,7 +669,7 @@ function confirmCancelOrder(productId, productPrice, totalPrice,subTotal,orderId
         const discountElement = document.getElementById('discount');
   const minimumPurElement = document.getElementById('minimumPur');
 
-  console.log(quantity);
+ 
 
 
   discount = discountElement.value;
@@ -685,7 +684,7 @@ function confirmCancelOrder(productId, productPrice, totalPrice,subTotal,orderId
   const productPriceAmount = parseInt(productPrice, 10);
 
   const newTotal = subTotal- productPriceAmount;
-  console.log('New Total:', newTotal);
+  
   
 
   if (minimumPurAmount <= newTotal) {
@@ -698,7 +697,7 @@ function confirmCancelOrder(productId, productPrice, totalPrice,subTotal,orderId
     handleAlert().then((confirmed) => {
       if (confirmed) {
         handlecancelOrder(productId, productPrice,clearCoupon,orderId,quantity,originalProductId,productName);
-        console.log(quantity);
+       
 
       }
     });
@@ -708,7 +707,7 @@ function confirmCancelOrder(productId, productPrice, totalPrice,subTotal,orderId
     handleCancelCoupon().then((confirmed) => {
       if (confirmed) {
         handlecancelOrder(productId, productPrice,clearCoupon,orderId,quantity,originalProductId,productName);
-        console.log(quantity);
+        
 
       }
     });
@@ -719,8 +718,7 @@ function confirmCancelOrder(productId, productPrice, totalPrice,subTotal,orderId
     
     
     function handlecancelOrder(productId,productPrice,clearCoupon,orderId,quantity,originalProductId,productName) {
-        console.log(productPrice);
-        console.log(quantity+"sucess");
+       
         
       fetch('/cancelorder', {
         method: 'POST',
@@ -739,7 +737,7 @@ if (response.redirected) {
     return response.json()
 }
 })      .then(data => {
-        console.log(data);
+       
         if (data.offline) {
           Swal.fire({
             title: "Cancelled!",
@@ -792,9 +790,9 @@ if (response.redirected) {
 
 
 <script>
-        function handleReturnProduct() {
-        const orderId = document.getElementById('order_id').value
-        const productId = document.getElementById('product_Id').value
+        function handleReturnProduct(orderId,productId) {
+    
+            
             
         Swal.fire({
     title: "Are You Sure",

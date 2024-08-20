@@ -627,7 +627,7 @@ if (response.redirected) {
 }
 })                            .then(data =>{
                     if(data.success){
-                        console.log('success');
+                      
                         const item= document.getElementById("remove"+productId)
                         item.remove()
                     }
@@ -640,7 +640,7 @@ if (response.redirected) {
 <script>
     function handleAddToWishlist(productId){
         const user = document.getElementById('checkuserId').value
-            console.log(user);
+           
 
 
             if(user ==""){
@@ -692,7 +692,7 @@ if (response.redirected) {
 
         function handleAddToCart(productId){
             const user = document.getElementById('checkuserId').value
-            console.log(user);
+            
 
 
             if(user ==""){

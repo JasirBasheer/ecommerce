@@ -584,11 +584,11 @@
           const labels = monthlySales.map(
             (sale) => monthNames[sale._id.month - 1]
           );
-          console.log("labels", labels);
+
           const data = monthlySales.map((sale) => sale.totalSales);
-          console.log("data", data);
+
           let ctx = document.getElementById("myChart").getContext("2d");
-          console.log("ctx", ctx);
+
           let myChart = new Chart(ctx, {
             type: "bar",
             data: {
@@ -615,7 +615,7 @@
               },
             },
           });
-          console.log("mychart", myChart);
+
         })
         .catch((error) => console.error(error));
 

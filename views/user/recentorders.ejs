@@ -610,7 +610,7 @@
     
     
     function handlecancelOrder(productId,productPrice) {
-        console.log(productPrice);
+        
         
       fetch('/cancelorder', {
         method: 'POST',
@@ -629,7 +629,7 @@ if (response.redirected) {
     return response.json()
 }
 })                  .then(data => {
-        console.log(data);
+        
         if (data.success) {
           Swal.fire({
             title: "Cancelled!",

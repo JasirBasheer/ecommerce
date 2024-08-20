@@ -758,7 +758,6 @@ if (response.redirected) {
                 
                 data.data.address.forEach(element => {
                     let activeAndInactive = document.getElementById(element._id);
-                    console.log(element._id);
                     if (element.isActive) {
                         activeAndInactive.textContent = 'Active address';
                         activeAndInactive.className = 'text-success';
@@ -797,7 +796,6 @@ if (response.redirected) {
     return response.json()
 }
 })            .then(data =>{
-                console.log(data);
                 const deleteAddress = document.getElementById(`delete${addressId}`);
                 if (deleteAddress) {
                     deleteAddress.remove()
@@ -878,7 +876,7 @@ if (response.redirected) {
     return response.json()
 }
 })  .then(data => {
-    console.log(data);
+    
     if (data.success) {
       Swal.fire({
         title: "Cancelled!",
