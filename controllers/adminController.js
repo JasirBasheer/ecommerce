@@ -12,7 +12,7 @@ const Wallet = require('../models/walletModel')
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 
-
+//admin controller
 
 const loadAdminLoginPage = async(req,res,next)=>{
     try {
