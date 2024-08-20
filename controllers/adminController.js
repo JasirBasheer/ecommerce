@@ -184,7 +184,6 @@ const loadOrderedList = async (req,res,next) => {
         const returnProducts = await Order.find({
             'items.orderStatus': { $in: ['Return-Pending','Returned'] }
           }).sort({ createdAt: -1 });
-        console.log(returnProducts);
 
         res.render('orderslist', { orders,returnProducts })
         
@@ -220,7 +219,6 @@ const loadUserLists = async(req,res,next)=>{
 const loadCategoryList = async(req,res,next)=>{
     try {
         const categories = await Category.find({})
-        console.log(categories);
         res.render('categorylist',{categories})
         
     } catch (error) {
@@ -377,8 +375,7 @@ if (newProductPrice === existingProduct.originalAmount) {
 const verifyAdmin =  async(req,res,next)=>{
     try {
         const {email,password} = req.body
-        console.log(email);
-        console.log(password);
+        
         if(email == process.env.ADMIN_EMAIL){
             if(password == process.env.ADMIN_PASSWORD){
                 req.session.admin_id = email
@@ -728,8 +725,8 @@ const deleteProductImage = async(req,res,next)=>{
     try {
         const productId = req.body.productId
         const productImage = req.body.image
-        console.log(productImage);
 
+        
         const product = await Product.findOne({_id:productId})
         if(product){
             if(product.images.length<4){
@@ -823,8 +820,6 @@ const loadOrderview = async(req,res,next)=>{
       const filteredOrders = results.filter(order => order.orderDetails._id.toString() === orderId);
 
 
-      console.log(filteredOrders);
-      console.log(filteredOrders[0].orderDetails);
 
 
         res.render('orderview',{filteredOrders})
@@ -872,11 +867,11 @@ const  updateOrderStatus = async(req,res,next)=>{
 
            if(result){
             if(result.orderStatus === "Delivered"){
-                console.log(orderStatus);
+
                 
                 if(order.appliedReffreal!=""){
-                    console.log(order.appliedReffreal);
 
+                    
                     const userWallet = await Wallet.findOne({referralCode:order.appliedReffreal})
                     userWallet.totalAmount+=200
 
@@ -893,7 +888,7 @@ const  updateOrderStatus = async(req,res,next)=>{
                 }
 
             }
-            console.log("saved successfully");
+
             return res.status(200).json({orderstatus:"orderstatuschanged successfully"})
            }
         }
@@ -1125,7 +1120,7 @@ const loadMonthlyChart = async(req,res,next)=>{
   const loadAddSingleProductOffer = async(req,res,next)=>{
     try {
         const products = await Product.find({is_blocked:false})
-        console.log(products);
+
         res.render('addproductoffer',{products})
         
     } catch (error) {
@@ -1225,7 +1220,6 @@ const activateProductoffer = async (req, res, next) => {
 
 
 const deactivateProductoffer = async (req, res, next) => {
-    console.log("here");
     try {
         const offerId = req.body.productOfferId;
         const offer = await Offer.SingleProductOffer.findById(offerId);
