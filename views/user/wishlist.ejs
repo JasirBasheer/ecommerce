@@ -615,8 +615,17 @@
                         'Content-Type':'application/json'
                     },
                     body:JSON.stringify({productId})
-                }).then(response => response.json())
-                .then(data =>{
+                })
+                .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})                            .then(data =>{
                     if(data.success){
                         console.log('success');
                         const item= document.getElementById("remove"+productId)
@@ -645,8 +654,17 @@
                     },
                     body:JSON.stringify({productId})
                 
-                }).then(response => response.json())
-                .then(data =>{
+                })
+                .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})                            .then(data =>{
                     if(data.success){
                         Swal.fire({
         title: "Prdouct added in wishlist",
@@ -689,8 +707,16 @@
                 body:JSON.stringify({productId})
                 
             })
-            .then(response => response.json())
-            .then(data=>{  
+            .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})                        .then(data=>{  
         if (data !== undefined) {
             if(data.outofstock){
                 Swal.fire({

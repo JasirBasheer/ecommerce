@@ -58,7 +58,7 @@
                     </div><!-- End .header-search -->
                     <a href="/wishlist" class="wishlist-link">
                         <i class="icon-heart-o"></i>
-                            <span class="wishlist-count">3</span>
+                            <span class="wishlist-count">0</span>
                     </a>
 
                     <div class="dropdown cart-dropdown" onclick="loadCart()">
@@ -583,8 +583,16 @@
             },
             body:JSON.stringify({productId})
         })
-        .then(response => response.json())
-        .then(data =>{
+  .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})        .then(data =>{
             console.log(data);
             const cartProduct = document.getElementById(productId)
             console.log(cartProduct);
@@ -614,8 +622,17 @@
                         'Content-Type':'application/json'
                     },
                     body:JSON.stringify({productId,quantity})
-                }).then(response => response.json())
-                .then(data => {
+                })
+                .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})                .then(data => {
                     
                     console.log(data.count);
                     console.log(data);

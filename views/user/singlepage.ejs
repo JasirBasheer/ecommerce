@@ -1,4 +1,12 @@
 <%- include('../layouts/user/header') -%>
+<style>
+    
+.review .col-auto {
+    width: 147px;
+    padding-right: 2rem;
+}
+
+</style>
 
     <div class="page-wrapper">
        
@@ -147,9 +155,25 @@
 
                                     <div class="ratings-container">
                                         <div class="ratings">
-                                            <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
+                                            <% let averageRating=0 %>
+                                            <% if (product.reviews.length!=0) { %>
+                                                <%
+                                                let sumOfRatings = 0;
+    
+                                            sumOfRatings = product.reviews.reduce((sum, r) => sum + Number(r.rating), 0);
+    
+                                            const numberOfRatings = product.reviews.length;
+    
+                                             averageRating = sumOfRatings / numberOfRatings;
+    
+    
+                                       %>    
+                                            <% } %>
+                                                
+                                           
+                                            <div class="ratings-val" style="width: <%=averageRating%>%;"></div><!-- End .ratings-val -->
                                         </div><!-- End .ratings -->
-                                        <a class="ratings-text" href="#product-review-link" id="review-link">( 2 Reviews )</a>
+                                        <a class="ratings-text" href="#product-review-link" id="review-link">( <%= product.reviews.length %> Reviews )</a>
                                     </div><!-- End .rating-container -->
                                     <div style="display: flex;text-align: center;justify-content: center;">
                                     <% if (product.productPrice != product.originalAmount) { %>
@@ -233,7 +257,7 @@
                                 <a class="nav-link" id="product-shipping-link" data-toggle="tab" href="#product-shipping-tab" role="tab" aria-controls="product-shipping-tab" aria-selected="false">Shipping & Returns</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="product-review-link" data-toggle="tab" href="#product-review-tab" role="tab" aria-controls="product-review-tab" aria-selected="false">Reviews (2)</a>
+                                <a class="nav-link" id="product-review-link" data-toggle="tab" href="#product-review-tab" role="tab" aria-controls="product-review-tab" aria-selected="false">Reviews (<%= product.reviews.length %>)</a>
                             </li>
                         </ul>
                         <div class="tab-content">
@@ -270,59 +294,46 @@
                                 </div><!-- End .product-desc-content -->
                             </div><!-- .End .tab-pane -->
                             <div class="tab-pane fade" id="product-review-tab" role="tabpanel" aria-labelledby="product-review-link">
-                                <div class="reviews">
-                                    <h3>Reviews (2)</h3>
-                                    <div class="review">
-                                        <div class="row no-gutters">
-                                            <div class="col-auto">
-                                                <h4><a href="#">Alen</a></h4>
-                                                <div class="ratings-container">
-                                                    <div class="ratings">
-                                                        <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
-                                                    </div><!-- End .ratings -->
-                                                </div><!-- End .rating-container -->
-                                                <span class="review-date">6 days ago</span>
-                                            </div><!-- End .col -->
-                                            <div class="col">
-                                                <h4>Good, perfect size</h4>
-
-                                                <div class="review-content">
-                                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ducimus cum dolores assumenda asperiores facilis porro reprehenderit animi culpa atque blanditiis commodi perspiciatis doloremque, possimus, explicabo, autem fugit beatae quae voluptas!</p>
-                                                </div><!-- End .review-content -->
-
-                                                <div class="review-action">
-                                                    <a href="#"><i class="icon-thumbs-up"></i>Helpful (2)</a>
-                                                    <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
-                                                </div><!-- End .review-action -->
-                                            </div><!-- End .col-auto -->
-                                        </div><!-- End .row -->
-                                    </div><!-- End .review -->
-
-                                    <div class="review">
-                                        <div class="row no-gutters">
-                                            <div class="col-auto">
-                                                <h4><a href="#">Ajmal</a></h4>
-                                                <div class="ratings-container">
-                                                    <div class="ratings">
-                                                        <div class="ratings-val" style="width: 100%;"></div><!-- End .ratings-val -->
-                                                    </div><!-- End .ratings -->
-                                                </div><!-- End .rating-container -->
-                                                <span class="review-date">5 days ago</span>
-                                            </div><!-- End .col -->
-                                            <div class="col">
-                                                <h4>Very good</h4>
-
-                                                <div class="review-content">
-                                                    <p>Sed, molestias, tempore? Ex dolor esse iure hic veniam laborum blanditiis laudantium iste amet. Cum non voluptate eos enim, ab cumque nam, modi, quas iure illum repellendus, blanditiis perspiciatis beatae!</p>
-                                                </div><!-- End .review-content -->
-
-                                                <div class="review-action">
-                                                    <a href="#"><i class="icon-thumbs-up"></i>Helpful (0)</a>
-                                                    <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
-                                                </div><!-- End .review-action -->
-                                            </div><!-- End .col-auto -->
-                                        </div><!-- End .row -->
-                                    </div><!-- End .review -->
+                                <div class="reviews">                               
+                                    <% if (product.reviews.length!= 0) { %>
+                                        <% for (let i = 0; i < product.reviews.length; i++) {%>
+                                                               <div class="review">
+                                                                        <div class="row no-gutters">
+                                                                            <div class="col-auto">
+                                                                                <h4><a href="#"><%=product.reviews[i].name%></a></h4>
+                                                                                <div class="ratings-container">
+                                                                                    <div class="ratings">
+                                                                                        <div class="ratings-val" style="width:<%=product.reviews[i].rating%>%"></div><!-- End .ratings-val -->
+                                                                                    </div><!-- End .ratings -->
+                                                                                </div><!-- End .rating-container -->
+                                                                                <span class="review-date">
+                                                                                    <% 
+                                                                                      const date =product.reviews[i].date
+                                                                                      const day = String(date.getDate()).padStart(2, '0');
+                                                                                      const month = String(date.getMonth() + 1).padStart(2, '0');
+                                                                                      const year = date.getFullYear();
+                                                                                      const formattedDate = `${day}/${month}/${year}`;
+                                                                                 %>
+                                                                                 <%= formattedDate %>
+                                                                                    </span>
+                                                                            </div><!-- End .col -->
+                                                                            <div class="col">
+                                
+                                                                                <div class="review-content">
+                                                                                    <p><%=product.reviews[i].review%></p>
+                                                                                </div><!-- End .review-content -->
+                                
+                                                                      
+                                                                            </div><!-- End .col-auto -->
+                                                                        </div><!-- End .row -->
+                                                                    </div><!-- End .review -->
+                                            
+                                            <%   } %>        
+                                        <%}else{%>
+                                            <p>no reviews</p>
+                                        <%}%>
+                
+                                        
                                 </div><!-- End .reviews -->
                             </div><!-- .End .tab-pane -->
                         </div><!-- End .tab-content -->
@@ -386,9 +397,31 @@
                                         </div><!-- End .product-price -->
                                         <div class="ratings-container">
                                             <div class="ratings">
-                                                <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
+                                                <% if (relatedProducts[i].reviews.length!=0) { %>
+                                                 
+                                                    <%
+                                                            let sumOfRatings = 0;
+
+                                                        sumOfRatings = relatedProducts[i].reviews.reduce((sum, r) => sum + Number(r.rating), 0);
+
+                                                        const numberOfRatings = relatedProducts[i].reviews.length;
+
+                                                        const averageRating = sumOfRatings / numberOfRatings;
+
+   
+                                                   %>
+                                                
+                                                <div class="ratings-val" style="width: <%=averageRating %>%;"></div><!-- End .ratings-val -->
+
+                                                <% }else{%>
+                                                    <div class="ratings-val" style="width: 0%;"></div><!-- End .ratings-val -->
+
+                                                <% } %>
+                                               
+                                              
                                             </div><!-- End .ratings -->
-                                            <span class="ratings-text">( 6 Reviews )</span>
+                                            <span class="ratings-text">( <%= relatedProducts[i].reviews.length %> Reviews )</span>
+                                                    
                                         </div><!-- End .rating-container -->
                                     </div><!-- End .product-body -->
                                 </div><!-- End .product -->
@@ -808,7 +841,16 @@
                 body:JSON.stringify({productId , quantity})
                 
             })
-            .then(response => response.json())
+            .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})
             .then(data=>{  
         if (data !== undefined) {
             Swal.fire({
@@ -856,8 +898,16 @@
             body:JSON.stringify({productId})
             
         })
-        .then(response => response.json())
-        .then(data=>{  
+        .then(response => {
+
+            
+    if (response.redirected) {
+
+        window.location.href = response.url;
+    }
+})
+
+.then(data=>{  
             if (data !== undefined) {
             if(data.outofstock){
                 Swal.fire({
@@ -935,8 +985,17 @@
                     },
                     body:JSON.stringify({productId})
                 
-                }).then(response => response.json())
-                .then(data =>{
+                })
+                .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})                            .then(data =>{
                     if(data.success){
                         Swal.fire({
         title: "Prdouct added in wishlist",

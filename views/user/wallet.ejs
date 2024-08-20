@@ -156,6 +156,7 @@
                                                     </div>
                                                 </div>
                                             </div>
+
                                         
                                             <div class="col-lg-4 d-flex">
                                                 <div class="card flex-fill">
@@ -171,6 +172,9 @@
                                             </div>
                                         
                                         </div>
+
+                                        <p>Earn rewards by sharing your referral <span style="font-weight: 600; cursor: pointer;" onclick="copyToClipboard('<%= wallet.referralCode %>')"><%= wallet.referralCode %></span> code with friends</p>
+
                                         
                              
 
@@ -646,6 +650,33 @@ function loadCart(){
             window.location.href='/cart'
             
       
+    }
+
+    function copyToClipboard(text) {
+
+        const tempInput = document.createElement("input");
+        tempInput.style.position = "absolute";
+        tempInput.style.left = "-9999px";
+        tempInput.value = text;
+
+
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        tempInput.setSelectionRange(0, 99999); 
+        
+
+        document.execCommand("copy");
+
+        document.body.removeChild(tempInput);
+
+        Swal.fire({
+        title: "Reffreal Code Copied to Your Clipboard",
+        text: "Share this reffreal code to earn reward",
+        icon:"success",
+        confirmButtonColor: "#CC9966",
+        confirmButtonText: 'Ok',
+
+    })
     }
 </script>
 

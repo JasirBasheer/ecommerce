@@ -117,6 +117,7 @@
                     <h4 class="mt-2 mb-2">Ordered items</h4>
 
                     <% if (typeof orders !== "undefined") { %>
+
                         <% if (orders && orders.length > 0) { %>
                             <% for (let i = orders.length - 1; i >= 0; i--) { %>
                                 <div class="row">
@@ -149,6 +150,9 @@
                                                                         </h3>
                                                                     </div>
                                                                 </td>
+                                                                <input type="hidden" name="" id="order_id" value="<%=orders[i]._id %>">
+                                                                <input type="hidden" name="" id="product_Id" value="<%=orders[i].items[j].productId %>">
+
                                                                 <td class="price-col" >₹<%= orders[i].items[j].productPrice * orders[i].items[j].quantity%></td>
                                                                 <td class="quantity-col"><%= orders[i].items[j].quantity %></td>
                                                                 <td class="date-col"><%= moment(orders[i].expectedDeliveryDate).format('ddd MMM DD YYYY') %></td>
@@ -162,7 +166,26 @@
                                                                 <% if (orders[i].items[j].orderStatus !== "Cancelled" && orders[i].items[j].orderStatus !== "Delivered" && orders[i].items[j].orderStatus !== "Returned" && orders[i].items[j].orderStatus !== "Return-Pending" ) { %>
                                                                     <td class="remove-col">
                                                                         <button class="btn-remove" onclick="confirmCancelOrder('<%= orders[i].items[j]._id %>', '<%= orders[i].items[j].productPrice * orders[i].items[j].quantity %>','<%= orders[i].totalPrice %>','<%= orders[i].applyedDiscount +  orders[i].totalPrice %>','<%= orders[i]._id %>','<%= orders[i].items[j].quantity %>','<%= orders[i].items[j].productId %>','<%= orders[i].items[j].productName %>')"><i class="icon-close"></i></button>
+
                                                                     </td>
+                                                                <% } %>
+                                                                <% if (orders[i].items[j].orderStatus === "Delivered") { %>
+                                                                    <% 
+                                                                        const currentDate = new Date();
+                                                                        const expectedDate = new Date(orders[i].expectedDeliveryDate);
+                                                                        const threeDaysBeforeExpected = new Date(expectedDate);
+                                                                        threeDaysBeforeExpected.setDate(expectedDate.getDate() - 3); 
+                                                                        
+                                                                        if (currentDate <= threeDaysBeforeExpected) { 
+                                                                    %>
+                                                                        <td class="remove-col">
+                                                                            <button class="btn-remove" title="Return Order" onclick="handleReturnProduct()">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                                                                    <path d="M48.5 224L40 224c-13.3 0-24-10.7-24-24L16 72c0-9.7 5.8-18.5 14.8-22.2s19.3-1.7 26.2 5.2L98.6 96.6c87.6-86.5 228.7-86.2 315.8 1c87.5 87.5 87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3c-62.2-62.2-162.7-62.5-225.3-1L185 183c6.9 6.9 8.9 17.2 5.2 26.2s-12.5 14.8-22.2 14.8L48.5 224z"/>
+                                                                                </svg>
+                                                                            </button>
+                                                                        </td>  
+                                                                    <% } %>
                                                                 <% } %>
 
 
@@ -176,7 +199,7 @@
                                     <input type="hidden" name="" id="discount" value="<%= discount  %>">
                                     <input type="hidden" name="" id="minimumPur" value="<%= minimumPur %>">
                                     <input type="hidden" name="" id="isreffrealApplied" value="<%= isrefferealApplied %>">
-                                    <div class="col-md-3 col-lg-3 p-5" style="background-color: #cc996600;margin-bottom: 22px;margin-let: 12px;height: 33em;box-shadow: 0px 0px 12px 1px rgba(0, 0, 0, 0.045);">
+                                    <div class="col-md-3 col-lg-3 p-5" style="background-color: #cc996600;margin-bottom: 22px;height: 33em;box-shadow: 0px 0px 12px 1px rgba(0, 0, 0, 0.045);">
                                         <h6 class="mt-3 mb-2" >ORDER SUMMARY</h6>
                                         <div class="order-summary-append mb-2">
                                             <h6>OrderId :<%= orders[i]._id %></h6>
@@ -706,8 +729,16 @@ function confirmCancelOrder(productId, productPrice, totalPrice,subTotal,orderId
         },
         body: JSON.stringify({ productId,productPrice,clearCoupon,orderId,quantity,originalProductId,productName})
       })
-      .then(response => response.json())
-      .then(data => {
+      .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})      .then(data => {
         console.log(data);
         if (data.offline) {
           Swal.fire({
@@ -758,6 +789,68 @@ function confirmCancelOrder(productId, productPrice, totalPrice,subTotal,orderId
       });
     }
     </script>
+
+
+<script>
+        function handleReturnProduct() {
+        const orderId = document.getElementById('order_id').value
+        const productId = document.getElementById('product_Id').value
+            
+        Swal.fire({
+    title: "Are You Sure",
+    icon: "warning",
+    showCancelButton: true, 
+    confirmButtonText: 'Yes, Return this product',
+    cancelButtonText: 'No'
+}).then((result) => {
+
+    if (result.isConfirmed) {
+        fetch('/returnproduct',{
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({orderId,productId})
+        })
+        .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})        .then(data=>{
+            if(data.success){
+
+                Swal.fire({
+    title: "The prodcut amount will be credited to your wallet within 3 working days",
+    icon: "success",
+    confirmButtonText: 'Okey',
+}).then((result) => {
+
+    if (result.isConfirmed) {
+        window.location.href ="/orderedlist?id="+ orderId
+
+    }
+})
+
+            }
+        })
+    
+    }
+});
+
+        
+        
+
+
+        
+        
+
+        }
+</script>
 
 
     <!-- Main JS File -->

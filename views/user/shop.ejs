@@ -197,9 +197,25 @@
                                                         </div><!-- End .product-price -->
                                                         <div class="ratings-container">
                                                             <div class="ratings">
-                                                                <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
+                                                                <% let averageRating=0 %>
+                                                                <% if (products[i].reviews.length!=0) { %>
+                                                                    <%
+                                                                    let sumOfRatings = 0;
+                        
+                                                                sumOfRatings = products[i].reviews.reduce((sum, r) => sum + Number(r.rating), 0);
+                        
+                                                                const numberOfRatings = products[i].reviews.length;
+                        
+                                                                 averageRating = sumOfRatings / numberOfRatings;
+                        
+                        
+                                                           %>    
+                                                                <% } %>
+                                                
+                                                                
+                                                                <div class="ratings-val" style="width: <%=averageRating%>%;"></div><!-- End .ratings-val -->
                                                             </div><!-- End .ratings -->
-                                                            <span class="ratings-text">( 2 Reviews )</span>
+                                                            <span class="ratings-text">( <%=products[i].reviews.length %> Reviews )</span>
                                                         </div><!-- End .rating-container -->
         
                                                         <div class="product-nav product-nav-thumbs">
@@ -717,8 +733,17 @@
                     },
                     body:JSON.stringify({productId})
                 
-                }).then(response => response.json())
-                .then(data =>{
+                })
+                .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})                            .then(data =>{
                     if(data.success){
                         Swal.fire({
         title: "Prdouct added in wishlist",
@@ -789,7 +814,16 @@
                 body:JSON.stringify({productId})
                 
             })
-            .then(response => response.json())
+            .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})            
             .then(data=>{  
         if (data !== undefined) {
             if(data.outofstock){

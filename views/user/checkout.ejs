@@ -207,6 +207,23 @@
 
 
 								    	</div><!-- End .row -->
+                                        <% if (typeof Acoupons != "undefined") { %>
+                                            <% if (Acoupons.length != 0) { %>
+                                                <div class="col-lg-6">
+                                                    <div class="card card-dashboard">
+                                                        <div class="card-body">
+                                                            <h3 class="card-title">Available Coupons</h3><!-- End .card-title -->
+                                                            <% Acoupons.forEach(c => { %>
+                                                                <p><%= c.couponName %> - ₹<%=c.discount  %> off</p>
+                                                                
+                                                                <%  }); %>
+                                                        </div><!-- End .card-body -->
+                                                    </div><!-- End .card-dashboard -->
+                                                </div><!-- End .col-lg-6 -->
+                                            <% } %>
+                                        <% } %>
+                                        
+                                      
 		                				
 		                		</div><!-- End .col-lg-9 -->
 		                		<aside class="col-lg-3">
@@ -246,7 +263,9 @@
 		                						<tr class="summary-subtotal">
 		                							<td>Subtotal :</td>
 		                							<td>₹<%=subTotal%></td>
+                                                   
 		                						</tr><!-- End .summary-subtotal -->
+                                                <input type="hidden" name="" id="subTotall" value="<%= subTotal  %>">
                                                 <tr>
 		                							<td>Coupon Discount:</td>
 		                							<td id="couponprice">₹ <%=coupon %></td>
@@ -716,8 +735,16 @@
                 },
                 body: JSON.stringify({ userId, addressId})
             })
-            .then(response => response.json())
-            .then(data => {
+            .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})            .then(data => {
                 
                 data.data.address.forEach(element => {
                     let activeAndInactive = document.getElementById(element._id);
@@ -748,8 +775,16 @@
                 },
                 body:JSON.stringify({userId,addressId})
             })
-            .then(response => response.json())
-            .then(data =>{
+            .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})            .then(data =>{
                 console.log(data);
                 const deleteAddress = document.getElementById(`delete${addressId}`);
                 if (deleteAddress) {
@@ -773,10 +808,19 @@ function handleClearCoupon(){
         headers:{
             'Content-Type':'application/json'
         }
-    }).then(response => response.json())
-    .then(data=>{
+    })
+    .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})    .then(data=>{
         if(data.success){
-            Swal.fire("Coupon Cleared");
+            Swal.fire("Discount Cleared");
             document.getElementById('couponprice').innerText=0
             window.location.reload()
         }
@@ -968,8 +1012,24 @@ async function handlePlaceOrder(event) {
                 let isreffreal = false
 
                 if (couponinp.includes("@Reffreal")) {
-                    isreffreal = true
+                    const subTotall = parseInt(document.getElementById('subTotall').value)
+                    console.log(subTotall);
+                    console.log(typeof subTotall);
                     console.log("Coupon input includes '@Reffreal'");
+
+                    console.log("reeday to check")
+                    
+                    if(subTotall>400){
+                        isreffreal = true
+                    console.log(" reffreal true")
+
+                    }else{
+                    console.log(" reffreal fasle")
+
+                         Swal.fire("Minimun Purchase for Reffreal is ₹400!");
+                         
+                        return;
+                    }
                     } 
                 const formData = { couponinp,isreffreal };
 
@@ -980,8 +1040,17 @@ async function handlePlaceOrder(event) {
                         'Content-Type':'application/json'
                     },
                     body:JSON.stringify(formData)
-                }).then(response => response.json())
-                .then(data=>{
+                })
+                .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})                .then(data=>{
                     console.log(data);
                     if(data.success){
                         Swal.fire({

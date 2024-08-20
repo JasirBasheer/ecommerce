@@ -633,8 +633,16 @@
                     'Content-Type': 'application/json'
                 }
             })
-            .then(response => response.json())
-            .then(data => {
+            .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})                        .then(data => {
                 if (data.success) {
 
                     Swal.fire({

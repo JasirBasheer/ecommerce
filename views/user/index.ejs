@@ -989,27 +989,25 @@
         </div><!-- End .modal-dialog -->
     </div><!-- End .modal -->
 
-    <div class="container newsletter-popup-container mfp-hide" id="newsletter-popup-form">
+    <!-- <div class="container newsletter-popup-container mfp-hide" id="newsletter-popup-form">
         <div class="row justify-content-center">
             <div class="col-10">
                 <div class="row no-gutters bg-white newsletter-popup-content">
                     <div class="col-xl-3-5col col-lg-7 banner-content-wrap">
                         <div class="banner-content text-center">
                             <img src="assets/images/popup/newsletter/logo.png" class="logo" alt="logo" width="60" height="15">
-                            <h2 class="banner-title">get <span>25<light>%</light></span> off</h2>
+                            <h2 class="banner-title">get <span>in<light></light></span> touch</h2>
                             <p>Subscribe to the Wood Street eCommerce newsletter to receive timely updates from your favorite products.</p>
-                            <form action="#">
+                            <form onsubmit="handleNewsLetter(event)">
                                 <div class="input-group input-group-round">
-                                    <input type="email" class="form-control form-control-white" placeholder="Your Email Address" aria-label="Email Adress" required>
+                                    <input type="email" id="newsLetterMail" class="form-control form-control-white" placeholder="Your Email Address" aria-label="Email Adress" required>
                                     <div class="input-group-append">
                                         <button class="btn" type="submit"><span>go</span></button>
-                                    </div><!-- .End .input-group-append -->
-                                </div><!-- .End .input-group -->
+                                    </div>
+                                </div>
                             </form>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="register-policy-2" required>
-                                <label class="custom-control-label" for="register-policy-2">Do not show this popup again</label>
-                            </div><!-- End .custom-checkbox -->
+                            <p id="emailerror"></p>
+                     
                         </div>
                     </div>
                     <div class="col-xl-2-5col col-lg-5 ">
@@ -1018,8 +1016,8 @@
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Plugins JS File -->
+    </div> -->
+    <!-- Plugins JS File --> 
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/jquery.hoverIntent.min.js"></script>
@@ -1049,8 +1047,17 @@ function handleAddToWishlist(productId){
                     },
                     body:JSON.stringify({productId})
                 
-                }).then(response => response.json())
-                .then(data =>{
+                })
+                .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})                .then(data =>{
                     if(data.success){
                         Swal.fire({
         title: "Prdouct added in wishlist",
@@ -1130,7 +1137,21 @@ function handleAddToWishlist(productId){
             body:JSON.stringify({productId})
             
         })
-        .then(response => response.json())
+        .then(response => {
+    if (response.redirected) {
+
+        window.location.href = response.url;
+        return; 
+    }
+
+    if (!response.ok) {
+
+        throw new Error('Network response was not ok');
+    }
+
+
+    return response.json();
+})
         .then(data=>{  
             if (data !== undefined) {
             if(data.outofstock){
@@ -1201,6 +1222,49 @@ function handleAddToWishlist(productId){
         }else{
             window.location.href='/login'
         }
+    }
+
+
+
+
+    function handleNewsLetter(e){    
+        e.preventDefault();
+
+        const email = document.getElementById('newsLetterMail').value
+        console.log(email);
+
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+     document.getElementById('emailerror').textContent="Enter a valid Email"
+        return; 
+    }
+        
+        fetch('/subscribe-to-newsletter',{
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({email})
+        })
+        .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})        .then(data =>{
+            if(data.success){
+                Swal.fire({
+        title: "Successfully subscribed to newsletter",
+        icon:"success",
+        confirmButtonColor: "#CC9966",
+        confirmButtonText: 'OK',
+    })
+            }
+        })
     }
 
         

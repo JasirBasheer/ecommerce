@@ -172,6 +172,7 @@
           <table class="table table-striped">
             <thead>
               <tr>
+                <th scope="col"></th>
                 <th scope="col">Product</th>
                 <th scope="col" class="text-center">Price</th>
                 <th scope="col" class="text-center">Quantity</th>
@@ -190,25 +191,24 @@
                     <td>
                       <div class="d-flex align-items-center">
                         <img src="<%= order.productDetails.images[0] %>" alt="Product image" style="width: 60px; height: 60px;" class="mr-3">
-                        <div>
-                          <div><%= order.productDetails.productName %></div>
-                        </div>
+                        
                       </div>
                     </td>
                     <% for( let j = 0; j < order.orderDetails.items.length; j++ ) { %>
                       
                       <% if (order.productDetails._id.toString() == order.orderDetails.items[j].productId.toString()) { %>
+                        <td class=""> <%= order.orderDetails.items[j].productName %></td>
                         <td class="text-center">₹ <%= order.orderDetails.items[j].productPrice %></td>
 
                         <td class="text-center"><%= order.orderDetails.items[j].quantity %></td>
                         <% if (order.orderDetails.items[j].orderStatus!="Cancelled") { %>
                           <td class="text-center"> <%= order.orderDetails.items[j].orderStatus %></td>
-                          <td class="text-center">₹ <%= order.orderDetails.items[j].quantity * order.orderDetails.items[j].productPrice %></td>
+                          <td class="text-center">₹ <%= order.orderDetails.items[j].productPrice * order.orderDetails.items[j].quantity %></td>
     
                          
                         <% }else{ %>
                           <td class="text-center" style="color: red;"> <%= order.orderDetails.items[j].orderStatus %></td>
-                          <td class="text-center text-danger">₹ <%= order.productDetails.productPrice %></td>
+                          <td class="text-center text-danger" style="text-decoration: line-through;">₹ <%=order.orderDetails.items[j].productPrice * order.orderDetails.items[j].quantity %></td>
     
                           <% } %>
 

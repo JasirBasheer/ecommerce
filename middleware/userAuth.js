@@ -9,12 +9,12 @@ const isLogin = async(req,res,next)=>{
                 return next();
             } else {
                 req.session.destroy()
+             res.redirect('/login')
+
             }
         
-            
-            return next()
-        }else{
-            return res.redirect('/login')
+            }else{
+             res.redirect('/login')
         }
         
     } catch (error) {

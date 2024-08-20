@@ -114,6 +114,10 @@ user_route.post('/editaddress',auth.isLogin,checkoutController.editAddress)
 user_route.post('/addtocart',auth.isLogin,cartController.addToCart)
 user_route.post('/cart/removefromcart',auth.isLogin,cartController.removeFromCart)
 user_route.post('/returnproduct',auth.isLogin,checkoutController.returnProduct)
+user_route.post('/addreview',auth.isLogin,productController.addreview)
+user_route.post('/subscribe-to-newsletter',auth.isLogin,userController.subscribeToNewsletter)
+
+
 
 
 

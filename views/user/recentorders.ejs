@@ -165,7 +165,7 @@
                                                                     <% }else if(orders[i].orderStatus!="Returned"&& orders[i].totalPrice==0){ %>
                                                                         <p style="color: red;text-decoration: line-through;">Cancelled</p>
                                                                     <%}else{ %>
-                                                                        <p><%=orders[i].orderStatus  %></p>
+                                                                        <p><%=orders[i].orderStatus %></p>
                                                                         <% } %>
 
                                                                     
@@ -619,8 +619,16 @@
         },
         body: JSON.stringify({ productId,productPrice })
       })
-      .then(response => response.json())
-      .then(data => {
+      .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})                  .then(data => {
         console.log(data);
         if (data.success) {
           Swal.fire({

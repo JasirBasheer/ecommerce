@@ -149,7 +149,7 @@
                                         </div>
 
                                         <% if (cart && cart.products.length > 0) { %>
-                                            <h5 class="mt-4">oops you forgot to order something in your cart</h5>
+                                            <h5 class="mt-4">Oops you forgot to order something in your cart</h5>
 
                                             <table class="table table-cart table-mobile">
                                                 <thead>
@@ -334,59 +334,7 @@
 
 								    	</div><!-- End .row -->
 
-                                        <% if (coupons && coupons.length > 0) { %>
-                                        <h4>Available Coupons</h4> 
-                                            <% } %>
-
-                                        <div class="row">
-                                            <% if (coupons && coupons.length > 0) { %>
-                                            
-                                                <% coupons.forEach((coupon) => { %>
-                                                    <% if (coupon.isActive!= false) { %>
-                                                        <% if (coupon.limit!=0) { %>
-                                                            <% let datenow = Date.now() %>
-                                                            <% if (coupon.expiryDate>datenow) { %>
-                                                             
-                                                                <div class="col-lg-6" >
-                                                                    <div class="card card-dashboard">
-                                                                        <div class="card-body">
-                                                                            <h3 class="card-title"></h3>
-                                                                            <p>
-                                                                                COUPON : <%= coupon.couponName %>
-                                                                                <br>
-                                                                               DISCOUNT : <%= coupon.discount %>
-                                                                                <br>
-                                                                               MINIMUM PURCHASE : <%= coupon.minimumPurchase %>
-                                                                                <br>
-                                                                               EXPIRY DATE : <%= new Date(coupon.expiryDate).toLocaleDateString('en-US', {
-                                                                                year: 'numeric',
-                                                                                month: '2-digit',
-                                                                                day: '2-digit'
-                                                                            }) %>
-                                                                                <br>
-            
-            
-                                                                             
-                                                                            </p>
-                                                                         
-            
-                                            
-            
-                                                                              
-                                                                        </div><!-- End .card-body -->
-                                                                    </div><!-- End .card-dashboard -->
-                                                                </div>
-                                                            <% } %>
-                                                           
-                                                        <% } %>
-                                                     
-                                                    <% } %>
-                                                 
-                                                 <% }); %>
-                                                <% } else { %>
-                                                    <p style="margin-left: 13px;">No addresses found.</p>
-                                                <% } %>
-                                        </div>
+                                       
 								    </div><!-- .End .tab-pane -->
                                     
                             
@@ -797,8 +745,16 @@ function deleteAddressAlert() {
                 },
                 body: JSON.stringify({ userId, addressId})
             })
-            .then(response => response.json())
-            .then(data => {
+            .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})            .then(data => {
                 
                 data.data.address.forEach(element => {
                     let activeAndInactive = document.getElementById(element._id);
@@ -831,8 +787,16 @@ function deleteAddressAlert() {
                 },
                 body:JSON.stringify({userId,addressId})
             })
-            .then(response => response.json())
-            .then(data =>{
+            .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})            .then(data =>{
                 console.log(data);
                 const deleteAddress = document.getElementById(`delete${addressId}`);
                 if (deleteAddress) {
@@ -904,8 +868,16 @@ function handlecancelOrder(productId,productPrice) {
     },
     body: JSON.stringify({ productId,productPrice })
   })
-  .then(response => response.json())
-  .then(data => {
+  .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})  .then(data => {
     console.log(data);
     if (data.success) {
       Swal.fire({

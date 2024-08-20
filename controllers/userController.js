@@ -799,6 +799,19 @@ const resetPassword = async(req,res,next)=>{
 }
 
 
+const subscribeToNewsletter = async(req,res,next)=>{
+    try {
+        const email =req.body.email
+        console.log("email");
+        console.log(email);
+        
+        
+    } catch (error) {
+        next(error)
+    }
+}
+
+
 
 module.exports ={
     loadRegister,
@@ -829,6 +842,7 @@ module.exports ={
     loadUpdateUserPassword,
     editUser,
     updateUserPassword,
+    subscribeToNewsletter,
     
     logout,
 }

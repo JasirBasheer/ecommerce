@@ -1,5 +1,30 @@
 <%- include('../layouts/user/header') -%>
 
+<style>
+    #star-rating .star {
+    cursor: pointer;
+    font-size: 2rem;
+    color: #ddd;
+}
+
+#star-rating .star:hover,
+#star-rating .star:hover ~ .star {
+    color: #f5c518;
+}
+
+#star-rating .star {
+    transition: color 0.3s;
+}
+
+
+.review .col-auto {
+    width: 147px;
+    padding-right: 2rem;
+}
+
+
+</style>
+
     <div class="page-wrapper">
        
     <header class="header">
@@ -153,11 +178,18 @@
                                     </div><!-- End .rating-container -->
 
                                     <div class="product-price" style="text-align: left;">
-                                       $ <%= product.productPrice%>
+                                        ₹ <%= product.productPrice%>
                                     </div><!-- End .product-price -->
 
                                     <div class="product-content" style="text-align: left;border-top: .1rem solid #ebebeb;border-bottom: .1rem solid #ebebeb;"  >
-                                        <p class="mt-2 mb-2">Delivery to : <%= orderedDetails.addresss.fullName%>
+                                        <p class="mt-2 mb-2">
+                                            <% if (orderedDetails.orderStatus== "Delivered") { %>
+                                            Delivered
+                                            <% }else{ %>
+                                            Delivery 
+
+                                                <% } %>
+                                            to : <%= orderedDetails.addresss.fullName%>
 										<br>
 										Ordered Quantity : <%= orderedQuantity  %>
 										<br>
@@ -188,7 +220,7 @@
     <a  
        onclick="handleReturnProduct('<%= orderedDetails._id %>', '<%= product._id %>')" 
        style="text-decoration: underline;cursor: pointer;">
-       return product?
+       Return product ?
     </a>
     <br>
 </div>
@@ -267,7 +299,7 @@
                                 <a class="nav-link" id="product-shipping-link" data-toggle="tab" href="#product-shipping-tab" role="tab" aria-controls="product-shipping-tab" aria-selected="false">Shipping & Returns</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="product-review-link" data-toggle="tab" href="#product-review-tab" role="tab" aria-controls="product-review-tab" aria-selected="false">Reviews (2)</a>
+                                <a class="nav-link" id="product-review-link" data-toggle="tab" href="#product-review-tab" role="tab" aria-controls="product-review-tab" aria-selected="false">Reviews (<%=product.reviews.length%>)</a>
                             </li>
                         </ul>
                         <div class="tab-content">
@@ -304,60 +336,135 @@
                                 </div><!-- End .product-desc-content -->
                             </div><!-- .End .tab-pane -->
                             <div class="tab-pane fade" id="product-review-tab" role="tabpanel" aria-labelledby="product-review-link">
-                                <div class="reviews">
-                                    <h3>Reviews (2)</h3>
+                                <input type="hidden" id="productIdr" value="<%= product._id%>">
+                                <% if (orderedDetails.orderStatus== "Delivered") { %>
+                                     <div class="reviews">
+
+                                        
                                     <div class="review">
+        <div class="row no-gutters">
+            <div class="col-12 ">
+    <h4><a href="#">Add Review :</a></h4>
+</div>
+<div class="col">
+    <form id="review-form">
+        <div class="form-group">
+            <textarea id="review-text" name="reviewText" class="form-control" rows="4" placeholder="Write your review here..."></textarea>
+        </div>
+        <div style="cursor: pointer;" class="form-group">
+            <label for="rating">Rating:</label>
+            <div id="star-rating">
+                <span class="star" data-value="1">★</span>
+                <span class="star" data-value="2">★</span>
+                <span class="star" data-value="3">★</span>
+                <span class="star" data-value="4">★</span>
+                <span class="star" data-value="5">★</span>
+            </div>
+            <input type="hidden" id="rating" name="rating" value="0">
+            <input type="hidden" id="userName" name="rating" value="<%= orderedDetails.addresss.fullName%>">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Review</button>
+    </form>
+</div>
+
+            
+        </div><!-- End .row -->
+    </div><!-- End .review -->
+
+
+
+
+    <% if (product.reviews.length!= 0) { %>
+        <% for (let i = product.reviews.length-1; i >=0 ; i--) {%>
+        
+            <div class="review">
                                         <div class="row no-gutters">
                                             <div class="col-auto">
-                                                <h4><a href="#">Alen</a></h4>
+                                                <h4><a style="min-width: 2rem;" href="#"><%=product.reviews[i].name%></a></h4>
                                                 <div class="ratings-container">
                                                     <div class="ratings">
-                                                        <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
+                                                        <div class="ratings-val" style="width: <%=product.reviews[i].rating%>%"></div><!-- End .ratings-val -->
                                                     </div><!-- End .ratings -->
                                                 </div><!-- End .rating-container -->
-                                                <span class="review-date">6 days ago</span>
+                                                <span class="review-date">
+
+                                                    <% 
+                                                      const date =product.reviews[i].date
+                                                      const day = String(date.getDate()).padStart(2, '0');
+                                                      const month = String(date.getMonth() + 1).padStart(2, '0');
+                                                      const year = date.getFullYear();
+                                                      const formattedDate = `${day}/${month}/${year}`;
+                                                 %>
+                                                 <%= formattedDate %>
+                                                    
+                                                    </span>
                                             </div><!-- End .col -->
                                             <div class="col">
-                                                <h4>Good, perfect size</h4>
 
                                                 <div class="review-content">
-                                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ducimus cum dolores assumenda asperiores facilis porro reprehenderit animi culpa atque blanditiis commodi perspiciatis doloremque, possimus, explicabo, autem fugit beatae quae voluptas!</p>
+                                                    <p><%=product.reviews[i].review%></p>
                                                 </div><!-- End .review-content -->
 
-                                                <div class="review-action">
-                                                    <a href="#"><i class="icon-thumbs-up"></i>Helpful (2)</a>
-                                                    <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
-                                                </div><!-- End .review-action -->
                                             </div><!-- End .col-auto -->
                                         </div><!-- End .row -->
                                     </div><!-- End .review -->
+            
+            <%   } %>        
+        <%}else{%>
+            <p>no reviews</p>
+        <%}%>
+                        
+                                   
+                                   
+                                    
 
-                                    <div class="review">
+                                <% }else{ %>
+                                    
+
+    <% if (product.reviews.length!= 0) { %>
+        <% for (let i = 0; i < product.reviews.length; i++) {%>
+        
+            <div class="review">
                                         <div class="row no-gutters">
                                             <div class="col-auto">
-                                                <h4><a href="#">Ajmal</a></h4>
+                                                <h4><a href="#"><%=product.reviews[i].name%></a></h4>
                                                 <div class="ratings-container">
                                                     <div class="ratings">
-                                                        <div class="ratings-val" style="width: 100%;"></div><!-- End .ratings-val -->
+                                                        <div class="ratings-val" style="width:<%=product.reviews[i].rating%>%"></div><!-- End .ratings-val -->
                                                     </div><!-- End .ratings -->
                                                 </div><!-- End .rating-container -->
-                                                <span class="review-date">5 days ago</span>
+                                                <span class="review-date">
+                                                    <% 
+                                                      const date =product.reviews[i].date
+                                                      const day = String(date.getDate()).padStart(2, '0');
+                                                      const month = String(date.getMonth() + 1).padStart(2, '0');
+                                                      const year = date.getFullYear();
+                                                      const formattedDate = `${day}/${month}/${year}`;
+                                                 %>
+                                                 <%= formattedDate %>
+                                                    </span>
                                             </div><!-- End .col -->
                                             <div class="col">
-                                                <h4>Very good</h4>
 
                                                 <div class="review-content">
-                                                    <p>Sed, molestias, tempore? Ex dolor esse iure hic veniam laborum blanditiis laudantium iste amet. Cum non voluptate eos enim, ab cumque nam, modi, quas iure illum repellendus, blanditiis perspiciatis beatae!</p>
+                                                    <p><%=product.reviews[i].review%></p>
                                                 </div><!-- End .review-content -->
 
-                                                <div class="review-action">
-                                                    <a href="#"><i class="icon-thumbs-up"></i>Helpful (0)</a>
-                                                    <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
-                                                </div><!-- End .review-action -->
+                                      
                                             </div><!-- End .col-auto -->
                                         </div><!-- End .row -->
                                     </div><!-- End .review -->
-                                </div><!-- End .reviews -->
+            
+            <%   } %>        
+        <%}else{%>
+            <p>no reviews</p>
+        <%}%>
+                                <% } %>
+                               
+                               
+                               
+                               
+                               
                             </div><!-- .End .tab-pane -->
                         </div><!-- End .tab-content -->
                     </div><!-- End .product-details-tab -->
@@ -771,8 +878,16 @@
                 body:JSON.stringify({productId , quantity})
                 
             })
-            .then(response => response.json())
-            .then(data=>{  
+            .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})            .then(data=>{  
         if (data !== undefined) {
             Swal.fire({
         title: "Product added to cart",
@@ -829,8 +944,17 @@
                 'Content-Type':'application/json'
             },
             body:JSON.stringify({orderId,productId})
-        }).then(response =>response.json())
-        .then(data=>{
+        })
+        .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})        .then(data=>{
             if(data.success){
 
                 Swal.fire({
@@ -862,6 +986,99 @@
 
 
     </script>
+
+
+    <script>
+        
+const stars = document.querySelectorAll('#star-rating .star');
+const ratingInput = document.getElementById('rating');
+const reviewForm = document.getElementById('review-form');
+const productId = document.getElementById('productIdr').value
+const userName = document.getElementById('userName').value
+
+
+stars.forEach(star => {
+    star.addEventListener('click', function() {
+        ratingInput.value = this.dataset.value;
+        updateStars(this.dataset.value);
+    });
+
+    star.addEventListener('mouseover', function() {
+        updateStars(this.dataset.value);
+    });
+
+    star.addEventListener('mouseout', function() {
+        updateStars(ratingInput.value);
+    });
+});
+
+function updateStars(value) {
+    stars.forEach(star => {
+        if (star.dataset.value <= value) {
+            star.style.color = '#f5c518';
+        } else {
+            star.style.color = '#ddd';
+        }
+    });
+}
+
+reviewForm.addEventListener('submit', function(event) {
+    event.preventDefault(); 
+
+    const reviewText = document.getElementById('review-text').value;
+    const rating = ratingInput.value;
+
+    const data = {
+        reviewText: reviewText,
+        rating: rating,
+        productId:productId,
+        userName:userName
+    };
+
+
+    fetch('/addreview', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+
+            
+if (response.redirected) {
+
+    window.location.href = response.url;
+}else{
+    return response.json()
+}
+})    .then(data => {
+        if(data.success){
+            Swal.fire({
+        title: "Review successfully submited",
+        text: "",
+        confirmButtonColor: "#CC9966",
+        confirmButtonText: 'Ok',
+    }).then(() => {
+            window.location.reload(); 
+        });
+
+
+
+    
+
+        }
+
+    })
+    .catch(error => {
+        console.error('Error:', error);
+
+    });
+});
+
+
+
+        </script>
 
 </body>
 

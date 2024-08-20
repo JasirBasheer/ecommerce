@@ -211,6 +211,60 @@ const searchProducts = async (req, res, next) => {
 
 
 
+const addreview = async(req,res,next)=>{
+    try {
+        const userId =req.session.user_id
+        const { reviewText, rating, productId,userName } = req.body;
+
+        const product = await Product.findOne({ _id: new mongoose.Types.ObjectId(productId) });
+
+        console.log("product");
+        console.log(product);
+        
+        let ratings =0
+
+        
+        if(rating=='1'){
+            ratings = 20
+
+        }else if(rating=='2'){
+            ratings = 40
+
+        }else if(rating=='3'){
+            ratings = 60
+
+        }else if(rating=='4'){
+            ratings = 80
+
+        }else if(rating=='5'){
+            ratings = 100
+            
+        }
+
+        product.reviews.push({
+            userId:userId._id,
+            name:userName,
+            rating:ratings,
+            review:reviewText,
+            
+        })
+
+        const saveComment = await product.save()
+
+        if(saveComment){
+            return res.status(200).json({success:true})
+        }
+
+
+        
+
+        
+    } catch (error) {
+        next(error)
+    }
+  }
+
+
 
 
 
@@ -222,4 +276,5 @@ module.exports ={
     filterProdcutByCategory,
     filter,
     searchProducts,
+    addreview
 }

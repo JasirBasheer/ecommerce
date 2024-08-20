@@ -126,6 +126,14 @@ const loadCheckout = async (req,res,next) => {
             const findProducts = await Cart.aggregate(pipeline);
             const totalPriceResult = await Cart.aggregate(TotalPricePipeline);
             subTotal = totalPriceResult[0]?.grandTotal || 0;
+            const currentDate = new Date();
+            const Acoupons = await Coupon.find({ 
+                minimumPurchase: { $lt: subTotal }, 
+                limit: { $ne: 0 }, 
+                expiryDate: { $gt: currentDate } 
+            });
+            console.log("Acoupons");
+            
 
 
             let outoffstock = false;
@@ -176,13 +184,13 @@ const loadCheckout = async (req,res,next) => {
     
                  if(outoffstock){
 
-                    return res.render('cart', { products: findProducts ,cartCount,userId:user , grandTotal, returnProductId,walletBalance,shippingCharge} );
+                    return res.render('cart', { products: findProducts ,cartCount,userId:user , grandTotal, returnProductId,walletBalance,shippingCharge,Acoupons} );
 
             
                  }
 
                 
-            res.render('checkout', { user, userDetails, products: findProducts , grandTotal,cartCount,subTotal,coupon,walletBalance,shippingCharge});
+            res.render('checkout', { user, userDetails, products: findProducts , grandTotal,cartCount,subTotal,coupon,walletBalance,shippingCharge,Acoupons});
 
         }
 
@@ -1485,22 +1493,26 @@ const applyCoupon = async (req,res,next)=>{
                 if(cart.Coupon==1){
                     return res.status(200).json({alreadyapplyed:"Coupon already applyed"})
                 }
+                const wallet = await Wallet.findOne({referralCode:coupon})
+
+
+                if(!wallet){
+                    return res.status(200).json({notAValidReffreal:"enter a valid reffreal"})
+                }
+
+
+                if(wallet.userId == req.session.user_id._id ){
+                    return res.status(200).json({needTobeAnotherUser:"need to be the another user  to claim the reffreal offer"})
+                }
+
 
                 const checkfirstorder = await Order.findOne({customerId: new mongoose.Types.ObjectId(req.session.user_id._id)})
 
                 if(checkfirstorder){
                     return res.status(200).json({onlyApplicableForFirstOrder:"need to be the first order to claim the reffreal offer"})
                 }
-                const wallet = await Wallet.findOne({referralCode:coupon})
 
-                if(!wallet){
-                    return res.status(200).json({notAValidReffreal:"enter a valid reffreal"})
-                }
-
-                if(wallet.userId == req.session.user_id._id ){
-                    return res.status(200).json({needTobeAnotherUser:"need to be the another user  to claim the reffreal offer"})
-                }
-
+               
 
 
                 cart.Coupon = 1
@@ -1599,6 +1611,7 @@ const loadOrderList = async (req, res, next) => {
                     addresss: 1,
                     applyedCoupon: 1,
                     applyedDiscount: 1,
+                    expectedDeliveryDate: 1,
                     "items.productId": "$productDetails._id",
                     "items.quantity": "$items.quantity",
                     "items.productPrice": "$items.productPrice",
@@ -1624,6 +1637,7 @@ const loadOrderList = async (req, res, next) => {
                     applyedCoupon: { $first: "$applyedCoupon" },
                     applyedDiscount: { $first: "$applyedDiscount" },
                     shippingCharge: { $first: "$shippingCharge" },
+                    expectedDeliveryDate: { $first: "$expectedDeliveryDate" },
                     items: { $push: "$items" },
                 },
             },
@@ -1718,7 +1732,7 @@ const returnProduct = async (req, res, next) => {
         }
 
         let refundAmount;
-        if (order.applyedCoupon || order.appliedReffreal ) {
+        if (order.applyedCoupon != 0 || order.appliedReffreal != 0 ) {
             const couponValue = order.applyedDiscount;
             const proportionalDiscount = Math.round((adjustedPrice / totalProductPrices) * couponValue * 100) / 100;
             refundAmount = Math.round(adjustedPrice - proportionalDiscount);
@@ -1755,7 +1769,7 @@ const returnProduct = async (req, res, next) => {
 
         const allReturned = order.items.every(item => item.orderStatus === 'Return-Pending');
         if (allReturned) {
-            order.orderStatus = 'Returned';
+            order.orderStatus = 'Return-Pending';
         }
         await order.save();
 
@@ -1848,6 +1862,9 @@ const generateInvoice = async (req, res, next) => {
   
 
 
+
+
+
 module.exports ={
     loadCreateNewAddress,
     addNewAddress,
@@ -1863,7 +1880,8 @@ module.exports ={
     loadOrderList,
     returnProduct,
     loadOrderSuccess,
-    generateInvoice
+    generateInvoice,
+    
 
 
 
