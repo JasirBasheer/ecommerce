@@ -40,7 +40,7 @@ admin_route.use((req,res,next) => {
 
 const adminController = require('../controllers/adminController')
 
-admin_route.get('/login',auth.isNotUser,auth.isLogout,adminController.loadAdminLoginPage)
+admin_route.get('/login',auth.isLogout,adminController.loadAdminLoginPage)
 admin_route.get('/',auth.isLogin,adminController.loadAdminDashboard)
 admin_route.get('/salesreport',auth.isLogin,adminController.loadSalesReport)
 admin_route.get('/orderslist',auth.isLogin,adminController.loadOrderedList)

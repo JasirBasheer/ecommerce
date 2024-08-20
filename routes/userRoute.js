@@ -48,8 +48,8 @@ const paymentController = require('../controllers/paymentController');
 //get 
 
 user_route.get('/register',auth.isLogout,userController.loadRegister)
-user_route.get('/login',auth.isNotAdmin,auth.isLogout,userController.loadLogin)
-user_route.get('/',auth.isNotAdmin,userController.loadHome)
+user_route.get('/login',auth.isLogout,userController.loadLogin)
+user_route.get('/',userController.loadHome)
 user_route.get('/shop',userController.loadShop)
 user_route.get('/wallet',userController.loadWallet)
 
