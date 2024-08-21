@@ -272,8 +272,7 @@
                             <form onsubmit="return handleDeleteImg(event, '<%= products[i]._id %>', '<%= products[i].images[j] %>', '<%= j %>')">
                                 <input type="hidden" name="productId" value="<%= products[i]._id %>" />
                                 <input type="hidden" name="image" value="<%= products[i].images[j] %>" />
-                                <button type="submit" id="productImageDeleteBtn<%= products[i]._id %>-<%= j %>"  class="btn-danger ps-2 mx-md-5" 
-                                    onclick="return confirm('Are you sure you want to delete it?')">
+                                <button type="submit" id="productImageDeleteBtn<%= products[i]._id %>-<%= j %>"  class="btn-danger ps-2 mx-md-5" >
                                     <i class="fa-sharp fa-solid fa-trash"></i>
                                 </button>
                             </form>
@@ -576,16 +575,24 @@ async function handleDeleteImg(e, productId, productImg, i) {
   e.preventDefault(); 
   
   try {
-    const response = await fetch('/admin/deleteProductImage', {
+    Swal.fire({
+      title: "Are you sure?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#CC9966",
+    cancelButtonColor: "#969696",
+    confirmButtonText: "Yes, Delete it!"
+          }).then((result) => {
+              if (result.isConfirmed) {
+     fetch('/admin/deleteProductImage', {
       method: 'POST',
       headers: {
         'Content-type': 'application/json'
       },
       body: JSON.stringify({ productId, image: productImg })
-    });
-    
-    const data = await response.json();
-    
+    }).then((response =>response.json()))
+    .then(data=>{
+        
     if (data.success) {
       document.getElementById(`imageContainer${productId}${i}`).remove();
 
@@ -605,6 +612,15 @@ async function handleDeleteImg(e, productId, productImg, i) {
         timerProgressBar: true,
       });
     }
+
+    })
+    
+  
+
+              }
+          });
+
+  
   } catch (error) {
     console.error('Error deleting image:', error);
     Swal.fire({

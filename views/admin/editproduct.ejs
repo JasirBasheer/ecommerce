@@ -58,12 +58,15 @@
                                         </div>
                                         <div class="form-group">
                                             <label for="productPrice">Price *</label>
-                                            <input type="text" id="productPrice" class="form-control" value="<%= product.productPrice %>" name="productPrice" placeholder="Enter price" pattern="^\d+(\.\d{1,2})?$" title="Please enter a valid price (e.g., 123.45)" required />
+                                            <input type="text" id="productPrice" class="form-control" onkeyup="validateFormPrice()" value="<%= product.productPrice %>" name="productPrice" placeholder="Enter price" pattern="^\d+(\.\d{1,2})?$" title="Please enter a valid price (e.g., 123.45)" required />
                                         </div>
+                                        <p style="color: red;" id="price=error"></p>
                                         <div class="form-group">
                                             <label for="productStocks">No. of Stocks *</label>
-                                            <input type="number" class="form-control" id="productStocks" name="productStocks" value="<%= product.num_of_stocks %>" required />
+                                            <input type="number" class="form-control" id="productStocks" onkeyup="validateFormStock()" name="productStocks" value="<%= product.num_of_stocks %>" required />
                                         </div>
+                                        <p style="color: red;" id="stock=error"></p>
+
                                         <div class="form-group">
                                             <label for="productDescription">Description *</label>
                                             <input type="text" class="form-control" id="productDescription" name="productDescription" value="<%= product.productDescription %>" required />
@@ -177,6 +180,7 @@
             });
         });
 
+
         function validateForm() {
             const formData = new FormData();
             const fileInput = document.getElementById('productPhoto');
@@ -187,6 +191,15 @@
                     formData.append('productImages', fileInput.files[i]);
                 }
             }
+            if (document.getElementById('productPrice').value<0) {
+                return false
+                
+            }
+            if(document.getElementById('productStocks').value<0){
+                return false
+
+            }
+            
 
             formData.append('productName', document.getElementById('productName').value);
             formData.append('productCategory', document.getElementById('productCategory').value);
@@ -227,6 +240,34 @@
 
 
               return false;
+        }
+
+
+        
+    </script>
+    <script>
+        function validateFormStock(){
+       
+            if(document.getElementById('productStocks').value<0){
+                document.getElementById('stock=error').textContent="Enter a valid Price"
+
+            }else{
+                document.getElementById('stock=error').textContent=""
+
+            }
+
+            
+        }
+
+        function validateFormPrice(){
+            if (document.getElementById('productPrice').value<0) {
+                document.getElementById('price=error').textContent="Enter a valid Price"
+                
+            }else{
+                document.getElementById('price=error').textContent=""
+
+            }
+            
         }
     </script>
 </body>
