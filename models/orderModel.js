@@ -32,7 +32,7 @@ const orderSchema = new mongoose.Schema({
   },
   orderStatus: {
     type: String,
-    enum: ['Placed', 'Processing', 'Shipped', 'Delivered','Cancelled','Returned','Return-Pending'],
+    enum: ['Placed', 'Processing', 'Shipped', 'Delivered','Cancelled','Returned','Return-Pending','Return-Rejected'],
     default: 'Placed'
   },
   paymentMethod:{

@@ -1678,6 +1678,7 @@ const returnProduct = async (req, res, next) => {
     try {
         const orderId = req.body.orderId;
         const productId = req.body.productId;
+        const reason = req.body.reason
 
         const product = await Product.findOne({ _id: new mongoose.Types.ObjectId(productId) });
         const order = await Order.findOne({ _id: orderId });
@@ -1753,6 +1754,7 @@ const returnProduct = async (req, res, next) => {
         await wallet.save();
 
         itemToReturn.orderStatus = 'Return-Pending';
+        itemToReturn.returnReason = reason;
         order.markModified('items');
         await order.save();
 

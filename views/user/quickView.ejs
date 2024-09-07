@@ -938,12 +938,39 @@ if (response.redirected) {
 }).then((result) => {
 
     if (result.isConfirmed) {
+
+
+        Swal.fire({
+  title: "Reason for Returning this Product",
+  input: "text",
+  inputAttributes: {
+    required: true 
+  },
+  showCancelButton: true,
+  confirmButtonText: "Return",
+  showLoaderOnConfirm: true,
+  preConfirm: (inputValue) => {
+    if (!inputValue) {
+      Swal.showValidationMessage('You need to provide a reason for returning the product');
+      return false;
+    }else if(inputValue.trim()==""){
+        Swal.showValidationMessage('You need to provide a reason for returning the product');
+        return false;
+    }
+    return inputValue;
+  }
+}).then((result) => {
+  if (result.isConfirmed) {
+    let reason = result.value; 
+
+
+
         fetch('/returnproduct',{
             method:'POST',
             headers:{
                 'Content-Type':'application/json'
             },
-            body:JSON.stringify({orderId,productId})
+            body:JSON.stringify({orderId,productId,reason})
         })
         .then(response => {
 
@@ -958,7 +985,7 @@ if (response.redirected) {
             if(data.success){
 
                 Swal.fire({
-    title: "The prodcut amount will be credited to your wallet within 3 working days",
+    title: "Return request has been successfully sended if request the is approved the amount will be credited to your wallet within 3 working days",
     icon: "success",
     confirmButtonText: 'Okey',
 }).then((result) => {
@@ -976,6 +1003,9 @@ if (response.redirected) {
     
     }
 });
+
+}
+        })
 
         
 

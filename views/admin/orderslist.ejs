@@ -417,7 +417,7 @@
                                     <th>Date</th>
                                     <th>Product</th>
                                     <th>Quantity</th>
-                                    <th>Purchased Price</th>
+                                    <th>Reason</th>
                                     <th>Refundable Amount</th>
                                     <th>Action</th>
                                   </tr>
@@ -425,7 +425,7 @@
                                   <% if (returnProducts.length > 0) { %>
                                     <% returnProducts.forEach(product => { %>  
                                       <% product.items.forEach(item => { %>
-                                        <% if (item.orderStatus == "Return-Pending" || item.orderStatus == "Returned") { %>
+                                        <% if (item.orderStatus == "Return-Pending"|| item.orderStatus == "Return-Rejected" || item.orderStatus == "Returned") { %>
                                           <tr>
                                             <td><%= product.customer %></td>
                                             <td class="align-middle">
@@ -443,8 +443,9 @@
                                               <%= item.quantity %>         
                                             </td>
                                             <td>
-                                              ₹ <%= item.productPrice %>         
+                                              <%= item.returnReason %>         
                                             </td>
+                                            
                                             <td>
                                               ₹ <%= item.productPrice * item.quantity %>         
                                             </td>
@@ -454,14 +455,21 @@
                                                 style="cursor: pointer;">
                                              Approved
                                            </div>
+                                              <% }else if(item.orderStatus =="Return-Rejected"){ %>
+                                                <div class="badge bg-warning"
+                                                style="cursor: pointer;">
+                                             Rejected
+                                           </div>
+                                              
                                               <% }else{ %>
-                                              <div class="badge badge-success" 
+                                                <div class="badge badge-success" 
                                                    onclick="handleApproveReturn('<%= product._id %>','<%= item.productId %>')" 
                                                    style="cursor: pointer;"
                                                    id="approved<%=item.productId %>"
                                                    >
                                                 Approve
                                               </div>
+
                                               <% } %>
 
                                             </td>
@@ -757,18 +765,22 @@
 
 
 function handleApproveReturn(orderId, productId) {
-    Swal.fire({
-        text: "Do you want Approve this.",
-        icon: "warning",
-        customClass: {
-            popup: 'custom-swal-popup'
-        },
-         showConfirmButton: true,
-        confirmButtonText: 'Approve',
-              confirmButtonColor: '#54CA68'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            fetch('/admin/approvereturnproduct', {
+
+  Swal.fire({
+  text: "Do you want to approve this?",
+  icon: "warning",
+  customClass: {
+    popup: 'custom-swal-popup'
+  },
+  showCancelButton: true,
+  confirmButtonText: 'Approve',
+  confirmButtonColor: '#54CA68',
+  cancelButtonText: 'Reject',
+  cancelButtonColor: '#d33'
+}).then((result) => {
+  if (result.isConfirmed) {
+
+    fetch('/admin/approvereturnproduct', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -790,8 +802,37 @@ function handleApproveReturn(orderId, productId) {
                 console.error('Error:', error);
 
               });
-        }
-    });
+
+  } else if (result.dismiss === Swal.DismissReason.cancel) {
+
+
+    fetch('/admin/rejectreturnproduct', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ orderId, productId }) 
+            })
+            .then(response => response.json()) 
+            .then(data => {
+               
+              if(data.rejectsuccess){
+                let approvedElement = document.getElementById('approved'+productId);
+                approvedElement.textContent = "Rejected";
+                approvedElement.classList.add('badge', 'bg-warning');
+
+              }
+
+              })
+            .catch(error => {
+                console.error('Error:', error);
+
+              });
+
+
+  }
+});
+
 }
 
 

@@ -182,7 +182,7 @@ const loadOrderedList = async (req,res,next) => {
      
         const orders = await Order.find({}).sort({ createdAt: -1 });
         const returnProducts = await Order.find({
-            'items.orderStatus': { $in: ['Return-Pending','Returned'] }
+            'items.orderStatus': { $in: ['Return-Pending','Returned','Return-Rejected'] }
           }).sort({ createdAt: -1 });
 
         res.render('orderslist', { orders,returnProducts })
@@ -1831,7 +1831,62 @@ const approveReturn = async (req, res, next) => {
     }
 };
 
+const rejectReturn = async(req,res,next)=>{
+    try {
 
+        const orderId = req.body.orderId;
+        const productId = req.body.productId;
+
+        const order = await Order.findOne({ _id: orderId });
+        const wallet = await Wallet.findOne({ userId: new mongoose.Types.ObjectId(order.customerId) });
+
+        const transctionIndex = wallet.transactions.findIndex(p => 
+            ObjectId.isValid(p.productId) && ObjectId.isValid(productId) && 
+            new ObjectId(p.productId).equals(new ObjectId(productId)) && 
+            p.status === "pending"
+        );
+        
+        if (transctionIndex !== -1) {
+            const amount = wallet.transactions[transctionIndex].amount;
+
+            wallet.pendingAmount = parseFloat((wallet.pendingAmount - amount).toFixed(2));
+            
+
+            if (Math.abs(wallet.pendingAmount) < 1e-10) {
+                wallet.pendingAmount = 0;
+            }
+
+            wallet.transactions[transctionIndex].status = "Rejected";
+            order.markModified('transactions');
+            await wallet.save();
+
+            const findIndex = order.items.findIndex(p => p.productId.equals(productId));
+            if (findIndex !== -1) {
+                order.items[findIndex].orderStatus = "Return-Rejected";
+            }
+
+            order.markModified('items');
+            await order.save();
+
+            const Rejected = order.items.every(item => item.orderStatus === "Return-Rejected");
+         
+
+            if (Rejected) {
+                order.orderStatus = 'Return-Rejected';
+            } 
+
+            order.markModified('items');
+            await order.save();
+        }
+
+        res.status(200).json({ rejectsuccess: "Product returned successfully", updatedOrder: order });
+
+
+        
+    } catch (error) {
+        next(error)
+    }
+}
 
 
 
@@ -1886,5 +1941,5 @@ module.exports ={
 
     loadOffersList,activateProductoffer,deactivateProductoffer,deactivateCategoryOffer,activateCategoryOffer,
     deleteCategoryOffer,deleteProductOffer,loadEditCoupon,editCoupon,blockCoupon,unBlockCoupon,loadEditproductOffer,editproductOffer,
-    loadEditCategoryOffer,EditCategoryOffer,approveReturn
+    loadEditCategoryOffer,EditCategoryOffer,approveReturn,rejectReturn,
 }

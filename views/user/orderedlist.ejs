@@ -159,10 +159,12 @@
                                                                     <td class="status-col" style="color: rgba(136, 112, 4, 0.705);"><%= orders[i].items[j].orderStatus %></td>
                                                                 <% } else if (orders[i].items[j].orderStatus === "Cancelled") { %>
                                                                     <td class="status-col" style="color: red;text-decoration: line-through;"><%= orders[i].items[j].orderStatus %></td>
-                                                                <% } else { %>
-                                                                    <td class="status-col"><%= orders[i].items[j].orderStatus %></td>
-                                                                <% } %>
-                                                                <% if (orders[i].items[j].orderStatus !== "Cancelled" && orders[i].items[j].orderStatus !== "Delivered" && orders[i].items[j].orderStatus !== "Returned" && orders[i].items[j].orderStatus !== "Return-Pending" ) { %>
+                                                                <% } else if(orders[i].items[j].orderStatus === "Return-Rejected") { %>
+                                                                    <td class="status-col" style="color: red;">Request Rejected</td>
+                                                                    <% } else { %>
+                                                                        <td class="status-col"><%= orders[i].items[j].orderStatus %></td>
+                                                                    <% } %>
+                                                                <% if (orders[i].items[j].orderStatus !== "Cancelled" && orders[i].items[j].orderStatus !== "Delivered" && orders[i].items[j].orderStatus !== "Returned" && orders[i].items[j].orderStatus !== "Return-Rejected" && orders[i].items[j].orderStatus !== "Return-Pending" ) { %>
                                                                     <td class="remove-col">
                                                                         <button class="btn-remove" onclick="confirmCancelOrder('<%= orders[i].items[j]._id %>', '<%= orders[i].items[j].productPrice * orders[i].items[j].quantity %>','<%= orders[i].totalPrice %>','<%= orders[i].applyedDiscount +  orders[i].totalPrice %>','<%= orders[i]._id %>','<%= orders[i].items[j].quantity %>','<%= orders[i].items[j].productId %>','<%= orders[i].items[j].productName %>')"><i class="icon-close"></i></button>
 
@@ -208,8 +210,8 @@
                                             <p>Phone : <%= orders[i].addresss.number%></p>
                                             <p>Place : <%= orders[i].addresss.city%>,<%= orders[i].addresss.state%>,<%= orders[i].addresss.pincode%></p>
                                             <p>Ordered At : <%= new Date(orders[i].createdAt).toDateString() %></p>
+                                            <p style="font-weight: 300;">Subtotal: ₹<%=   orders[i].totalPrice - orders[i].shippingCharge -orders[i].applyedDiscount %></p>
                                             <p style="font-weight: 300;">Shipping Fee: ₹<%= orders[i].shippingCharge%></p>
-                                            <p style="font-weight: 300;">Subtotal: ₹<%= orders[i].applyedDiscount +  orders[i].totalPrice %></p>
                                             <p style="font-weight: 410;">Coupon discount: ₹<%= orders[i].applyedDiscount %></p>
                                             <p style="color: chocolate;font-weight: 500;">Total: ₹<%= orders[i].totalPrice %></p>
                                         </div>
@@ -803,12 +805,37 @@ if (response.redirected) {
 }).then((result) => {
 
     if (result.isConfirmed) {
-        fetch('/returnproduct',{
+
+       
+        Swal.fire({
+  title: "Reason for Returning this Product",
+  input: "text",
+  inputAttributes: {
+    required: true 
+  },
+  showCancelButton: true,
+  confirmButtonText: "Return",
+  showLoaderOnConfirm: true,
+  preConfirm: (inputValue) => {
+    if (!inputValue) {
+      Swal.showValidationMessage('You need to provide a reason for returning the product');
+      return false;
+    }else if(inputValue.trim()==""){
+        Swal.showValidationMessage('You need to provide a reason for returning the product');
+        return false;
+    }
+    return inputValue;
+  }
+}).then((result) => {
+  if (result.isConfirmed) {
+    let reason = result.value; 
+
+    fetch('/returnproduct',{
             method:'POST',
             headers:{
                 'Content-Type':'application/json'
             },
-            body:JSON.stringify({orderId,productId})
+            body:JSON.stringify({orderId,productId,reason})
         })
         .then(response => {
 
@@ -823,7 +850,7 @@ if (response.redirected) {
             if(data.success){
 
                 Swal.fire({
-    title: "The prodcut amount will be credited to your wallet within 3 working days",
+    title: "Return request has been successfully sended if request the is approved the amount will be credited to your wallet within 3 working days",
     icon: "success",
     confirmButtonText: 'Okey',
 }).then((result) => {
@@ -836,6 +863,21 @@ if (response.redirected) {
 
             }
         })
+
+
+
+
+    
+  }
+});
+
+
+
+
+
+
+
+
     
     }
 });

@@ -208,13 +208,17 @@
                                                                     <% } %>
 
                                                                 </tr>
-                                                            <% }else{ %>
+                                                            <% }else if(element.for =="Reffreal"){ %>
                                                                 <tr>
-                                                                    <td><span style="color: #609d3a;">₹ <%= element.amount %></span> added to your wallet for the Cancellation of <span style="color: #9d6c3a;"><%= element.productName %></span></td>
+                                                                    <td><span style="color: #609d3a;">₹ <%= element.amount %></span> added to your wallet for the usage of Reffreal Code <span style="color: #9d6c3a;"><%= element.productName %></span></td>
 
                                                                 </tr>
-                                                            <% } %>
-                                                        <% } %>
+                                                                <% }else{ %>
+                                                                    <tr>
+                                                                        <td><span style="color: #609d3a;">₹ <%= element.amount %></span> added to your wallet for the Cancellation of <span style="color: #9d6c3a;"><%= element.productName %></span></td>
+    
+                                                                    </tr>
+                                                                <% } %>                                                        <% } %>
                                                     <% } %>
                                                 </tbody>
                                               </table>

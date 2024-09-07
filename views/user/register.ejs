@@ -586,7 +586,9 @@
         function validateUsername() {
             const username = document.getElementById('register-username').value;
             const error = document.getElementById('usernameError');
+
             if (username.trim() === '') {
+
                 error.textContent = 'Username is required.';
             } else {
                 error.textContent = '';
@@ -596,7 +598,9 @@
         function validatePhone() {
             const phone = document.getElementById('register-phone').value;
             const error = document.getElementById('phoneError');
+
             const phonePattern = /^\d+$/;
+
             if (!phonePattern.test(phone)) {
                 error.textContent = 'Phone number must contain only numbers.';
             } else {
@@ -607,6 +611,7 @@
         function validateEmail() {
             const email = document.getElementById('register-email').value;
             const error = document.getElementById('emailError');
+            
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailPattern.test(email)) {
                 error.textContent = 'Invalid email address.';

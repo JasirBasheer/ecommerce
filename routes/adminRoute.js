@@ -116,6 +116,7 @@ admin_route.get('/deletecategory',auth.isLogin,adminController.deleteCategory)
 admin_route.post('/deleteProductImage',auth.isLogin,adminController.deleteProductImage)
 admin_route.post('/updateOrderStatus',auth.isLogin,adminController.updateOrderStatus)
 admin_route.post('/approvereturnproduct',auth.isLogin,adminController.approveReturn)
+admin_route.post('/rejectreturnproduct',auth.isLogin,adminController.rejectReturn)
 
 
 
