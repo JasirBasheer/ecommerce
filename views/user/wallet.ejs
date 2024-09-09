@@ -172,8 +172,11 @@
                                             </div>
                                         
                                         </div>
+                                        <% if (wallet && wallet.referralCode) { %>
+                                            <p>Earn rewards by sharing your referral <span style="font-weight: 600; cursor: pointer;" onclick="copyToClipboard('<%= wallet.referralCode %>')"><%= wallet.referralCode %></span> code with friends</p>
+                                         
+                                        <% } %>
 
-                                        <p>Earn rewards by sharing your referral <span style="font-weight: 600; cursor: pointer;" onclick="copyToClipboard('<%= wallet.referralCode %>')"><%= wallet.referralCode %></span> code with friends</p>
 
                                         
                              
@@ -190,36 +193,39 @@
                                                 
                                                 </thead>
                                                 <tbody>
-                                                    <% for (let i = wallet.transactions.length - 1; i >= 0; i--) { %>
-                                                        <% let element = wallet.transactions[i]; %>
-                                                        <% if (element.status == "approved") { %>
-                                                            <% if (element.for == "Return") { %>
-                                                                <tr>
-                                                                    <td><span style="color: #609d3a;">₹ <%= element.amount %></span> added to your wallet for the Return of <span style="color: #9d6c3a;"><%= element.productName %></span></td>
-                                                                </tr>
-                                                            <% } else if(element.for =="purchase"){ %>
-                                                                <tr>
-                                                                    <% if (element.productName.length>=2) { %>
-                                                                    <td><span style="color: #9d583a;">₹ <%= element.amount %></span> creadited from wallet for the purchase of <span style="color: #8b9d3a;"><%= element.productName[0] %>,..</span></td>
-                                                                     
-                                                                    <% }else{ %>
-                                                                    <td><span style="color: #9d583a;">₹ <%= element.amount %></span> creadited from wallet for the purchase of <span style="color: #8b9d3a;"><%= element.productName[0] %></span></td>
-
-                                                                    <% } %>
-
-                                                                </tr>
-                                                            <% }else if(element.for =="Reffreal"){ %>
-                                                                <tr>
-                                                                    <td><span style="color: #609d3a;">₹ <%= element.amount %></span> added to your wallet for the usage of Reffreal Code <span style="color: #9d6c3a;"><%= element.productName %></span></td>
-
-                                                                </tr>
-                                                                <% }else{ %>
+                                                    <% if (wallet) { %>
+                                                        <% for (let i = wallet.transactions.length - 1; i >= 0; i--) { %>
+                                                            <% let element = wallet.transactions[i]; %>
+                                                            <% if (element.status == "approved") { %>
+                                                                <% if (element.for == "Return") { %>
                                                                     <tr>
-                                                                        <td><span style="color: #609d3a;">₹ <%= element.amount %></span> added to your wallet for the Cancellation of <span style="color: #9d6c3a;"><%= element.productName %></span></td>
+                                                                        <td><span style="color: #609d3a;">₹ <%= element.amount %></span> added to your wallet for the Return of <span style="color: #9d6c3a;"><%= element.productName %></span></td>
+                                                                    </tr>
+                                                                <% } else if(element.for =="purchase"){ %>
+                                                                    <tr>
+                                                                        <% if (element.productName.length>=2) { %>
+                                                                        <td><span style="color: #9d583a;">₹ <%= element.amount %></span> creadited from wallet for the purchase of <span style="color: #8b9d3a;"><%= element.productName[0] %>,..</span></td>
+                                                                         
+                                                                        <% }else{ %>
+                                                                        <td><span style="color: #9d583a;">₹ <%= element.amount %></span> creadited from wallet for the purchase of <span style="color: #8b9d3a;"><%= element.productName[0] %></span></td>
+    
+                                                                        <% } %>
     
                                                                     </tr>
-                                                                <% } %>                                                        <% } %>
+                                                                <% }else if(element.for =="Reffreal"){ %>
+                                                                    <tr>
+                                                                        <td><span style="color: #609d3a;">₹ <%= element.amount %></span> added to your wallet for the usage of Reffreal Code <span style="color: #9d6c3a;"><%= element.productName %></span></td>
+    
+                                                                    </tr>
+                                                                    <% }else{ %>
+                                                                        <tr>
+                                                                            <td><span style="color: #609d3a;">₹ <%= element.amount %></span> added to your wallet for the Cancellation of <span style="color: #9d6c3a;"><%= element.productName %></span></td>
+        
+                                                                        </tr>
+                                                                    <% } %>                                                        <% } %>
+                                                        <% } %>
                                                     <% } %>
+                                                   
                                                 </tbody>
                                               </table>
                                             </div>

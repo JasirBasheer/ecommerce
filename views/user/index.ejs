@@ -258,17 +258,20 @@
             <div class="container">
                 <div class="heading heading-center mb-3">
                     <h2 class="title-lg">Trendy Products</h2><!-- End .title -->
-        
-                    <ul class="nav nav-pills justify-content-center" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link <%= !categoryName ? 'active' : '' %>" href="/filterCategory">All</a>
-                        </li>
-                        <% for(let i = categories.length-1; i >categories.length-4 ; i--) { %>
+                    <% if (categories.length!=0) { %>
+                        <ul class="nav nav-pills justify-content-center" role="tablist">
                             <li class="nav-item">
-                                <a class="nav-link <%= categoryName === categories[i].categoryName ? 'active' : '' %>" href="/filterCategory?id=<%= categories[i].categoryName %>" role="tab"><%= categories[i].categoryName %></a>
+                                <a class="nav-link <%= !categoryName ? 'active' : '' %>" href="/filterCategory">All</a>
                             </li>
-                        <% } %>
-                    </ul>
+                            <% for(let i = categories.length-1; i >categories.length-4 ; i--) { %>
+                                <li class="nav-item">
+                                    <a class="nav-link <%= categoryName === categories[i].categoryName ? 'active' : '' %>" href="/filterCategory?id=<%= categories[i].categoryName %>" role="tab"><%= categories[i].categoryName %></a>
+                                </li>
+                            <% } %>
+                        </ul>
+                            <% } %>
+        
+                   
                 </div><!-- End .heading -->
         
                 <div class="tab-content tab-content-carousel">
