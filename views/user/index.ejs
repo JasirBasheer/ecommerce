@@ -402,8 +402,9 @@
                             <div class="row justify-content-center">
                                 <% if (recentProducts.length!=0) { %>
                                  
-                              
-                                <% for( let i = recentProducts.length-1; i >recentProducts.length-10 ; i--) { %>
+                                    <% let limitoflooprecentProducts = recentProducts.length < 10 ? 0 : recentProducts.length - 10; %>
+
+                                <% for( let i = recentProducts.length-1; i >=limitoflooprecentProducts ; i--) { %>
                                     <% if (recentProducts[i].is_blocked == false) { %>
                                         <div class="col-6 col-md-4 col-lg-3 mb-3">
                                             <div class="product product-11 mt-v3 text-center">
