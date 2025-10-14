@@ -544,7 +544,7 @@ function sendMailtoResetPassword(email, token){
             }
         });
 
-        const resetLink = `http://localhost:3000/resetpassword?token=${token}`;
+        const resetLink = `${process.env.BASE_URL}/resetpassword?token=${token}`;
 
         
         const mailOptions = {

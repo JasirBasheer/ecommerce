@@ -33,7 +33,7 @@ services:
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt
       - /var/www/html:/var/www/html
-    command: certonly --webroot --webroot-path=/var/www/html --email ${LETSENCRYPT_EMAIL} --agree-tos --no-eff-email -d ${LETSENCRYPT_DOMAIN}
+    command: certonly --webroot --webroot-path=/var/www/html --email jasirbinbasheerpp@gmail.com --agree-tos --no-eff-email -d woodstreet.jasirbasheer.dev
 
 
 networks:
