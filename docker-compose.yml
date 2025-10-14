@@ -1,0 +1,41 @@
+services:
+  ecommerce-app:
+    build: .
+    container_name: ecommerce-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - ecommerce-network
+    volumes:
+      - ./public:/usr/app/public
+    
+  nginx:
+    image: nginx:alpine
+    container_name: ecommerce-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./public:/usr/share/nginx/html/public
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/html:/var/www/html
+    networks:
+      - ecommerce-network
+    depends_on:
+      - ecommerce-app
+
+  certbot:
+    image: certbot/certbot
+    container_name: ecommerce-certbot
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/www/html:/var/www/html
+    command: certonly --webroot --webroot-path=/var/www/html --email ${LETSENCRYPT_EMAIL} --agree-tos --no-eff-email -d ${LETSENCRYPT_DOMAIN}
+
+
+networks:
+  ecommerce-network:
+    driver: bridge

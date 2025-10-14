@@ -128,8 +128,8 @@ const sendVerifyMail =  async(name,email,otp,subject)=>{
             secure:false,
             requireTLS:true,
             auth:{
-                user:"jasirbinbasheerpp@gmail.com",
-                pass:"ubbq mfxs cahr ycok"
+                user:"mailermail66@gmail.com",
+                pass:"ksjc cbtx rsef bdtv"
             }
         });
         const mailOptions = {
@@ -141,7 +141,7 @@ const sendVerifyMail =  async(name,email,otp,subject)=>{
 
 transporter.sendMail(mailOptions,(error,info)=>{
     if(error){
-        next(error);
+        console.log(error,'error')
         return false
 
     }else{
@@ -152,7 +152,7 @@ transporter.sendMail(mailOptions,(error,info)=>{
 });
 
     } catch (error) {
-        next(error);
+        console.log(error);
     }
 
 }
