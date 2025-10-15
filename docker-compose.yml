@@ -8,12 +8,12 @@ services:
     env_file:
       - .env
     networks:
-      - ecommerce-network
+      - multi_net
     volumes:
       - ./public:/usr/app/public
     
 networks:
-  ecommerce-network:
+  multi_net:
     external: true
     labels:
       project: "Ecommerce"

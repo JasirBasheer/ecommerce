@@ -14,6 +14,6 @@ RUN adduser -S nodejs -u 1001
 RUN chown -R nodejs:nodejs /usr/app
 USER nodejs
 
-EXPOSE 3000
+EXPOSE 3015
 
 CMD [ "npm", "start" ]
