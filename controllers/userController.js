@@ -539,8 +539,8 @@ function sendMailtoResetPassword(email, token){
             secure:false,
             requireTLS:true,
             auth:{
-                user:"jasirbinbasheerpp@gmail.com",
-                pass:"ubbq mfxs cahr ycok"
+                user:process.env.NODE_MAILER_MAIL,  
+                pass:process.env.NODE_MAILER_PASS
             }
         });
 
