@@ -128,8 +128,8 @@ const sendVerifyMail =  async(name,email,otp,subject)=>{
             secure:false,
             requireTLS:true,
             auth:{
-                user:"mailermail66@gmail.com",
-                pass:"ksjc cbtx rsef bdtv"
+                user:"jasirbasheeerpp@gmail.com",
+                pass:"stvi jpnk fnmv mfyw"
             }
         });
         const mailOptions = {
