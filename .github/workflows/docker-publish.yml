@@ -1,4 +1,4 @@
-name: Deploy to VM
+name: Deploy Ecommerce to VM
 
 on:
   push:
@@ -13,24 +13,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Start SSH agent and add private key
+      - name: Start SSH agent
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
 
-      - name: Configure SSH known hosts
+      - name: Setup SSH known_hosts
         run: |
-          mkdir -p $HOME/.ssh
-          ssh-keyscan -H ${{ secrets.VM_INSTANCE_IP }} >> $HOME/.ssh/known_hosts
-          chmod 644 $HOME/.ssh/known_hosts
+          SSH_DIR=/home/runner/.ssh
+          mkdir -p $SSH_DIR
+          ssh-keyscan -H ${{ secrets.VM_INSTANCE_IP }} >> $SSH_DIR/known_hosts
+          chmod 644 $SSH_DIR/known_hosts
 
       - name: Deploy on VM
         run: |
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=$HOME/.ssh/known_hosts ${{ secrets.VM_SSH_USER }}@${{ secrets.VM_INSTANCE_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/home/runner/.ssh/known_hosts \
+              ${{ secrets.VM_SSH_USER }}@${{ secrets.VM_INSTANCE_IP }} << 'EOF'
             set -e
 
             echo "Pulling latest code..."
-            cd /opt/projects/ecommerce || exit 1
+            cd /opt/projects/ecommerce
             git pull origin main
 
             echo "Cleaning old Docker resources..."
@@ -39,7 +41,7 @@ jobs:
             sudo docker volume ls --filter "label=project=Ecommerce" -q | xargs -r sudo docker volume rm -f
             sudo docker network ls --filter "label=project=Ecommerce" -q | xargs -r sudo docker network rm -f
 
-            echo "Rebuilding and restarting containers..."
+            echo "Rebuilding containers..."
             sudo docker compose up --build -d
 
             echo "Deployment completed!"
