@@ -1,4 +1,4 @@
-name: Deploy Ecommerce to VM
+name: Deploy to VM
 
 on:
   push:
@@ -18,16 +18,9 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
 
-      - name: Setup SSH known_hosts
+      - name: Deploy to VM
         run: |
-          SSH_DIR=/home/runner/.ssh
-          mkdir -p $SSH_DIR
-          ssh-keyscan -H ${{ secrets.VM_INSTANCE_IP }} >> $SSH_DIR/known_hosts
-          chmod 644 $SSH_DIR/known_hosts
-
-      - name: Deploy on VM
-        run: |
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/home/runner/.ssh/known_hosts \
+          ssh -o StrictHostKeyChecking=no \
               ${{ secrets.VM_SSH_USER }}@${{ secrets.VM_INSTANCE_IP }} << 'EOF'
             set -e
 
