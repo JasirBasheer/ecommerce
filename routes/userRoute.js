@@ -3,7 +3,6 @@ const user_route = express()
 const bodyParser = require('body-parser')
 const session = require('express-session')
 const nocache = require('nocache')
-const path = require('path')
 
 
 
