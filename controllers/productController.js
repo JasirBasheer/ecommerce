@@ -27,13 +27,19 @@ const loadSinglePage = async(req,res,next)=>{
     try {
         const id = req.query.id
         const userId = req.session.user_id
-        const product = await Product.findOne({_id:id})
+        const product = await Product.findOne({
+            _id: id,
+            is_blocked: { $ne: true }
+        })
         if(!product){
             return res.render('productNotFound')
         }
 
 
-        const relatedProducts = await Product.find({productCategory:product.productCategory})
+        const relatedProducts = await Product.find({
+            productCategory: product.productCategory,
+            is_blocked: { $ne: true }
+        })
         const cart = await Cart.findOne({userId:userId})
         const wishlist = await Wishlist.findOne({userId:userId})
 
@@ -68,8 +74,8 @@ const filterCategory = async(req,res,next) => {
     try {
         const categoryName = req.query.id;
 
-        const categories = await Category.find({}); 
-        const recentProducts = await Product.find({});
+        const categories = await Category.find({ is_blocked: { $ne: true } }); 
+        const recentProducts = await Product.find({ is_blocked: { $ne: true } });
         const userId = req.session.user_id
         const cart = await Cart.findOne({userId:userId})
 
@@ -80,9 +86,12 @@ const filterCategory = async(req,res,next) => {
 
         let products;
         if (categoryName) {
-            products = await Product.find({ productCategory: categoryName }); 
+            products = await Product.find({ 
+                productCategory: categoryName,
+                is_blocked: { $ne: true }
+            }); 
         } else {
-            products = await Product.find({}); 
+            products = await Product.find({ is_blocked: { $ne: true } }); 
 
         }
 
@@ -104,19 +113,25 @@ const filterProdcutByCategory = async(req,res,next)=>{
         const category = req.query.id
 
         
-        const categories = await Category.find({})
+        const categories = await Category.find({ is_blocked: { $ne: true } })
        
 
         const userId = req.session.user_id || 0
-        const products = await Product.find({productCategory:category}).limit(limit).skip((page - 1) * limit).exec();
-        const count = await Product.find({productCategory:category}).countDocuments();
+        const products = await Product.find({
+            productCategory: category,
+            is_blocked: { $ne: true }
+        }).limit(limit).skip((page - 1) * limit).exec();
+        const count = await Product.find({
+            productCategory: category,
+            is_blocked: { $ne: true }
+        }).countDocuments();
 
 
         let wishlistCount ;
         if(userId){
          wishlistCount =  await getWishlistCount(userId._id);
         }else{
-            wishlist =0
+            wishlistCount =0
         }
 
 
@@ -136,15 +151,18 @@ const filter = async(req, res, next) => {
         const page = parseInt(req.query.page) || 1;
         const limit = 11;
         const userId = req.session.user_id || null
-        const categories = await Category.find({});
-        const query = category && category !== "All" ? { productCategory: category } : {};
+        const categories = await Category.find({ is_blocked: { $ne: true } });
+        const query = category && category !== "All" ? { 
+            productCategory: category,
+            is_blocked: { $ne: true }
+        } : { is_blocked: { $ne: true } };
         let Findproducts = Product.find(query);
 
         let wishlistCount ;
         if(userId){
          wishlistCount =  await getWishlistCount(userId._id);
         }else{
-            wishlist =0
+            wishlistCount =0
         }
         
 
@@ -175,11 +193,14 @@ const searchProducts = async (req, res, next) => {
         const page = parseInt(req.query.page) || 1;
         const limit = 11;
 
-        const query = { $text: { $search: searchTerm } };
+        const query = { 
+            $text: { $search: searchTerm },
+            is_blocked: { $ne: true }
+        };
 
         const products = await Product.find(query).limit(limit).skip((page - 1) * limit).exec();
         const count = await Product.countDocuments(query);
-        const categories = await Category.find({});
+        const categories = await Category.find({ is_blocked: { $ne: true } });
         
         const userId = req.session.user_id; 
         let cartCount = 0;

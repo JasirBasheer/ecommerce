@@ -205,7 +205,7 @@ const addToCart = async(req,res,next)=>{
                 });
             }
 
-            const data = await cart.save();
+            await cart.save();
             const count= cart.products.reduce((total, item) => total + item.quantity, 0);
 
             res.status(200).json({count})
@@ -339,7 +339,6 @@ const incQuantity = async (req,res,next)=>{
         const total = await Cart.aggregate(eachProductTotalPricePipeline);
 
         let grandTotal = totalPriceResult[0]?.grandTotal || 0; 
-        const totalPrice = eachProductTotalPricePipeline[0]?.totalPrice || 0; 
         const singleProductTotal=  total.filter((item)=>{
             return item.productId == productId
         })

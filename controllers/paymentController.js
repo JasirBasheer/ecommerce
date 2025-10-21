@@ -9,8 +9,6 @@ const Product = require('../models/productModel');
 const mongoose = require('mongoose'); 
 
 
-const razorpayKeyId = process.env.RAZORPAY_PAYMENT_KEY_ID;
-const razorpayKeySecret = process.env.RAZORPAY_PAYMENT_SECRET;
 
 const razorpayInstance = new Razorpay({
     key_id: 'rzp_test_fKh2fGYnPvSVrM',
@@ -56,7 +54,7 @@ const generateOrderID = async () => {
 
 
 const verifyPayment = async (req, res) => {
-    const { razorpayOrderId, razorpayPaymentId, razorpaySignature, userId, cart, grandTotal,usersId,cartId } = req.body;
+    const { razorpayOrderId, razorpayPaymentId, razorpaySignature, grandTotal,usersId,cartId } = req.body;
    
     
 
@@ -82,7 +80,6 @@ const verifyPayment = async (req, res) => {
             const activeAddress = user.address.find(addr => addr.isActive);
 
               const applyCoupon = cart.applyedCoupon
-               const applyedDiscount = cart.applyedDiscount
                const coupon = await Coupon.findOne({couponName:applyCoupon})
                if(coupon){
                 let couponlimit = coupon.limit-1

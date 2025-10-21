@@ -58,6 +58,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css">
     <link href="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.css" rel="stylesheet"/>
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>      
       .dataTables_wrapper .sorting:after,
       .dataTables_wrapper .sorting_asc:after,
@@ -75,6 +77,24 @@
     .dataTables_wrapper .sorting_desc:after {
       content: "\f0dd";
     }
+    
+    /* Pagination centering styles */
+    .pagination .page-link {
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+      height: 38px;
+    }
+    
+    .pagination .page-item {
+      text-align: center;
+    }
+    
+    .pagination {
+      justify-content: center;
+    }
   </style>
   </head>
 
@@ -83,10 +103,8 @@
       <header class="header">
         <div class="header-top">
           <div class="container">
-            <div class="header-left">
-              
-            </div>
-
+            <div class="header-left"></div>
+  
             <div class="header-right">
               <div class="header-dropdown">
                 <a href="#"><i class="icon-user"></i>My Account</a>
@@ -100,7 +118,7 @@
             </div>
           </div>
         </div>
-
+  
         <div class="header-middle sticky-header">
           <div class="container">
             <div class="header-left">
@@ -108,15 +126,15 @@
                 <span class="sr-only">Toggle mobile menu</span>
                 <i class="icon-bars"></i>
               </button>
-
+  
               <a href="/admin" class="logo">
                 <img src="assets/images/logo.png" alt="Wood Street Logo" width="105" height="25">
-            </a>
-
+              </a>
+  
               <nav class="main-nav">
                 <ul class="menu sf-arrows">
-                  <li class="megamenu-container">
-                    <a href="/admin/">Home</a>
+                  <li >
+                    <a href="/admin/dashboard">Home</a>
                   </li>
                   <li>
                     <a href="/admin/categorylist" class="sf-with-ul">Categories</a>
@@ -137,50 +155,59 @@
                     </ul>
                   </li>
                   <li>
-                    <a href="/admin/couponslist" class="sf-with-ul">Coupons</a>
+                    <a href="/admin/productslist" class="sf-with-ul">Modules</a>
                     <ul>
                       <li>
-                        <a href="/admin/couponslist">Coupon Lists</a>
+                        <a href="/admin/couponslist">Coupon List</a>
                       </li>
                       <li>
-                        <a href="/admin/addcoupon">Add New Coupon</a>
+                        <a href="/admin/addcoupon">Add Coupon</a>
+                      </li>
+  
+                      <li>
+                        <a href="/admin/offerslist">Offers List</a>
+                      </li>
+                      <li>
+                        <a href="/admin/addproductoffer">Add Product offer</a>
+                      </li>
+                      <li>
+                        <a href="/admin/addcategoryoffer">Add Category offer</a>
+                      </li>
+                      <li>
+                        <a href="/admin/salesreport">Sales Report</a>
                       </li>
                     </ul>
                   </li>
+  
                   <li class="megamenu-container active"><a href="/admin/userslist">Users</a></li>
                   <li><a href="/admin/orderslist">Orders</a></li>
                 </ul>
               </nav>
             </div>
-
-            <!-- <div class="header-right">
+  
+            <div class="header-right">
               <div class="header-search">
-                <a href="#" class="search-toggle" role="button" title="Search"
-                  ><i class="icon-search"></i
-                ></a>
-                <form action="#" method="get">
+                <a href="#" class="search-toggle" role="button" title="Search"><i class="icon-search"></i></a>
+                <div>
                   <div class="header-search-wrapper">
-                    <label for="q" class="sr-only">Search</label>
-                    <input
-                      type="search"
-                      class="form-control"
-                      name="q"
-                      id="q"
-                      placeholder="Search in..."
-                      required
-                    />
+                    <input type="search" class="form-control" id="userSearchInput" placeholder="Search by name or email..." required />
                   </div>
-                  
-                </form>
+                </div>
               </div>
-              
-            </div> -->
+            </div>
           </div>
         </div>
       </header>
 
       <main class="main">
         <div class="container">
+          <!-- Search Info -->
+          <div class="row mb-3">
+            <div class="col-12">
+       
+            </div>
+          </div>
+
           <div class="table-responsive" id="no-more-tables">
             <table class="table table-striped bg-white" id="myTable">
               <thead class="bg-dark text-light">
@@ -197,41 +224,35 @@
                 <% if (users.length!=0) { %>
 
                   <% for( let i = users.length-1; i >=0; i-- ) { %>
-                    <tr style="font-size: medium;">
+                    <tr style="font-size: medium;" data-user-id="<%= users[i]._id %>">
                       <td data-title="Name"><%= users[i].name %></td>
                       <td data-title="Email"><%= users[i].email %></td>     
                                    
                       <td data-title="Mobile"><%= users[i].phone %></td>     
-                      <% if (users[i].is_blocked==false) { %>
-                        <td data-title="Mobile">Active</td>     
-                      <% }else{ %>
-                        <td data-title="Mobile">Blocked</td>     
-  
-                      <% } %>
+                      <td data-title="Status" class="user-status">
+                        <% if (users[i].is_blocked==false) { %>
+                          <span class="badge bg-success">Active</span>     
+                        <% }else{ %>
+                          <span class="badge bg-danger">Blocked</span>     
+                        <% } %>
+                      </td>
                
-                      <td data-title="Actions">
+                      <td data-title="Actions" class="action-buttons">
                         <% if (users[i].is_blocked ==1) { %>
-                          <button type="button" class="btn "  style="background-color: rgb(31, 144, 21);" onclick="handleUnblock('<%= users[i]._id %>')" >Unblock</button>
-                          <button type="button" class="btn " style="background-color: rgba(255, 0, 0, 0.279);">Block</button>
-          
+                          <button type="button" class="btn btn-success btn-sm me-2" onclick="handleUnblock('<%= users[i]._id %>')">
+                            <i class="fas fa-unlock"></i> Unblock
+                          </button>
+                          <button type="button" class="btn btn-secondary btn-sm" style="display: none;">
+                            <i class="fas fa-lock"></i> Block
+                          </button>
                         <% } else { %>
-                          <button type="button" class="btn " style="background-color: rgba(31, 144, 21, 0.236);"   >Unblock</button>
-                          <button type="button" class="btn" style="background-color: rgb(255, 0, 0);" onclick="handleblock('<%= users[i]._id %>')">Block</button>
-  
-                          <% } %>
-  
-                         
-                        
-                   
-                          
-                    
-                         
-                       
-                      <button type="button" class="btn">
-  
-                      </button>
-  
-  
+                          <button type="button" class="btn btn-secondary btn-sm me-2" style="display: none;">
+                            <i class="fas fa-unlock"></i> Unblock
+                          </button>
+                          <button type="button" class="btn btn-danger btn-sm" onclick="handleblock('<%= users[i]._id %>')">
+                            <i class="fas fa-lock"></i> Block
+                          </button>
+                        <% } %>
                       </td>
                     </tr>
                   <% } %>
@@ -249,123 +270,60 @@
               </tbody>
             </table>
           </div>
+          
+          <!-- Pagination Controls Below Table -->
+          <div class="row mt-4">
+            <div class="col-12">
+              <div class="d-flex justify-content-center align-items-center">
+    
+                <div class="pagination-controls">
+                  <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-sm mb-0" style="text-align: center;">
+                      <!-- Previous Button -->
+                      <li class="page-item <%= hasPrevPage ? '' : 'disabled' %>">
+                        <% if (hasPrevPage) { %>
+                          <a class="page-link" href="#" onclick="goToPage(<%= prevPage %>); return false;">
+                            <i class="fas fa-chevron-left"></i> Previous
+                          </a>
+                        <% } else { %>
+                          <span class="page-link disabled">
+                            <i class="fas fa-chevron-left"></i> Previous
+                          </span>
+                        <% } %>
+                      </li>
+                      
+                      <!-- Page Numbers -->
+                      <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                          <a class="page-link" href="#" onclick="goToPage(<%= i %>); return false;">
+                            <%= i %>
+                          </a>
+                        </li>
+                      <% } %>
+                      
+                      <!-- Next Button -->
+                      <li class="page-item <%= hasNextPage ? '' : 'disabled' %>">
+                        <% if (hasNextPage) { %>
+                          <a class="page-link" href="#" onclick="goToPage(<%= nextPage %>); return false;">
+                            Next <i class="fas fa-chevron-right"></i>
+                          </a>
+                        <% } else { %>
+                          <span class="page-link disabled">
+                            Next <i class="fas fa-chevron-right"></i>
+                          </span>
+                        <% } %>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
 
       <footer class="footer">
-        <!-- <div class="footer-middle">
-          <div class="container">
-            <div class="row">
-              <div class="col-sm-6 col-lg-3">
-                <div class="widget widget-about">
-                  
-                  <p>
-                    Praesent dapibus, neque id cursus ucibus, tortor neque
-                    egestas augue, eu vulputate magna eros eu erat.
-                  </p>
-
-                  <div class="social-icons">
-                    <a
-                      href="#"
-                      class="social-icon"
-                      target="_blank"
-                      title="Facebook"
-                      ><i class="icon-facebook-f"></i
-                    ></a>
-                    <a
-                      href="#"
-                      class="social-icon"
-                      target="_blank"
-                      title="Twitter"
-                      ><i class="icon-twitter"></i
-                    ></a>
-                    <a
-                      href="#"
-                      class="social-icon"
-                      target="_blank"
-                      title="Instagram"
-                      ><i class="icon-instagram"></i
-                    ></a>
-                    <a
-                      href="#"
-                      class="social-icon"
-                      target="_blank"
-                      title="Youtube"
-                      ><i class="icon-youtube"></i
-                    ></a>
-                    <a
-                      href="#"
-                      class="social-icon"
-                      target="_blank"
-                      title="Pinterest"
-                      ><i class="icon-pinterest"></i
-                    ></a>
-                  </div>
-                  
-                </div>
-                
-              </div>
-              
-
-              <div class="col-sm-6 col-lg-3">
-                <div class="widget">
-                  <h4 class="widget-title">Useful Links</h4>
-                  
-
-                  <ul class="widget-list">
-                    <li><a href="about.html">About </a></li>
-                    <li><a href="#">How to shop on </a></li>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="contact.html">Contact us</a></li>
-                    <li><a href="login.html">Log in</a></li>
-                  </ul>
-                  
-                </div>
-                
-              </div>
-              
-
-              <div class="col-sm-6 col-lg-3">
-                <div class="widget">
-                  <h4 class="widget-title">Customer Service</h4>
-                  
-
-                  <ul class="widget-list">
-                    <li><a href="#">Payment Methods</a></li>
-                    <li><a href="#">Money-back guarantee!</a></li>
-                    <li><a href="#">Returns</a></li>
-                    <li><a href="#">Shipping</a></li>
-                    <li><a href="#">Terms and conditions</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                  </ul>
-                  
-                </div>
-                
-              </div>
-              
-
-              <div class="col-sm-6 col-lg-3">
-                <div class="widget">
-                  <h4 class="widget-title">My Account</h4>
-                  
-
-                  <ul class="widget-list">
-                    <li><a href="#">Sign In</a></li>
-                    <li><a href="cart.html">View Cart</a></li>
-                    <li><a href="#">My Wishlist</a></li>
-                    <li><a href="#">Track My Order</a></li>
-                    <li><a href="#">Help</a></li>
-                  </ul>
-                  
-                </div>
-                
-              </div>
-              
-            </div>
-            
-          </div>
-          
-        </div> -->
+        
         
 
         <div class="footer-bottom">
@@ -416,7 +374,7 @@
 
         <nav class="mobile-nav">
           <ul class="mobile-menu">
-            <li class="active">
+            <li class="">
               <a href="/admin/">Home</a>
             </li>
             <li>
@@ -434,7 +392,7 @@
               </ul>
             </li>
           
-            <li>
+            <li class="active">
               <a href="/admin/userslist">Users</a>
             </li>
             <li>
@@ -481,33 +439,367 @@
 
 <script>
   async function handleUnblock(userId){
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You are about to unblock this user. They will be able to access the platform again.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, unblock user!',
+      cancelButtonText: 'Cancel'
+    });
 
-    fetch('/admin/unblockuser',{
-      method:"POST",
-      headers:{
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId })
+    if (result.isConfirmed) {
+      const button = event.target;
+      const originalText = button.innerHTML;
+      
+      try {
+        button.classList.add('loading');
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        button.disabled = true;
 
+        const response = await fetch('/admin/unblockuser',{
+          method:"POST",
+          headers:{
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          updateUserStatus(userId, false);
+          showNotification(data.message || 'User unblocked successfully', 'success');
+        } else {
+          showNotification(data.message || 'Failed to unblock user', 'error');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showNotification('An error occurred', 'error');
+      } finally {
+        button.classList.remove('loading');
+        button.innerHTML = originalText;
+        button.disabled = false;
+      }
+    }
+  }
+
+  async function handleblock(userId){
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You are about to block this user. They will not be able to access the platform.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, block user!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
+      const button = event.target;
+      const originalText = button.innerHTML;
+      
+      try {
+        button.classList.add('loading');
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        button.disabled = true;
+
+        const response = await fetch('/admin/blockuser',{
+          method:"POST",
+          headers:{
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          updateUserStatus(userId, true);
+          showNotification(data.message || 'User blocked successfully', 'success');
+        } else {
+          showNotification(data.message || 'Failed to block user', 'error');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showNotification('An error occurred', 'error');
+      } finally {
+        button.classList.remove('loading');
+        button.innerHTML = originalText;
+        button.disabled = false;
+      }
+    }
+  }
+
+  function updateUserStatus(userId, isBlocked) {
+    const userRow = document.querySelector(`tr[data-user-id="${userId}"]`);
+    if (!userRow) return;
+
+    const statusCell = userRow.querySelector('.user-status');
+    if (statusCell) {
+      statusCell.innerHTML = isBlocked 
+        ? '<span class="badge bg-danger">Blocked</span>' 
+        : '<span class="badge bg-success">Active</span>';
+    }
+    
+    const actionCell = userRow.querySelector('.action-buttons');
+    if (actionCell) {
+      if (isBlocked) {
+        actionCell.innerHTML = `
+          <button type="button" class="btn btn-success btn-sm me-2" onclick="handleUnblock('${userId}')">
+            <i class="fas fa-unlock"></i> Unblock
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" style="display: none;">
+            <i class="fas fa-lock"></i> Block
+          </button>
+        `;
+      } else {
+        actionCell.innerHTML = `
+          <button type="button" class="btn btn-secondary btn-sm me-2" style="display: none;">
+            <i class="fas fa-unlock"></i> Unblock
+          </button>
+          <button type="button" class="btn btn-danger btn-sm" onclick="handleblock('${userId}')">
+            <i class="fas fa-lock"></i> Block
+          </button>
+        `;
+      }
+    }
+  }
+
+  function showNotification(message, type) {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      }
     })
-    window.location.href='/admin/userslist'
+
+    //  if (type === 'success') {
+    //    Toast.fire({
+    //      icon: 'success',
+    //      title: message,
+    //      background: '#d4edda',
+    //      color: '#155724',
+    //      iconColor: '#28a745'
+    //    })
+    //  } else {
+    //    Toast.fire({
+    //      icon: 'error',
+    //      title: message,
+    //      background: '#f8d7da',
+    //      color: '#721c24',
+    //      iconColor: '#dc3545'
+    //    })
+    //  }
+   }
+
+   let searchTimeout;
+   let currentPage = <%= currentPage || 1 %>;
+   let currentSearch = '<%= search || "" %>';
+   let currentLimit = <%= limit || 1 %>;
+
+   document.addEventListener('DOMContentLoaded', function() {
+     const searchInput = document.getElementById('userSearchInput');
+     if (searchInput && currentSearch) {
+       searchInput.value = currentSearch;
+     }
+   });
+
+    async function performSearch(searchTerm) {
+      try {
+        const tbody = document.querySelector('tbody');
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; padding: 2rem;">
+              <i class="fas fa-spinner fa-spin"></i> Searching...
+            </td>
+          </tr>
+        `;
+
+        const response = await fetch(`/admin/searchusers?search=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${currentLimit}`);
+        const data = await response.json();
+
+        if (data.success) {
+          updateTableWithResults(data.users, data.pagination, searchTerm);
+          updatePaginationInfo(data.pagination, searchTerm);
+          updatePaginationControls(data.pagination);
+        } else {
+          showErrorMessage('Search failed. Please try again.');
+        }
+      } catch (error) {
+        console.error('Search error:', error);
+        showErrorMessage('Error occurred while searching');
+      }
+    }
+
+    function updateTableWithResults(users, pagination, searchTerm) {
+      const tbody = document.querySelector('tbody');
+      
+      if (users.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; padding: 2rem; color: #6c757d;">
+              <i class="fas fa-search"></i><br>
+              No users found matching "${searchTerm}"
+            </td>
+          </tr>
+        `;
+      } else {
+        let tableHTML = '';
+        users.forEach(user => {
+          const statusBadge = user.is_blocked ? 
+            '<span class="badge bg-danger">Blocked</span>' : 
+            '<span class="badge bg-success">Active</span>';
+          
+          const actionButtons = user.is_blocked ? 
+            `<button type="button" class="btn btn-success btn-sm me-2" onclick="handleUnblock('${user._id}')">
+               <i class="fas fa-unlock"></i> Unblock
+             </button>
+             <button type="button" class="btn btn-secondary btn-sm" style="display: none;">
+               <i class="fas fa-lock"></i> Block
+             </button>` :
+            `<button type="button" class="btn btn-secondary btn-sm me-2" style="display: none;">
+               <i class="fas fa-unlock"></i> Unblock
+             </button>
+             <button type="button" class="btn btn-danger btn-sm" onclick="handleblock('${user._id}')">
+               <i class="fas fa-lock"></i> Block
+             </button>`;
+
+          tableHTML += `
+            <tr style="font-size: medium;" data-user-id="${user._id}">
+              <td data-title="Name">${user.name}</td>
+              <td data-title="Email">${user.email}</td>
+              <td data-title="Mobile">${user.phone || 'N/A'}</td>
+              <td data-title="Status" class="user-status">${statusBadge}</td>
+              <td data-title="Actions" class="action-buttons">${actionButtons}</td>
+            </tr>
+          `;
+        });
+        tbody.innerHTML = tableHTML;
+      }
+    }
+
+    function updatePaginationInfo(pagination, searchTerm) {
+      const paginationInfo = document.querySelector('.pagination-info');
+      if (paginationInfo) {
+        paginationInfo.innerHTML = `
+          <span class="text-muted">
+            Showing ${pagination.totalUsers} users
+            ${searchTerm ? `for "${searchTerm}"` : ''}
+          </span>
+          <span class="ms-3">Page ${pagination.currentPage} of ${pagination.totalPages}</span>
+        `;
+      }
+    }
+
+    function showErrorMessage(message) {
+      const tbody = document.querySelector('tbody');
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" style="text-align: center; padding: 2rem; color: #dc3545;">
+            <i class="fas fa-exclamation-triangle"></i><br>
+            ${message}
+          </td>
+        </tr>
+      `;
+    }
+
+    async function goToPage(page) {
+      currentPage = page;
+      await performSearch(currentSearch);
+    }
+
+    function updatePaginationControls(pagination) {
+      const paginationContainer = document.querySelector('.pagination-controls');
+      if (paginationContainer) {
+        let paginationHTML = `
+          <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0">
+        `;
+        
+        if (pagination.hasPrevPage) {
+          paginationHTML += `
+            <li class="page-item">
+              <a class="page-link" href="#" onclick="goToPage(${pagination.prevPage}); return false;">
+                <i class="fas fa-chevron-left"></i> Previous
+              </a>
+            </li>
+          `;
+        } else {
+          paginationHTML += `
+            <li class="page-item disabled">
+              <span class="page-link disabled">
+                <i class="fas fa-chevron-left"></i> Previous
+              </span>
+            </li>
+          `;
+        }
+        
+        for (let i = 1; i <= pagination.totalPages; i++) {
+          const activeClass = i === pagination.currentPage ? 'active' : '';
+          paginationHTML += `
+            <li class="page-item ${activeClass}">
+              <a class="page-link" href="#" onclick="goToPage(${i}); return false;">
+                ${i}
+              </a>
+            </li>
+          `;
+        }
+        
+        if (pagination.hasNextPage) {
+          paginationHTML += `
+            <li class="page-item">
+              <a class="page-link" href="#" onclick="goToPage(${pagination.nextPage}); return false;">
+                Next <i class="fas fa-chevron-right"></i>
+              </a>
+            </li>
+          `;
+        } else {
+          paginationHTML += `
+            <li class="page-item disabled">
+              <span class="page-link disabled">
+                Next <i class="fas fa-chevron-right"></i>
+              </span>
+            </li>
+          `;
+        }
+        
+        paginationHTML += `
+            </ul>
+          </nav>
+        `;
+        
+        paginationContainer.innerHTML = paginationHTML;
+      }
+    }
 
 
-}
+   document.getElementById('userSearchInput').addEventListener('input', function(e) {
+     const searchTerm = e.target.value.trim();
+     
+     if (searchTimeout) {
+       clearTimeout(searchTimeout);
+     }
+     currentPage = 1;
+     searchTimeout = setTimeout(() => {
+       performSearch(searchTerm);
+     }, 1000);
+   });
 
-async function handleblock(userId){
-
-  fetch('/admin/blockuser',{
-      method:"POST",
-      headers:{
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId })
-
-    })
-    window.location.href='/admin/userslist'
-
-}
+   document.getElementById('userSearchInput').addEventListener('keydown', function(e) {
+     if (e.key === 'Escape') {
+       e.target.value = '';
+       performSearch(''); 
+     }
+   });
 </script>
 
 

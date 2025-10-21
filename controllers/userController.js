@@ -13,7 +13,6 @@ const Wallet = require('../models/walletModel')
 
 let generatedOtp 
 let userdetails ={}
-let editUserDetails ={}
 
 
 
@@ -62,9 +61,9 @@ const loadRegister = async(req,res,next)=>{
 
 const loadHome = async(req,res,next) => {
     try {
-        const categories = await Category.find({});
-        const products = await Product.find({});
-        const recentProducts = await Product.find({});
+        const categories = await Category.find({ is_blocked: { $ne: true } });
+        const products = await Product.find({ is_blocked: { $ne: true } });
+        const recentProducts = await Product.find({ is_blocked: { $ne: true } });
         const categoryName = req.query.id || null; 
         const userId = req.session.user_id || null
         const cart = await Cart.findOne({userId:userId})
@@ -446,9 +445,9 @@ const loadShop = async(req, res, next) => {
         const page = parseInt(req.query.page) || 1;
         const limit = 11;
 
-        const products = await Product.find({}).limit(limit).skip((page - 1) * limit).exec();
-        const count = await Product.countDocuments();
-        const categories = await Category.find({});
+        const products = await Product.find({ is_blocked: { $ne: true } }).limit(limit).skip((page - 1) * limit).exec();
+        const count = await Product.find({ is_blocked: { $ne: true } }).countDocuments();
+        const categories = await Category.find({ is_blocked: { $ne: true } });
         const userId = req.session.user_id || null
         const cart = await Cart.findOne({ userId: userId });
 

@@ -99,6 +99,24 @@
   .alert-message{
     margin-top: 11px;
   }
+  
+  /* Pagination centering styles */
+  .pagination .page-link {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 38px;
+  }
+  
+  .pagination .page-item {
+    text-align: center;
+  }
+  
+  .pagination {
+    justify-content: center;
+  }
 
 </style>
 
@@ -170,7 +188,7 @@
               </nav>
             </div>
 
-            <!-- <div class="header-right">
+            <div class="header-right">
               <div class="header-search">
                 <a href="#" class="search-toggle" role="button" title="Search"
                   ><i class="icon-search"></i
@@ -191,7 +209,7 @@
                 </form>
               </div>
               
-            </div> -->
+            </div>
           </div>
         </div>
       </header>
@@ -287,13 +305,14 @@
                           </a>
 
                           <% if (products[i].is_blocked==false) { %>
-                            <button type="button" class="btn"  style="border-radius: 5px; background-color: rgba(47, 255, 0, 0.537);border: none;" disabled>Unblock</button>
-                            <button type="button" class="btn"  style="border-radius: 5px; background-color: rgb(255, 0, 0);" onclick="blockproduct('<%= products[i]._id %>')">Block</button>
-                           
+                            <button type="button" class="btn btn-danger" onclick="toggleProductStatus('<%= products[i]._id %>', true)">
+                              <i class="fas fa-lock"></i> Block
+                            </button>
                           <% } else { %>
-                            <button type="button" class="btn"  style="border-radius: 5px; background-color: rgb(47, 255, 0);"  onclick="unBlockproduct('<%= products[i]._id %>')">Unblock</button>
-                            <button type="button" class="btn"  style="border-radius: 5px; background-color: rgba(255, 0, 0, 0.367);border: none;" disabled>Block</button>
-                            <% } %>
+                            <button type="button" class="btn btn-success" onclick="toggleProductStatus('<%= products[i]._id %>', false)">
+                              <i class="fas fa-unlock"></i> Unblock
+                            </button>
+                          <% } %>
                            
                         
                         </div>
@@ -309,27 +328,54 @@
               
             </table>
           </div>
-          <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-                <li class="page-item    <%= (currentPage == 1) ? 'disabled' : '' %>" >
-                    <a class="page-link page-link-prev" onclick="handleprevious('<%=currentPage%>')"  aria-label="Previous" tabindex="-1" aria-disabled="true" >
-                        <span aria-hidden="true"><i class="icon-long-arrow-left"></i></span>Prev
-                    </a>
-                </li>
-                              <% for( let i = 1; i <= totalPages; i++ ) { %>
-                                  <li class="page-item <%= (currentPage == i) ? 'active' : '' %>" aria-current="page"><a class="page-link" href="?page=<%= i %>"><%= i %></a></li>
-
-                              <% } %>
-                              
-  
-                <li class="page-item-total">of <%=totalPages%></li>
-                <li class="page-item <%= (currentPage == totalPages) ? 'disabled' : '' %>" >
-                    <a class="page-link page-link-next" onclick="handleNext('<%=currentPage%>')" aria-label="Next">
-                        Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+          
+          <!-- Pagination Controls Below Table -->
+          <div class="row mt-4">
+            <div class="col-12">
+              <div class="d-flex justify-content-center align-items-center">
+                <div class="pagination-controls">
+                  <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-sm mb-0" style="text-align: center;">
+                      <!-- Previous Button -->
+                      <li class="page-item <%= hasPrevPage ? '' : 'disabled' %>">
+                        <% if (hasPrevPage) { %>
+                          <a class="page-link" href="#" onclick="goToPage(<%= prevPage %>); return false;">
+                            <i class="fas fa-chevron-left"></i> Previous
+                          </a>
+                        <% } else { %>
+                          <span class="page-link disabled">
+                            <i class="fas fa-chevron-left"></i> Previous
+                          </span>
+                        <% } %>
+                      </li>
+                      
+                      <!-- Page Numbers -->
+                      <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                          <a class="page-link" href="#" onclick="goToPage(<%= i %>); return false;">
+                            <%= i %>
+                          </a>
+                        </li>
+                      <% } %>
+                      
+                      <!-- Next Button -->
+                      <li class="page-item <%= hasNextPage ? '' : 'disabled' %>">
+                        <% if (hasNextPage) { %>
+                          <a class="page-link" href="#" onclick="goToPage(<%= nextPage %>); return false;">
+                            Next <i class="fas fa-chevron-right"></i>
+                          </a>
+                        <% } else { %>
+                          <span class="page-link disabled">
+                            Next <i class="fas fa-chevron-right"></i>
+                          </span>
+                        <% } %>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          </div>
         
         </div>
       </main>
@@ -570,6 +616,222 @@
     <script src="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.13.4/sp-2.1.2/datatables.min.js"></script>
    
     <script>
+     let searchTimeout;
+    let currentPage = <%= currentPage || 1 %>;
+    let currentSearch = '<%= search || "" %>';
+    let currentLimit = <%= limit || 8 %>;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('q');
+      if (searchInput && currentSearch) {
+        searchInput.value = currentSearch;
+      }
+      initializePagination();
+    });
+
+    function initializePagination() {
+      const pagination = {
+        currentPage: <%= currentPage || 1 %>,
+        totalPages: <%= totalPages || 1 %>,
+        totalProducts: <%= totalProducts || 0 %>,
+        limit: <%= limit || 8 %>,
+        hasNextPage: <%= hasNextPage || false %>,
+        hasPrevPage: <%= hasPrevPage || false %>,
+        nextPage: <%= nextPage || 1 %>,
+        prevPage: <%= prevPage || 1 %>
+      };
+      updatePaginationControls(pagination);
+    }
+
+    async function performSearch(searchTerm) {
+      try {
+        const tbody = document.querySelector('tbody');
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 2rem;">
+              <i class="fas fa-spinner fa-spin"></i> Searching...
+            </td>
+          </tr>
+        `;
+
+        const response = await fetch(`/admin/searchproducts?search=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${currentLimit}`);
+        const data = await response.json();
+
+        if (data.success) {
+          updateTableWithResults(data.products, data.pagination, searchTerm);
+          updatePaginationControls(data.pagination);
+        } else {
+          showErrorMessage('Search failed. Please try again.');
+        }
+      } catch (error) {
+        console.error('Search error:', error);
+        showErrorMessage('Error occurred while searching');
+      }
+    }
+
+    function updateTableWithResults(products, pagination, searchTerm) {
+      const tbody = document.querySelector('tbody');
+      tbody.innerHTML = '';
+
+      if (products.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 2rem;">
+              No products found
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      products.forEach(product => {
+        const imagesHTML = product.images.map((image, j) => `
+          <div id="imageContainer${product._id}${j}" style="display: flex; align-items: center;">
+            <img id="productImage${product._id}-${j}"
+                src="${image}" 
+                alt="${image}"
+                width="40px" height="40px" style="margin-bottom: 10px;">
+            <form onsubmit="return handleDeleteImg(event, '${product._id}', '${image}', '${j}')">
+                <input type="hidden" name="productId" value="${product._id}" />
+                <input type="hidden" name="image" value="${image}" />
+                <button type="submit" id="productImageDeleteBtn${product._id}-${j}"  class="btn-danger ps-2 mx-md-5" >
+                    <i class="fa-sharp fa-solid fa-trash"></i>
+                </button>
+            </form>
+          </div>
+        `).join('');
+
+        const toggleButton = product.is_blocked ? `
+          <button type="button" class="btn btn-success" onclick="toggleProductStatus('${product._id}', false)">
+            <i class="fas fa-unlock"></i> Unblock
+          </button>
+        ` : `
+          <button type="button" class="btn btn-danger" onclick="toggleProductStatus('${product._id}', true)">
+            <i class="fas fa-lock"></i> Block
+          </button>
+        `;
+
+        const row = document.createElement('tr');
+        row.style.fontSize = 'medium';
+        row.style.textAlign = 'center';
+        row.innerHTML = `
+          <td data-title="Name">${product.productName}</td>
+          <td data-title="Category">${product.productCategory}</td>
+          <td data-title="Description">${product.productDescription}</td>
+          <td data-title="Price">${product.productPrice}</td>
+          <td data-title="No Of Stocks">${product.num_of_stocks}</td>
+          <td data-title="Image">${imagesHTML}</td>
+          <td data-title="Actions">
+            <div style="display: flex; align-items: center;">
+              <a href="/admin/editproduct?id=${product._id}" style="margin-right: 15px; margin-left: 15px; text-decoration: none;">
+                <span><i class="fa-sharp fa-solid fa-file-pen"></i></span>
+              </a>
+              ${toggleButton}
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function showErrorMessage(message) {
+      const tbody = document.querySelector('tbody');
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="text-align: center; padding: 2rem; color: red;">
+            ${message}
+          </td>
+        </tr>
+      `;
+    }
+
+    async function goToPage(page) {
+      currentPage = page;
+      await performSearch(currentSearch);
+    }
+
+    function updatePaginationControls(pagination) {
+      const paginationContainer = document.querySelector('.pagination-controls');
+      if (paginationContainer) {
+        let paginationHTML = `
+          <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0" style="text-align: center;">
+        `;
+        
+         if (pagination.hasPrevPage) {
+          paginationHTML += `
+            <li class="page-item">
+              <a class="page-link" href="#" onclick="goToPage(${pagination.prevPage}); return false;">
+                <i class="fas fa-chevron-left"></i> Previous
+              </a>
+            </li>
+          `;
+        } else {
+          paginationHTML += `
+            <li class="page-item disabled">
+              <span class="page-link disabled">
+                <i class="fas fa-chevron-left"></i> Previous
+              </span>
+            </li>
+          `;
+        }
+        
+         for (let i = 1; i <= pagination.totalPages; i++) {
+          const activeClass = i === pagination.currentPage ? 'active' : '';
+          paginationHTML += `
+            <li class="page-item ${activeClass}">
+              <a class="page-link" href="#" onclick="goToPage(${i}); return false;">
+                ${i}
+              </a>
+            </li>
+          `;
+        }
+        
+         if (pagination.hasNextPage) {
+          paginationHTML += `
+            <li class="page-item">
+              <a class="page-link" href="#" onclick="goToPage(${pagination.nextPage}); return false;">
+                Next <i class="fas fa-chevron-right"></i>
+              </a>
+            </li>
+          `;
+        } else {
+          paginationHTML += `
+            <li class="page-item disabled">
+              <span class="page-link disabled">
+                Next <i class="fas fa-chevron-right"></i>
+              </span>
+            </li>
+          `;
+        }
+        
+        paginationHTML += `
+            </ul>
+          </nav>
+        `;
+        
+        paginationContainer.innerHTML = paginationHTML;
+      }
+    }
+
+      document.getElementById('q').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.trim();
+        
+        if (searchTimeout) {
+          clearTimeout(searchTimeout);
+        }
+        currentPage = 1;
+        searchTimeout = setTimeout(() => {
+          performSearch(searchTerm);
+        }, 1000);
+      });
+
+      document.getElementById('q').addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          e.target.value = '';
+          performSearch('');
+        }
+      });
 
 async function handleDeleteImg(e, productId, productImg, i) {
   e.preventDefault(); 
@@ -633,28 +895,63 @@ async function handleDeleteImg(e, productId, productImg, i) {
 }
    
 
-      function blockproduct(productId){
-        fetch('/admin/blockproduct',{
-          method:'POST',
-          headers:{
-            'Content-type':'application/json'
-          },
-          body: JSON.stringify({productId})
+      async function toggleProductStatus(productId, shouldBlock) {
+        const action = shouldBlock ? 'block' : 'unblock';
+        const actionText = shouldBlock ? 'block' : 'unblock';
+        const confirmText = shouldBlock ? 'block this product' : 'unblock this product';
+        
+        try {
+          const result = await Swal.fire({
+            title: `Are you sure?`,
+            text: `You want to ${confirmText}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: shouldBlock ? '#d33' : '#28a745',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: `Yes, ${actionText} it!`,
+            cancelButtonText: 'Cancel'
+          });
 
-        })
-        window.location.reload()
+          if (result.isConfirmed) {
+            const endpoint = shouldBlock ? '/admin/blockproduct' : '/admin/unblockproduct';
+            const response = await fetch(endpoint, {
+              method: 'POST',
+              headers: {
+                'Content-type': 'application/json'
+              },
+              body: JSON.stringify({ productId })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+              await Swal.fire({
+                title: 'Success!',
+                text: `Product ${actionText}ed successfully`,
+                icon: 'success',
+                timer: 2000,
+                timerProgressBar: true
+              });
+              
+              await performSearch(currentSearch);
+            } else {
+              await Swal.fire({
+                title: 'Error!',
+                text: data.error || `Failed to ${actionText} product`,
+                icon: 'error'
+              });
+            }
+          }
+        } catch (error) {
+          console.error(`Error ${action}ing product:`, error);
+          await Swal.fire({
+            title: 'Error!',
+            text: `An error occurred while ${action}ing the product`,
+            icon: 'error'
+          });
+        }
       }
 
-      function unBlockproduct(productId){
-        fetch('/admin/unblockproduct',{
-          method:'POST',
-        headers:{
-          'Content-type':'application/json'
-        },
-        body: JSON.stringify({productId})
-        })
-        window.location.reload()
-      }
       
 
       document.addEventListener("DOMContentLoaded", function() {

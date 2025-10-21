@@ -195,11 +195,39 @@ const loadOrderedList = async (req,res,next) => {
 const loadProductsList = async(req,res,next)=>{
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 8;
+        const limit = parseInt(req.query.limit) || 8;
+        const search = req.query.search || '';
+        
+        let searchQuery = {};
+        if (search) {
+            searchQuery = {
+                $or: [
+                    { productName: { $regex: search, $options: 'i' } },
+                    { productCategory: { $regex: search, $options: 'i' } }
+                ]
+            };
+        }
 
-        const products = await Product.find({}).limit(limit*2).skip((page-1)*limit).exec()
-        const count = await Product.find({}).countDocuments()
-        res.render('productslist',{products,totalPages:Math.ceil(count/limit),currentPage:page})
+        const totalProducts = await Product.countDocuments(searchQuery);
+        const totalPages = Math.ceil(totalProducts / limit);
+        
+        const products = await Product.find(searchQuery)
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .sort({ createdAt: -1 });
+
+        res.render('productslist', {
+            products,
+            currentPage: page,
+            totalPages,
+            totalProducts,
+            limit,
+            search,
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1,
+            nextPage: page + 1,
+            prevPage: page - 1
+        });
         
     } catch (error) {
         next(error);
@@ -208,21 +236,233 @@ const loadProductsList = async(req,res,next)=>{
 
 const loadUserLists = async(req,res,next)=>{
     try {
-        const users = await User.find({})
-        res.render('userslist',{users})
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+        
+        let searchQuery = {};
+        if (search) {
+            searchQuery = {
+                $or: [
+                    { name: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } }
+                ]
+            };
+        }
+
+        const totalUsers = await User.countDocuments(searchQuery);
+        const totalPages = Math.ceil(totalUsers / limit);
+        
+        const users = await User.find(searchQuery)
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .sort({ createdAt: -1 });
+
+        res.render('userslist', {
+            users,
+            currentPage: page,
+            totalPages,
+            totalUsers,
+            limit,
+            search,
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1,
+            nextPage: page + 1,
+            prevPage: page - 1
+        });
         
     } catch (error) {
         next(error);
     }
 }
 
+const searchUsers = async(req,res)=>{
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+        
+        let searchQuery = {};
+        if (search) {
+            searchQuery = {
+                $or: [
+                    { name: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } }
+                ]
+            };
+        }
+
+        const totalUsers = await User.countDocuments(searchQuery);
+        const totalPages = Math.ceil(totalUsers / limit);
+        
+        const users = await User.find(searchQuery)
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .sort({ createdAt: -1 });
+
+        res.json({
+            success: true,
+            users: users,
+            pagination: {
+                currentPage: page,
+                totalPages,
+                totalUsers,
+                limit,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1,
+                nextPage: page + 1,
+                prevPage: page - 1
+            },
+            search: search
+        });
+        
+    } catch (error) {
+        console.error('Search users error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error searching users'
+        });
+    }
+}
+
+const searchProducts = async(req,res)=>{
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 8;
+        const search = req.query.search || '';
+        
+        
+        let searchQuery = {};
+        if (search) {
+            searchQuery = {
+                $or: [
+                    { productName: { $regex: search, $options: 'i' } },
+                    { productCategory: { $regex: search, $options: 'i' } }
+                ]
+            };
+        }
+
+        const totalProducts = await Product.countDocuments(searchQuery);
+        const totalPages = Math.ceil(totalProducts / limit);
+        
+        
+        const products = await Product.find(searchQuery)
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .sort({ createdAt: -1 });
+
+        res.json({
+            success: true,
+            products: products,
+            pagination: {
+                currentPage: page,
+                totalPages,
+                totalProducts,
+                limit,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1,
+                nextPage: page + 1,
+                prevPage: page - 1
+            },
+            search: search
+        });
+        
+    } catch (error) {
+        console.error('Search products error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error searching products'
+        });
+    }
+}
+
 const loadCategoryList = async(req,res,next)=>{
     try {
-        const categories = await Category.find({})
-        res.render('categorylist',{categories})
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+        
+        let searchQuery = {};
+        if (search) {
+            searchQuery = {
+                categoryName: { $regex: search, $options: 'i' }
+            };
+        }
+
+        const totalCategories = await Category.countDocuments(searchQuery);
+        const totalPages = Math.ceil(totalCategories / limit);
+        
+        const categories = await Category.find(searchQuery)
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .sort({ createdAt: -1 });
+
+        const hasNextPage = page < totalPages;
+        const hasPrevPage = page > 1;
+        const nextPage = page + 1;
+        const prevPage = page - 1;
+
+        res.render('categorylist', {
+            categories,
+            currentPage: page,
+            totalPages,
+            totalCategories,
+            limit,
+            search,
+            hasNextPage,
+            hasPrevPage,
+            nextPage,
+            prevPage
+        });
         
     } catch (error) {
         next(error);
+    }
+}
+
+const searchCategories = async(req,res)=>{
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+        
+        let searchQuery = {};
+        if (search) {
+            searchQuery = {
+                categoryName: { $regex: search, $options: 'i' }
+            };
+        }
+
+        const totalCategories = await Category.countDocuments(searchQuery);
+        const totalPages = Math.ceil(totalCategories / limit);
+        
+        const categories = await Category.find(searchQuery)
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .sort({ createdAt: -1 });
+
+        res.json({
+            success: true,
+            categories: categories,
+            pagination: {
+                currentPage: page,
+                totalPages,
+                totalCategories,
+                limit,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1,
+                nextPage: page + 1,
+                prevPage: page - 1
+            },
+            search: search
+        });
+        
+    } catch (error) {
+        console.error('Search categories error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error searching categories'
+        });
     }
 }
 
@@ -274,8 +514,6 @@ const editProduct = async (req,res,next) => {
     try {
        
         const productId = req.body.id; 
-        const product = await Product.findOne({_id:productId})
-        const categories = await Category.find({})
        
         const existingProduct = await Product.findById(productId);
         if (req.body.productName.trim() === "") {
@@ -409,16 +647,16 @@ const unBlockUser = async(req,res,next)=>{
         const userdata = await User.findOne({_id:userId})
         if(userdata){
             var resp = await User.updateOne({_id:userId},{$set:{is_blocked:0}})
+            if(resp.modifiedCount > 0){
+                return res.status(200).json({success: true, message: 'User unblocked successfully'})
+            } else {
+                return res.status(400).json({success: false, message: 'Failed to unblock user'})
+            }
         }else{
-            console.log("something went wrong");
+            return res.status(404).json({success: false, message: 'User not found'})
         }
-      
-       
-
-        
     } catch (error) {
         next(error);
-
     }
 }
 
@@ -429,11 +667,14 @@ const BlockUser = async(req,res,next)=>{
         const userdata = await User.findOne({_id:userId})
         if(userdata){
             var resp = await User.updateOne({_id:userId},{$set:{is_blocked:1}})
+            if(resp.modifiedCount > 0){
+                return res.status(200).json({success: true, message: 'User blocked successfully'})
+            } else {
+                return res.status(400).json({success: false, message: 'Failed to block user'})
+            }
         }else{
-            console.log("something went wrong");
+            return res.status(404).json({success: false, message: 'User not found'})
         }
-      
-        
     } catch (error) {
         next(error);
     }
@@ -558,7 +799,6 @@ const addProduct = async(req,res,next)=>{
         const productPrice = req.body.productPrice.trim()
         const productStocks = req.body.productStocks.trim()
         const productDescription = req.body.productDescription.trim()
-        const category = await Category.find({})
 
 
    
@@ -608,7 +848,7 @@ const addProduct = async(req,res,next)=>{
 
 
 
-const blockProduct = async(req,res,next)=>{
+const blockProduct = async(req,res)=>{
     try {
         const productId = req.body.productId
         const product = await Product.findByIdAndUpdate(
@@ -621,17 +861,18 @@ const blockProduct = async(req,res,next)=>{
             return res.status(200).json({ success: false, error: 'Product not found' });
           }
 
-
+          res.json({ success: true, message: 'Product blocked successfully' });
         
     } catch (error) {
-        next(error);
+        console.error('Error blocking product:', error);
+        res.status(500).json({ success: false, error: 'Error blocking product' });
     }
 }
 
 
 
 
-const unBlockProduct = async(req,res,next)=>{
+const unBlockProduct = async(req,res)=>{
     try {
         const productId = req.body.productId
         const product = await Product.findByIdAndUpdate(
@@ -644,10 +885,11 @@ const unBlockProduct = async(req,res,next)=>{
             return res.status(200).json({ success: false, error: 'Product not found' });
           }
 
-
+          res.json({ success: true, message: 'Product unblocked successfully' });
         
     } catch (error) {
-        next(error);
+        console.error('Error unblocking product:', error);
+        res.status(500).json({ success: false, error: 'Error unblocking product' });
     }
 }
 
@@ -657,9 +899,10 @@ const unBlockProduct = async(req,res,next)=>{
 
 
 
-const blockCategory = async(req,res,next)=>{
+const blockCategory = async(req,res)=>{
     try {
         const categoryId = req.body.categoryId
+        
         const blockcategory = await Category.findByIdAndUpdate(
             categoryId, 
             { is_blocked: true }, 
@@ -667,22 +910,24 @@ const blockCategory = async(req,res,next)=>{
           );       
           
           if (!blockcategory) {
-            return res.status(200).json({ success: false, error: 'Product not found' });
+            return res.status(200).json({ success: false, error: 'Category not found' });
           }
 
-
+          res.json({ success: true, message: 'Category blocked successfully' });
         
     } catch (error) {
-        next(error);
+        console.error('Error blocking category:', error);
+        res.status(500).json({ success: false, error: 'Error blocking category' });
     }
 }
 
 
 
 
-const unblockCategory = async(req,res,next)=>{
+const unblockCategory = async(req,res)=>{
     try {
         const categoryId = req.body.categoryId
+        
         const unblockcategory = await Category.findByIdAndUpdate(
             categoryId, 
             { is_blocked: false }, 
@@ -690,13 +935,14 @@ const unblockCategory = async(req,res,next)=>{
           );       
           
           if (!unblockcategory) {
-            return res.status(200).json({ success: false, error: 'Product not found' });
+            return res.status(200).json({ success: false, error: 'Category not found' });
           }
 
-
+          res.json({ success: true, message: 'Category unblocked successfully' });
         
     } catch (error) {
-        next(error);
+        console.error('Error unblocking category:', error);
+        res.status(500).json({ success: false, error: 'Error unblocking category' });
     }
 }
 
@@ -1413,7 +1659,7 @@ const deleteCategoryOffer = async (req, res, next) => {
         const offerId = req.body.categoryofferId;
         const offer = await Offer.CategoryOffer.findOne({_id:new mongoose.Types.ObjectId(offerId)}); 
         const category = offer.categoryName; 
-        const update = await Category.findOneAndUpdate({ categoryName: category },{ $set:{ categoryOfferPercentage: 0 } },{ new: true });     
+        await Category.findOneAndUpdate({ categoryName: category },{ $set:{ categoryOfferPercentage: 0 } },{ new: true });     
          const findProducts = await Product.find({ productCategory: category });
 
         const savePromises = findProducts.map(async (product) => {
@@ -1507,7 +1753,7 @@ const editCoupon = async (req, res, next) => {
 
 
 
-const blockCoupon = async (req,res,next)=>{
+const blockCoupon = async (req,res)=>{
     try {
         const couponId = req.body.couponId;
         const coupon = await Coupon.findOne({_id:couponId})
@@ -1528,7 +1774,7 @@ const blockCoupon = async (req,res,next)=>{
 }
 
 
-const unBlockCoupon = async (req,res,next)=>{
+const unBlockCoupon = async (req,res)=>{
     try {
         const couponId = req.body.couponId;
         const coupon = await Coupon.findOne({_id:couponId})
@@ -1901,7 +2147,10 @@ module.exports ={
     loadSalesReport,
     loadProductsList,
     loadUserLists,
+    searchUsers,
+    searchProducts,
     loadCategoryList,
+    searchCategories,
     loadAddCategory,
     loadProductsLists,
     loadAddProduct,
