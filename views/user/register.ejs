@@ -596,17 +596,20 @@
         }
 
         function validatePhone() {
-            const phone = document.getElementById('register-phone').value;
-            const error = document.getElementById('phoneError');
+    const phone = document.getElementById('register-phone').value;
+    const error = document.getElementById('phoneError');
 
-            const phonePattern = /^\d+$/;
+    const phonePattern = /^\d{10}$/; 
 
-            if (!phonePattern.test(phone)) {
-                error.textContent = 'Phone number must contain only numbers.';
-            } else {
-                error.textContent = '';
-            }
-        }
+    if (!phonePattern.test(phone)) {
+        error.textContent = 'Phone number must contain exactly 10 digits.';
+    } else if (/^(\d)\1{9}$/.test(phone)) { 
+        error.textContent = 'Please enter a valid phone number.';
+    } else {
+        error.textContent = '';
+    }
+}
+
 
         function validateEmail() {
             const email = document.getElementById('register-email').value;
